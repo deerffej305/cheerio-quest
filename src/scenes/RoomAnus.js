@@ -4,6 +4,7 @@ import { scoreManager } from '../systems/ScoreManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import ConstipationBlocker from '../entities/hazards/ConstipationBlocker.js';
+import PoopDisplacer from '../entities/enemies/PoopDisplacer.js';
 
 // Room 6 — Anus (The Constipation Maze). Final room. The player
 // navigates the maze and stands on the one exit tile when a fart
@@ -45,6 +46,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.buildMaze();
     this.spawnCheerio();
     this.spawnBlockers();
+    this.spawnPoopDisplacers();
     this.spawnExitTile();
     this.spawnHud();
     this.startFartCycle();
@@ -114,6 +116,39 @@ export default class RoomAnus extends Phaser.Scene {
       this.physics.add.collider(this.cheerio.sprite, b.sprite);
       if (pushable) this.physics.add.collider(b.sprite, this.platforms);
       this.blockers.push(b);
+    }
+  }
+
+  // --- Poop displacers (patrolling shovers) ----------------------
+
+  spawnPoopDisplacers() {
+    // Patrol several ledges. No damage on contact — just shove the
+    // cheerio in the displacer's direction of motion with a small
+    // upward pop, per the design's "displacement only" rule.
+    this.displacers = [];
+    const specs = [
+      { x: 320, y: 440, range: [200, 460] },         // floor near entry
+      { x: 540, y: 330, range: [460, 620] },         // mid ledge
+      { x: 820, y: 440, range: [740, 900] },         // floor between exit ramp
+      { x: 700, y: 170, range: [640, 760] },         // high ledge
+      { x: 980, y: 220, range: [920, 1040] },        // top-right ledge near exit tile
+    ];
+    for (const { x, y, range } of specs) {
+      const d = new PoopDisplacer(this, x, y, { rangeLeft: range[0], rangeRight: range[1] });
+      this.physics.add.collider(d.sprite, this.platforms);
+      this.physics.add.collider(this.cheerio.sprite, d.sprite, () => this.handleDisplacerContact(d));
+      this.displacers.push(d);
+    }
+  }
+
+  handleDisplacerContact(d) {
+    if (!d.alive || !this.cheerio.alive) return;
+    // Stomping does nothing — these aren't damageable enemies, and
+    // they aren't damaging in return. Just shove.
+    const direction = d.isMovingRight() ? 1 : -1;
+    this.cheerio.body.setVelocityX(direction * 320);
+    if (this.cheerio.body.blocked.down) {
+      this.cheerio.body.setVelocityY(-220);
     }
   }
 
@@ -247,6 +282,8 @@ export default class RoomAnus extends Phaser.Scene {
   update(_time, delta) {
     if (this.cheerio) this.cheerio.update(delta);
     if (this.phase !== 'play') return;
+
+    for (const d of this.displacers) d.update();
 
     const remaining = this.nextFartAt - this.time.now;
     if (remaining <= COUNTDOWN_MS && remaining > 0) {

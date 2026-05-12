@@ -16,7 +16,10 @@ export default class FiberToken {
     this.sprite.fiberToken = this;
 
     this.baseY = y;
-    scene.tweens.add({
+    // Hold an explicit reference so we can stop the bob deterministically
+    // on pickup — killTweensOf with infinite-repeat tweens has been
+    // flaky in practice.
+    this.bobTween = scene.tweens.add({
       targets: this.sprite,
       y: y - 6,
       duration: 700,
@@ -29,8 +32,20 @@ export default class FiberToken {
   collect() {
     if (this.collected) return;
     this.collected = true;
-    this.sprite.body.enable = false;
+    if (this.sprite.body) this.sprite.body.enable = false;
+
+    // Stop the infinite bob explicitly, then kill any other tweens
+    // that might be touching this sprite.
+    if (this.bobTween) {
+      this.bobTween.stop();
+      this.bobTween.remove();
+      this.bobTween = null;
+    }
     this.scene.tweens.killTweensOf(this.sprite);
+
+    // Pickup pop animation. Don't rely on tween onComplete to
+    // destroy — schedule the destroy on the time plugin so a
+    // mid-frame scene shutdown can't strand the cleanup.
     this.scene.tweens.add({
       targets: this.sprite,
       y: this.sprite.y - 30,
@@ -38,7 +53,9 @@ export default class FiberToken {
       scaleX: 1.6,
       scaleY: 1.6,
       duration: 350,
-      onComplete: () => this.sprite.destroy(),
+    });
+    this.scene.time.delayedCall(360, () => {
+      if (this.sprite && this.sprite.scene) this.sprite.destroy();
     });
   }
 }

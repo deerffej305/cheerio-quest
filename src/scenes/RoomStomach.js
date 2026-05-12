@@ -180,9 +180,10 @@ export default class RoomStomach extends Phaser.Scene {
 
   spawnFiberToken() {
     // Per design: "On a platform near the acid floor — risky to
-    // reach." Plant it on a low food chunk, near the middle of the
-    // room so it's a real detour from the main path.
-    const lowSpot = this.foodPlatforms[9]; // y=430, near acid
+    // reach." Plant it on a STABLE low food chunk (not a
+    // dissolving one) so the pickup doesn't race the platform's
+    // dissolve timer.
+    const lowSpot = this.foodPlatforms[4]; // y=470, dissolves=false, near acid
     this.fiberToken = new FiberToken(this, lowSpot.sprite.x, lowSpot.sprite.y - 26);
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
   }

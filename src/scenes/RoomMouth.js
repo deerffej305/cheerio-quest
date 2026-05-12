@@ -179,32 +179,41 @@ export default class RoomMouth extends Phaser.Scene {
       this.bacteria.push(b);
     }
 
-    // Row of chomping teeth across the front of the mouth. The tongue
-    // lunges from the back-right and pushes the player toward this
-    // row — catching a chomp is the damage source. Phases are
-    // staggered so the player gets timing windows to dash through.
+    // Two pairs of chomping teeth across the front of the mouth.
+    // The tongue's lunge pushes the player toward this row —
+    // catching a chomp is the damage source. Offsets are a half
+    // cycle apart (open phase is 1700ms) so when one is open the
+    // other is closing.
     const teethPositions = [
-      { x: 260, offset: 0 },
-      { x: 380, offset: 900 },
-      { x: 500, offset: 1800 },
-      { x: 620, offset: 2700 },
+      { x: 320, offset: 0 },
+      { x: 540, offset: 1400 },
     ];
     this.teethRow = teethPositions.map(({ x, offset }) =>
-      new ChompingTeeth(this, x, FLOOR_Y, CEILING_Y + 40, { width: 70, phaseOffset: offset })
+      new ChompingTeeth(this, x, FLOOR_Y, CEILING_Y + 40, { width: 80, phaseOffset: offset })
     );
   }
 
   spawnTongueBoss() {
-    // Big, thick tongue. Sweeps from the back-right almost all the
-    // way to the teeth row so a caught player gets shoved into it.
+    // Tongue is ~500px wide at full extension. It lunges left
+    // (away from the base), then curls UP flicking the roof of
+    // the mouth like a real tongue, then snaps back. See TongueBoss
+    // for the state machine.
     this.tongue = new TongueBoss(this, TONGUE_ANCHOR_X, FLOOR_Y, {
-      reachX: 700,
+      reach: 500,
       height: 56,
       baseW: TONGUE_BASE_W,
       baseH: TONGUE_BASE_H,
     });
-    // Overlap drives stomp / push verdicts while the tongue is active.
-    this.physics.add.overlap(this.cheerio.sprite, this.tongue.tongue, () => this.handleTongueContact());
+    // Overlap drives stomp / push verdicts while the tongue is in
+    // its horizontal (lunging-out or hold-flat) phases — once it
+    // curls up out of the floor zone, the tongue is no longer a
+    // threat and the player can't reach it to stomp.
+    this.physics.add.overlap(
+      this.cheerio.sprite,
+      this.tongue.tongue,
+      () => this.handleTongueContact(),
+      () => this.tongue.isHorizontal(),
+    );
     // Once slouched, the tongue body becomes a solid platform — the
     // ramp the player runs over to reach the exit on top of the base.
     // processCallback gates the collision: ignored until isDead().

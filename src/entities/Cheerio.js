@@ -23,6 +23,7 @@ export default class Cheerio {
     this.state = 'big';
     this.lastGroundedAt = 0;
     this.invulnUntil = 0;
+    this.displacedUntil = 0;
     this.alive = true;
 
     this.sprite = scene.add.rectangle(x, y, BIG_SIZE, BIG_SIZE, BIG_COLOR);
@@ -65,12 +66,18 @@ export default class Cheerio {
       return;
     }
 
-    if (this.input.isLeftDown()) {
-      body.setVelocityX(-MOVE_SPEED);
-    } else if (this.input.isRightDown()) {
-      body.setVelocityX(MOVE_SPEED);
-    } else {
-      body.setVelocityX(0);
+    // During a displacement window (e.g., a poop displacer shoved
+    // us), don't touch velocityX — let the externally applied push
+    // actually carry us before player input takes back over.
+    const displaced = now < this.displacedUntil;
+    if (!displaced) {
+      if (this.input.isLeftDown()) {
+        body.setVelocityX(-MOVE_SPEED);
+      } else if (this.input.isRightDown()) {
+        body.setVelocityX(MOVE_SPEED);
+      } else {
+        body.setVelocityX(0);
+      }
     }
 
     const inCoyoteWindow = now - this.lastGroundedAt <= COYOTE_MS;
@@ -86,6 +93,14 @@ export default class Cheerio {
     } else if (this.sprite.alpha !== 1) {
       this.sprite.setAlpha(1);
     }
+  }
+
+  // External push (e.g., poop displacer) — sets velocity AND holds
+  // input-control off for a short window so the impulse can carry.
+  applyDisplacement(vx, vy = null, durationMs = 280) {
+    this.body.setVelocityX(vx);
+    if (vy != null) this.body.setVelocityY(vy);
+    this.displacedUntil = this.scene.time.now + durationMs;
   }
 
   isStomping(targetTopY) {

@@ -77,7 +77,9 @@ export default class RoomAnus extends Phaser.Scene {
     this.platforms.add(rightWall);
 
     // Maze ledges — a few platforms forming corridors. The player
-    // can climb up/down between them.
+    // can climb up/down between them. The last entry is the
+    // "exit perch" in the upper-right corner: the highest spot in
+    // the room and the destination during a fart.
     const ledges = [
       { x: 280, y: 470, w: 200 },
       { x: 540, y: 360, w: 200 },
@@ -86,6 +88,7 @@ export default class RoomAnus extends Phaser.Scene {
       { x: 380, y: 250, w: 160 },
       { x: 700, y: 200, w: 160 },
       { x: 980, y: 250, w: 160 },
+      { x: 1130, y: 140, w: 150 }, // upper-right exit perch
     ];
     for (const { x, y, w } of ledges) {
       const p = this.add.rectangle(x, y, w, 18, 0x6a3010);
@@ -138,7 +141,7 @@ export default class RoomAnus extends Phaser.Scene {
       { x: 1100, y: 600, range: [960, 1240] },  // floor far-right
       // Mid-tier ledges (y=360)
       { x: 540, y: 340, range: [460, 620] },    // ledge 2 (mid)
-      { x: 1080, y: 340, range: [1020, 1140] }, // ledge 4 (mid-right, under exit tile)
+      { x: 1080, y: 340, range: [1020, 1140] }, // ledge 4 (mid-right, climb path)
       // Top-tier ledges (y=200..250)
       { x: 380, y: 230, range: [320, 440] },    // ledge 5 (high-left)
       { x: 700, y: 170, range: [640, 760] },    // ledge 6 (highest)
@@ -155,26 +158,26 @@ export default class RoomAnus extends Phaser.Scene {
   handleDisplacerContact(d) {
     if (!d.alive || !this.cheerio.alive) return;
     // Stomping does nothing — these aren't damageable enemies, and
-    // they aren't damaging in return. Just shove.
+    // they aren't damaging in return. Just shove. applyDisplacement
+    // holds the player's input-driven velocity reset off for the
+    // shove window so the push actually carries.
     const direction = d.isMovingRight() ? 1 : -1;
-    this.cheerio.body.setVelocityX(direction * 320);
-    if (this.cheerio.body.blocked.down) {
-      this.cheerio.body.setVelocityY(-220);
-    }
+    const popVy = this.cheerio.body.blocked.down ? -220 : null;
+    this.cheerio.applyDisplacement(direction * 360, popVy, 320);
   }
 
   // --- Exit tile (the one safe spot during a fart) ---------------
 
   spawnExitTile() {
-    // Place the exit tile high up at the right — only one tile.
-    // Visually a glowing green pad.
-    this.exitTileX = 1080;
-    this.exitTileY = 350;
-    this.exitTile = this.add.rectangle(this.exitTileX, this.exitTileY - 12, 70, 8, 0xa0ffa0);
+    // Exit tile sits on top of the upper-right exit perch (the
+    // highest platform in the room). Visually a glowing green pad
+    // hovering just above the perch's surface.
+    this.exitTileX = 1130;
+    this.exitTileY = 131;       // top of perch is y = 140 - 9 = 131
+    this.exitTile = this.add.rectangle(this.exitTileX, this.exitTileY - 6, 80, 8, 0xa0ffa0);
     this.exitTile.setStrokeStyle(2, 0x40ff80);
-    this.scene.add ?? null; // no-op, kept for tweens setup below
 
-    this.add.text(this.exitTileX, this.exitTileY - 36, 'EXIT TILE', {
+    this.add.text(this.exitTileX, this.exitTileY - 26, 'EXIT TILE', {
       fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#a0ffa0', fontStyle: 'bold',
     }).setOrigin(0.5);
 
@@ -219,16 +222,15 @@ export default class RoomAnus extends Phaser.Scene {
   }
 
   triggerFart() {
-    // Check if the cheerio is standing on the exit tile when the
-    // fart fires. "On" = within ±40 px horizontally of the tile
-    // center AND body bottom landed on the ledge the tile marks.
-    // Threshold is loose on Y so any Big-or-Small cheerio standing
-    // on the ledge underneath counts (the tile is a visual marker
-    // floating above the ledge).
+    // Check if the cheerio is standing on the exit perch when the
+    // fart fires. The green tile is a visual marker floating above
+    // the perch surface; what matters is the cheerio's body bottom
+    // resting on the perch top at y ≈ 131 — within ±20 px.
     const dx = Math.abs(this.cheerio.x - this.exitTileX);
-    const onTile = dx < 40
-      && this.cheerio.body.bottom > this.exitTileY - 30
-      && this.cheerio.body.bottom < this.exitTileY + 20;
+    const perchTop = this.exitTileY;
+    const onTile = dx < 50
+      && this.cheerio.body.bottom > perchTop - 4
+      && this.cheerio.body.bottom < perchTop + 20;
 
     if (onTile) {
       this.launchVictory();

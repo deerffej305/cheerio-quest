@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import GameModeScene from './scenes/GameModeScene.js';
+import RoomMouth from './scenes/RoomMouth.js';
+import HudScene from './scenes/HudScene.js';
 import QuizScene from './scenes/QuizScene.js';
 import LeaderboardScene from './scenes/LeaderboardScene.js';
 
@@ -26,7 +28,14 @@ const config = {
       debug: false,
     },
   },
-  scene: [BootScene, TitleScene, GameModeScene, QuizScene, LeaderboardScene],
+  // Use setTimeout instead of requestAnimationFrame so the game keeps
+  // ticking when the preview iframe is backgrounded (RAF is throttled
+  // by the browser in hidden tabs). No visual impact when foregrounded.
+  fps: {
+    forceSetTimeOut: true,
+    target: 60,
+  },
+  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, HudScene, QuizScene, LeaderboardScene],
 };
 
 const game = new Phaser.Game(config);

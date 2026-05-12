@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../main.js';
+import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 
 export default class LeaderboardScene extends Phaser.Scene {
   constructor() {

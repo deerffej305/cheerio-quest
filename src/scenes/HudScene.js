@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../main.js';
+import { GAME_WIDTH } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
 
 // Overlay scene. Runs in parallel with the active room scene, fixed

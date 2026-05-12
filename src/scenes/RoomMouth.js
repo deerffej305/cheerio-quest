@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH, GAME_HEIGHT } from '../main.js';
+import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
@@ -387,10 +387,12 @@ export default class RoomMouth extends Phaser.Scene {
   completeRoom() {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
-    this.hud()?.flash('ROOM CLEARED — Esophagus next (placeholder)', 2400);
-    this.time.delayedCall(2300, () => {
-      this.scene.stop('Hud');
-      this.scene.start('Title');
+    this.hud()?.flash('ROOM CLEARED — to the esophagus!', 1800);
+    // TODO: insert end-of-room quiz here once the Quiz scene ships.
+    // For now, route straight into Room 2 so the play-through is
+    // testable end-to-end.
+    this.time.delayedCall(1900, () => {
+      this.scene.start('RoomEsophagus');
     });
   }
 

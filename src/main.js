@@ -3,12 +3,11 @@ import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import GameModeScene from './scenes/GameModeScene.js';
 import RoomMouth from './scenes/RoomMouth.js';
+import RoomEsophagus from './scenes/RoomEsophagus.js';
 import HudScene from './scenes/HudScene.js';
 import QuizScene from './scenes/QuizScene.js';
 import LeaderboardScene from './scenes/LeaderboardScene.js';
-
-export const GAME_WIDTH = 1280;
-export const GAME_HEIGHT = 720;
+import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -35,7 +34,7 @@ const config = {
     forceSetTimeOut: true,
     target: 60,
   },
-  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, HudScene, QuizScene, LeaderboardScene],
+  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, HudScene, QuizScene, LeaderboardScene],
 };
 
 const game = new Phaser.Game(config);

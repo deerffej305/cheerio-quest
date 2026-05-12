@@ -17,7 +17,7 @@ const EXIT_Y = ROOM_HEIGHT - 120;                  // 3080
 // Slow the fall so the player has time to read each ring's gap and
 // nudge sideways. Default Cheerio max y velocity is 1600 (built for
 // platformer drops) — way too fast for a 3200-tall tube.
-const ESOPHAGUS_TERMINAL_VY = 320;
+const ESOPHAGUS_TERMINAL_VY = 250;
 
 export default class RoomEsophagus extends Phaser.Scene {
   constructor() {

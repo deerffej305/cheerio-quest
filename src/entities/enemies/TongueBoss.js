@@ -30,12 +30,14 @@ const DURATIONS = {
 };
 
 export default class TongueBoss {
-  constructor(scene, anchorX, floorY, { reachX, height = 56, maxHp = 4 } = {}) {
+  constructor(scene, anchorX, floorY, { reachX, height = 56, maxHp = 4, baseW = 120, baseH = 80 } = {}) {
     this.scene = scene;
     this.anchorX = anchorX;
     this.floorY = floorY;
     this.tipMinX = reachX ?? anchorX - 460;
     this.height = height;
+    this.baseW = baseW;
+    this.baseH = baseH;
     this.hp = maxHp;
     this.maxHp = maxHp;
     this.state = STATES.IDLE;
@@ -43,8 +45,6 @@ export default class TongueBoss {
 
     // The base — a solid pink hunk at the back-right of the mouth
     // that stays put. The tongue extends from its left edge.
-    const baseW = 120;
-    const baseH = 80;
     this.base = scene.add.rectangle(anchorX - baseW / 2, floorY - baseH / 2, baseW, baseH, 0xa05060);
 
     // The tongue body. Width animates between 0 and (anchorX - tipMinX).
@@ -193,8 +193,10 @@ export default class TongueBoss {
     this.tongue.fillColor = 0x884050;
     this.setExtent(1);
     this.tongue.body.setImmovable(true);
-    this.hpText.setText('TONGUE DOWN');
-    this.hpText.setColor('#90ff90');
+    // Hide the HP label — the unlocked exit door communicates "you
+    // won" more clearly than a redundant TONGUE DOWN message that
+    // visually collides with the door.
+    this.hpText.setVisible(false);
   }
 
   isDead() {

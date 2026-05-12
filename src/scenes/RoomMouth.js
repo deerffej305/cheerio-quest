@@ -13,7 +13,14 @@ const ROOM_WIDTH = 2400;
 const FLOOR_Y = 640;
 const CEILING_Y = 100;
 const SPAWN_X = 80;
-const EXIT_X = 2300;
+// Exit (swallow) sits on top of the tongue's base. After slouching
+// the tongue, the player runs over it (per the design doc) and
+// hops up onto the base to reach the door.
+const TONGUE_ANCHOR_X = 2320;
+const TONGUE_BASE_W = 120;
+const TONGUE_BASE_H = 80;
+const EXIT_X = TONGUE_ANCHOR_X - TONGUE_BASE_W / 2; // 2260
+const EXIT_Y = FLOOR_Y - TONGUE_BASE_H - 60;        // 500 — door center sits above the base
 
 export default class RoomMouth extends Phaser.Scene {
   constructor() {
@@ -190,11 +197,26 @@ export default class RoomMouth extends Phaser.Scene {
   spawnTongueBoss() {
     // Big, thick tongue. Sweeps from the back-right almost all the
     // way to the teeth row so a caught player gets shoved into it.
-    this.tongue = new TongueBoss(this, ROOM_WIDTH - 80, FLOOR_Y, {
+    this.tongue = new TongueBoss(this, TONGUE_ANCHOR_X, FLOOR_Y, {
       reachX: 700,
       height: 56,
+      baseW: TONGUE_BASE_W,
+      baseH: TONGUE_BASE_H,
     });
+    // Overlap drives stomp / push verdicts while the tongue is active.
     this.physics.add.overlap(this.cheerio.sprite, this.tongue.tongue, () => this.handleTongueContact());
+    // Once slouched, the tongue body becomes a solid platform — the
+    // ramp the player runs over to reach the exit on top of the base.
+    // processCallback gates the collision: ignored until isDead().
+    this.physics.add.collider(
+      this.cheerio.sprite,
+      this.tongue.tongue,
+      null,
+      () => this.tongue.isDead(),
+    );
+    // The tongue's base is always a solid platform.
+    this.physics.add.existing(this.tongue.base, true);
+    this.platforms.add(this.tongue.base);
   }
 
   spawnSaliva() {
@@ -223,8 +245,11 @@ export default class RoomMouth extends Phaser.Scene {
   // --- Exit door --------------------------------------------------
 
   spawnExit() {
-    this.exitDoor = this.add.rectangle(EXIT_X, FLOOR_Y - 60, 60, 120, 0x202020);
-    this.exitLockText = this.add.text(EXIT_X, FLOOR_Y - 140, 'LOCKED\n(beat tongue)', {
+    // The exit/swallow sits on top of the tongue's base. Once the
+    // tongue slouches the player runs over it, hops up onto the
+    // base, and steps into the door to clear the room.
+    this.exitDoor = this.add.rectangle(EXIT_X, EXIT_Y, 60, 120, 0x202020);
+    this.exitLockText = this.add.text(EXIT_X, EXIT_Y - 80, 'LOCKED\n(beat tongue)', {
       fontFamily: 'system-ui', fontSize: '14px', color: '#ff8080', align: 'center',
     }).setOrigin(0.5);
   }
@@ -335,13 +360,15 @@ export default class RoomMouth extends Phaser.Scene {
     for (const b of this.bacteria) b.update();
     this.tongue.update(this.cheerio);
 
-    // Exit reached?
-    if (
-      this.phase === 'play'
-      && this.tongue.isDead()
-      && this.cheerio.x >= EXIT_X - 20
-    ) {
-      this.completeRoom();
+    // Exit reached? The player has to actually be on top of the
+    // tongue base (body bottom at or above the base top), not just
+    // standing on the floor under the door.
+    if (this.phase === 'play' && this.tongue.isDead()) {
+      const dx = Math.abs(this.cheerio.x - EXIT_X);
+      const onBase = this.cheerio.body.bottom <= FLOOR_Y - TONGUE_BASE_H + 8;
+      if (dx < 40 && onBase) {
+        this.completeRoom();
+      }
     }
   }
 

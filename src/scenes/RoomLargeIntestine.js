@@ -9,6 +9,7 @@ import WaterReabsorbingPlatform from '../entities/WaterReabsorbingPlatform.js';
 import MethanePocket from '../entities/MethanePocket.js';
 import FiberBrickWall from '../entities/FiberBrickWall.js';
 import FiberToken from '../entities/FiberToken.js';
+import CDiffBlob from '../entities/enemies/CDiffBlob.js';
 import { sound } from '../systems/SoundManager.js';
 
 // Room 5 — Large Intestine per GAME_DESIGN.md §6.5. Default
@@ -45,6 +46,7 @@ export default class RoomLargeIntestine extends Phaser.Scene {
     this.spawnGoodBacteria();
     this.spawnMethane();
     this.spawnFiberWallAndToken();
+    this.spawnCDiffBoss();
     this.spawnExit();
 
     this.bindEsc();
@@ -196,6 +198,48 @@ export default class RoomLargeIntestine extends Phaser.Scene {
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
   }
 
+  // --- C. diff blob mini-boss ------------------------------------
+
+  spawnCDiffBoss() {
+    // One big blob lives near the haustra (mid-room). Stomping it
+    // splits it into two medium blobs; stomping those splits into
+    // small blobs; stomping small kills outright.
+    this.cdiffBlobs = [];
+    this.add.text(2400, 200, 'C. diff bloom — STOMP to split it', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ff8090',
+    }).setOrigin(0.5);
+    this.spawnCDiffBlob(2400, 500, 'big');
+  }
+
+  spawnCDiffBlob(x, y, size) {
+    const blob = new CDiffBlob(this, x, y, { size });
+    this.physics.add.collider(blob.sprite, this.platforms);
+    this.physics.add.collider(this.cheerio.sprite, blob.sprite, () => this.handleCDiffBlobContact(blob));
+    this.cdiffBlobs.push(blob);
+    return blob;
+  }
+
+  handleCDiffBlobContact(blob) {
+    if (!blob.alive || !this.cheerio.alive) return;
+    const stomped = this.cheerio.body.touching.down && blob.sprite.body.touching.up;
+    if (stomped) {
+      const pts = blob.pointsValue();
+      const split = blob.squash();
+      scoreManager.addPoints(pts);
+      this.cheerio.body.setVelocityY(-420);
+      sound.playStomp();
+      this.hud()?.flash(`+${pts}`);
+      if (split) {
+        // Two children, shoved apart so they don't immediately
+        // re-collide on the same x.
+        this.spawnCDiffBlob(split.x - 20, split.y - 8, split.spawnSize);
+        this.spawnCDiffBlob(split.x + 20, split.y - 8, split.spawnSize);
+      }
+    } else {
+      this.applyHitToCheerio();
+    }
+  }
+
   // --- Exit -------------------------------------------------------
 
   spawnExit() {
@@ -288,6 +332,7 @@ export default class RoomLargeIntestine extends Phaser.Scene {
     if (this.phase !== 'play') return;
     for (const b of this.bacteria) b.update();
     for (const wp of this.waterPlatforms) wp.update();
+    for (const blob of this.cdiffBlobs) blob.update();
   }
 
   // --- Helpers ----------------------------------------------------

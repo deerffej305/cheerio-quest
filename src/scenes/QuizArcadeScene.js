@@ -3,6 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { questionBank } from '../systems/QuestionBank.js';
 import { scoreManager } from '../systems/ScoreManager.js';
 import { sound } from '../systems/SoundManager.js';
+import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.js';
 
 // Quiz Mode (Phase 6 per design doc §5): sudden-death streak.
 // Draws random questions from the full bank. Right answer →
@@ -131,7 +132,15 @@ export default class QuizArcadeScene extends Phaser.Scene {
       : `Run over. Streak: ${this.streak}`);
     this.questionText.setColor(banked ? '#80ff80' : '#ffcf73');
     this.bestText.setText(`Best streak ever: ${scoreManager.bestQuizStreak}`);
-    this.feedbackText.setText('Press SPACE to return to Title');
+    this.feedbackText.setText('Submitting to leaderboard…');
+
+    // Only submit non-zero streaks — a 0 entry is just noise on the
+    // public leaderboard, especially with kids spamming play.
+    if (this.streak > 0) {
+      this.time.delayedCall(500, () => this.submitStreak());
+    } else {
+      this.feedbackText.setText('Press SPACE to return to Title');
+    }
 
     const goBack = () => {
       if (this._returning) return;
@@ -141,6 +150,18 @@ export default class QuizArcadeScene extends Phaser.Scene {
     this.input.keyboard.once('keydown-SPACE', goBack);
     this.input.keyboard.once('keydown-ENTER', goBack);
     this.input.once('pointerdown', goBack);
-    this.time.delayedCall(6000, goBack);
+    this.time.delayedCall(8000, goBack);
+  }
+
+  async submitStreak() {
+    const name = promptForName('PLAYER');
+    if (!name) {
+      this.feedbackText.setText('Score not submitted. Press SPACE to return.');
+      return;
+    }
+    const result = await leaderboardClient.submit('streak', name, this.streak);
+    this.feedbackText.setText(result
+      ? `Submitted as "${name}". Press SPACE to return.`
+      : 'Submit failed (offline?). Press SPACE to return.');
   }
 }

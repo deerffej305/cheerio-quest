@@ -1,0 +1,12 @@
+# Wrangler config for the Cheerio Quest leaderboard Worker.
+# The Pages site (cheerio-quest.pages.dev) is deployed separately
+# via `wrangler pages deploy dist`; this file targets just the
+# Worker that backs the three Game Mode / Quiz Mode leaderboards.
+
+name = "cheerio-quest-leaderboard"
+main = "worker/leaderboard.js"
+compatibility_date = "2024-11-01"
+
+[[kv_namespaces]]
+binding = "LEADERBOARD"
+id = "06da50a314b04eafa63f1eae5a56ddc3"

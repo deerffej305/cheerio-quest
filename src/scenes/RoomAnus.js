@@ -6,6 +6,7 @@ import InputManager from '../systems/InputManager.js';
 import ConstipationBlocker from '../entities/hazards/ConstipationBlocker.js';
 import PoopDisplacer from '../entities/enemies/PoopDisplacer.js';
 import { sound } from '../systems/SoundManager.js';
+import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.js';
 
 // Room 6 — Anus (The Constipation Maze). Final room. The player
 // navigates the maze and stands on the one exit tile when a fart
@@ -293,9 +294,30 @@ export default class RoomAnus extends Phaser.Scene {
       }).setOrigin(0.5).setScrollFactor(0);
     });
 
+    this.statusText = this.add.text(cx, GAME_HEIGHT - 130, 'Submitting score to leaderboards…', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#aaaaaa',
+    }).setOrigin(0.5).setScrollFactor(0);
+
     this.add.text(cx, GAME_HEIGHT - 80, 'Press Esc to return to Title.', {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#aaaaaa',
     }).setOrigin(0.5).setScrollFactor(0);
+
+    // Submit to BOTH Game Mode leaderboards (points + correct).
+    // Wrap in time.delayedCall so the prompt fires after the score
+    // recap has had a beat to render.
+    this.time.delayedCall(600, () => this.submitRunScores());
+  }
+
+  async submitRunScores() {
+    const name = promptForName('PLAYER');
+    if (!name) {
+      this.statusText.setText('(score not submitted)');
+      return;
+    }
+    this.statusText.setText('Submitting…');
+    await leaderboardClient.submit('points', name, scoreManager.points);
+    await leaderboardClient.submit('correct', name, scoreManager.questionsCorrect);
+    this.statusText.setText(`Submitted as "${name}". Check Leaderboards from Title.`);
   }
 
   // --- Frame loop -------------------------------------------------

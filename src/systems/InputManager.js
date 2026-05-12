@@ -1,9 +1,10 @@
 import Phaser from 'phaser';
+import { touchState } from './TouchState.js';
 
-// Centralises keyboard + (later) on-screen touch input. Scenes ask
+// Centralises keyboard + on-screen touch input. Scenes ask
 // isLeftDown() / isRightDown() / wasJumpJustPressed() instead of
-// poking individual keys, so we can swap in touch buttons later
-// without rewriting Cheerio.js.
+// poking individual keys, so the Surface-tablet D-pad and a USB
+// keyboard work interchangeably from the cheerio's perspective.
 
 export default class InputManager {
   constructor(scene) {
@@ -18,22 +19,26 @@ export default class InputManager {
   }
 
   isLeftDown() {
-    return this.cursors.left.isDown || this.keyA.isDown;
+    return this.cursors.left.isDown || this.keyA.isDown || touchState.left;
   }
 
   isRightDown() {
-    return this.cursors.right.isDown || this.keyD.isDown;
+    return this.cursors.right.isDown || this.keyD.isDown || touchState.right;
   }
 
   isJumpDown() {
-    return this.cursors.up.isDown || this.keyW.isDown || this.keySpace.isDown;
+    return this.cursors.up.isDown || this.keyW.isDown || this.keySpace.isDown || touchState.jump;
   }
 
   wasJumpJustPressed() {
-    return (
+    // Eagerly consume the touch press regardless of keyboard state
+    // so a stale "just pressed" flag can't bleed into the next
+    // frame and cause a phantom double-jump.
+    const kb =
       Phaser.Input.Keyboard.JustDown(this.cursors.up) ||
       Phaser.Input.Keyboard.JustDown(this.keyW) ||
-      Phaser.Input.Keyboard.JustDown(this.keySpace)
-    );
+      Phaser.Input.Keyboard.JustDown(this.keySpace);
+    const touch = touchState.consumeJumpPress();
+    return kb || touch;
   }
 }

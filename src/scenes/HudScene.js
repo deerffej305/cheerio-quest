@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import { GAME_WIDTH } from '../constants.js';
+import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
 import { sound } from '../systems/SoundManager.js';
+import { touchState } from '../systems/TouchState.js';
 
 // Overlay scene. Runs in parallel with the active room scene, fixed
 // to the camera, so the room scene can scroll without dragging HUD
@@ -49,7 +50,50 @@ export default class HudScene extends Phaser.Scene {
     });
 
     this.cheerioSize = 'big';
+    this.spawnTouchPad();
     this.refresh();
+  }
+
+  // On-screen D-pad cross per design §3 (Surface-tablet target).
+  // Left / Right / Up + a cosmetic Down. Up doubles as Jump. State
+  // is published to the shared TouchState singleton, which the
+  // Cheerio's InputManager checks alongside the keyboard.
+  spawnTouchPad() {
+    const padCx = 110;
+    const padCy = GAME_HEIGHT - 110;
+    const btn = 56;
+    const off = btn + 4;
+
+    const makeBtn = (x, y, label, onDown, onUp) => {
+      const r = this.add.rectangle(x, y, btn, btn, 0xffffff, 0.18)
+        .setStrokeStyle(2, 0xffffff, 0.35)
+        .setInteractive({ useHandCursor: true });
+      this.add.text(x, y, label, {
+        fontFamily: 'system-ui, sans-serif', fontSize: '26px', color: '#ffffff',
+      }).setOrigin(0.5).setAlpha(0.7);
+      const press = () => {
+        r.setFillStyle(0xffffff, 0.35);
+        onDown();
+      };
+      const release = () => {
+        r.setFillStyle(0xffffff, 0.18);
+        onUp();
+      };
+      r.on('pointerdown', press);
+      r.on('pointerup', release);
+      r.on('pointerupoutside', release);
+      r.on('pointerout', release);
+      return r;
+    };
+
+    makeBtn(padCx,        padCy - off, '↑', () => touchState.setJump(true),  () => touchState.setJump(false));
+    makeBtn(padCx,        padCy + off, '↓', () => {},                          () => {}); // visual only
+    makeBtn(padCx - off,  padCy,       '←', () => touchState.setLeft(true),  () => touchState.setLeft(false));
+    makeBtn(padCx + off,  padCy,       '→', () => touchState.setRight(true), () => touchState.setRight(false));
+
+    this.add.text(padCx, padCy + off + 36, 'tap or arrow keys', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '10px', color: '#888888',
+    }).setOrigin(0.5);
   }
 
   muteLabel() {

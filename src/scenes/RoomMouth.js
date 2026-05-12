@@ -408,9 +408,12 @@ export default class RoomMouth extends Phaser.Scene {
   }
 
   bindEsc() {
-    this.input.keyboard.once('keydown-ESC', () => {
-      this.scene.stop('Hud');
-      this.scene.start('Title');
-    });
+    // Esc or P open the pause menu (which has its own Quit option).
+    const openPause = () => {
+      this.scene.pause();
+      this.scene.launch('Pause', { pausedSceneKey: this.scene.key });
+    };
+    this.input.keyboard.on('keydown-ESC', openPause);
+    this.input.keyboard.on('keydown-P', openPause);
   }
 }

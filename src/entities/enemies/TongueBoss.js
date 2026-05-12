@@ -30,7 +30,7 @@ const DURATIONS = {
 };
 
 export default class TongueBoss {
-  constructor(scene, anchorX, floorY, { reachX, height = 28, maxHp = 4 } = {}) {
+  constructor(scene, anchorX, floorY, { reachX, height = 56, maxHp = 4 } = {}) {
     this.scene = scene;
     this.anchorX = anchorX;
     this.floorY = floorY;
@@ -41,23 +41,31 @@ export default class TongueBoss {
     this.state = STATES.IDLE;
     this.stateStartedAt = scene.time.now;
 
-    // The base — a small bump at the anchor that stays put.
-    this.base = scene.add.rectangle(anchorX - 18, floorY - 18, 60, 36, 0xa05060);
+    // The base — a solid pink hunk at the back-right of the mouth
+    // that stays put. The tongue extends from its left edge.
+    const baseW = 120;
+    const baseH = 80;
+    this.base = scene.add.rectangle(anchorX - baseW / 2, floorY - baseH / 2, baseW, baseH, 0xa05060);
 
     // The tongue body. Width animates between 0 and (anchorX - tipMinX).
     // Origin pinned to the right edge so growing width extends leftward.
-    this.tongue = scene.add.rectangle(anchorX, floorY - 6, 0, height, 0xcc5070);
+    // tongue.y sits on the floor; .height controls the visible thickness.
+    this.tongue = scene.add.rectangle(anchorX - baseW, floorY - 6, 0, height, 0xcc5070);
     this.tongue.setOrigin(1, 1);
     scene.physics.add.existing(this.tongue);
     this.tongue.body.setAllowGravity(false);
     this.tongue.body.setImmovable(true);
     this.tongue.tongueBoss = this;
+    // The anchor used by extent / front-edge math has to account for
+    // the base eating the rightmost baseW pixels.
+    this.tongueAnchorX = anchorX - baseW;
     this.syncBodyToWidth();
 
-    this.hpText = scene.add.text(anchorX - 30, floorY - 80, this.hpLabel(), {
+    this.hpText = scene.add.text(anchorX - baseW / 2, floorY - baseH - 22, this.hpLabel(), {
       fontFamily: 'system-ui, sans-serif',
-      fontSize: '16px',
+      fontSize: '18px',
       color: '#ffffff',
+      fontStyle: 'bold',
     }).setOrigin(0.5);
   }
 
@@ -94,8 +102,9 @@ export default class TongueBoss {
   }
 
   setExtent(extent) {
-    // extent in [0, 1]
-    const maxW = this.anchorX - this.tipMinX;
+    // extent in [0, 1] — 0 is fully retracted into the base, 1 is
+    // full lunge to tipMinX.
+    const maxW = this.tongueAnchorX - this.tipMinX;
     this.tongue.width = Phaser.Math.Clamp(extent, 0, 1) * maxW;
     this.tongue.displayWidth = this.tongue.width;
     this.syncBodyToWidth();

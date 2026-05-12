@@ -15,7 +15,7 @@ const PHASES = {
 };
 
 export default class ChompingTeeth {
-  constructor(scene, x, floorY, ceilingY, { width = 60 } = {}) {
+  constructor(scene, x, floorY, ceilingY, { width = 60, phaseOffset = 0 } = {}) {
     this.scene = scene;
     this.x = x;
     this.floorY = floorY;
@@ -31,8 +31,11 @@ export default class ChompingTeeth {
     this.upper = scene.add.rectangle(x, this.upperOpenY, width, toothHeight, 0xeeeeee);
     this.lower = scene.add.rectangle(x, this.lowerOpenY, width, toothHeight, 0xeeeeee);
 
+    // phaseOffset shifts this tooth's cycle so a row of teeth can
+    // stagger — the player gets timing windows instead of one
+    // synchronized wall of teeth.
     this.phase = 'open';
-    this.phaseStartedAt = scene.time.now;
+    this.phaseStartedAt = scene.time.now - phaseOffset;
   }
 
   isClosed() {

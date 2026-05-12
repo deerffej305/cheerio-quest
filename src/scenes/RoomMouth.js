@@ -5,6 +5,7 @@ import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import CavityBacterium from '../entities/enemies/CavityBacterium.js';
 import ChompingTeeth from '../entities/hazards/ChompingTeeth.js';
+import SalivaBlob from '../entities/hazards/SalivaBlob.js';
 import TongueBoss from '../entities/enemies/TongueBoss.js';
 import FiberToken from '../entities/FiberToken.js';
 
@@ -33,6 +34,7 @@ export default class RoomMouth extends Phaser.Scene {
     this.spawnSpoonAndIntro();
     this.spawnEnemies();
     this.spawnTongueBoss();
+    this.spawnSaliva();
     this.spawnFiberToken();
     this.spawnExit();
 
@@ -89,7 +91,7 @@ export default class RoomMouth extends Phaser.Scene {
     this.platforms.add(molarFront);
 
     // Atmospheric labels — quick orientation aids for grey-box.
-    this.add.text(280, CEILING_Y + 20, 'chomping teeth →', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
+    this.add.text(420, CEILING_Y + 20, '↓ chomping teeth row ↓', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
     this.add.text(1700, CEILING_Y + 20, 'molars + fiber token', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
     this.add.text(2080, CEILING_Y + 20, '← back of mouth', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
   }
@@ -156,9 +158,9 @@ export default class RoomMouth extends Phaser.Scene {
   spawnEnemies() {
     this.bacteria = [];
     const positions = [
-      { x: 540, range: [430, 760] },
-      { x: 1000, range: [900, 1180] },
-      { x: 1420, range: [1320, 1560] },
+      { x: 820, range: [720, 960] },
+      { x: 1140, range: [1040, 1260] },
+      { x: 1500, range: [1380, 1580] },
     ];
     for (const { x, range } of positions) {
       const b = new CavityBacterium(this, x, FLOOR_Y - 12, {
@@ -170,12 +172,47 @@ export default class RoomMouth extends Phaser.Scene {
       this.bacteria.push(b);
     }
 
-    this.teeth = new ChompingTeeth(this, 300, FLOOR_Y, CEILING_Y + 40, { width: 70 });
+    // Row of chomping teeth across the front of the mouth. The tongue
+    // lunges from the back-right and pushes the player toward this
+    // row — catching a chomp is the damage source. Phases are
+    // staggered so the player gets timing windows to dash through.
+    const teethPositions = [
+      { x: 260, offset: 0 },
+      { x: 380, offset: 900 },
+      { x: 500, offset: 1800 },
+      { x: 620, offset: 2700 },
+    ];
+    this.teethRow = teethPositions.map(({ x, offset }) =>
+      new ChompingTeeth(this, x, FLOOR_Y, CEILING_Y + 40, { width: 70, phaseOffset: offset })
+    );
   }
 
   spawnTongueBoss() {
-    this.tongue = new TongueBoss(this, ROOM_WIDTH - 60, FLOOR_Y, { reachX: 1500 });
+    // Big, thick tongue. Sweeps from the back-right almost all the
+    // way to the teeth row so a caught player gets shoved into it.
+    this.tongue = new TongueBoss(this, ROOM_WIDTH - 80, FLOOR_Y, {
+      reachX: 700,
+      height: 56,
+    });
     this.physics.add.overlap(this.cheerio.sprite, this.tongue.tongue, () => this.handleTongueContact());
+  }
+
+  spawnSaliva() {
+    // Saliva blobs sit on the floor in the approach to the tongue.
+    // Contact dissolves the Cheerio — instant-restart, lava rule.
+    // Positioned in the gap between the cavity bacteria and the
+    // tongue base, so the player has to thread between them while
+    // dodging the tongue's lunge.
+    const positions = [
+      { x: 1700, w: 70 },
+      { x: 1980, w: 70 },
+      { x: 2120, w: 80 },
+    ];
+    this.saliva = positions.map(({ x, w }) => {
+      const blob = new SalivaBlob(this, x, FLOOR_Y - 11, { width: w, height: 22 });
+      this.physics.add.overlap(this.cheerio.sprite, blob.sprite, () => this.handleSalivaContact());
+      return blob;
+    });
   }
 
   spawnFiberToken() {
@@ -251,6 +288,16 @@ export default class RoomMouth extends Phaser.Scene {
     }
   }
 
+  handleSalivaContact() {
+    if (!this.cheerio.alive || this.phase === 'dying') return;
+    // Saliva dissolves the Cheerio — instant restart regardless of
+    // size, same rule as acid pits. The shrunk-state grace period
+    // doesn't apply here.
+    this.hud()?.flash('DISSOLVED!', 1200);
+    this.cheerio.die();
+    this.handleDeath();
+  }
+
   applyHitToCheerio() {
     const outcome = this.cheerio.takeHit();
     if (outcome === 'shrunk') {
@@ -277,9 +324,12 @@ export default class RoomMouth extends Phaser.Scene {
     if (this.cheerio) this.cheerio.update(delta);
     if (this.phase === 'intro') return;
 
-    this.teeth.update();
-    if (this.teeth.isClosed() && this.teeth.containsPlayer(this.cheerio)) {
-      this.applyHitToCheerio();
+    for (const t of this.teethRow) {
+      t.update();
+      if (t.isClosed() && t.containsPlayer(this.cheerio)) {
+        this.applyHitToCheerio();
+        break;
+      }
     }
 
     for (const b of this.bacteria) b.update();

@@ -267,10 +267,9 @@ export default class RoomStomach extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    this.hud()?.flash('ROOM CLEARED — Small Intestine next (placeholder)', 2400);
-    this.time.delayedCall(2300, () => {
-      this.scene.stop('Hud');
-      this.scene.start('Title');
+    this.hud()?.flash('ROOM CLEARED — to the small intestine!', 1800);
+    this.time.delayedCall(1900, () => {
+      this.scene.start('RoomSmallIntestine');
     });
   }
 

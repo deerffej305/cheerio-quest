@@ -5,6 +5,7 @@ import GameModeScene from './scenes/GameModeScene.js';
 import RoomMouth from './scenes/RoomMouth.js';
 import RoomEsophagus from './scenes/RoomEsophagus.js';
 import RoomStomach from './scenes/RoomStomach.js';
+import RoomSmallIntestine from './scenes/RoomSmallIntestine.js';
 import HudScene from './scenes/HudScene.js';
 import QuizScene from './scenes/QuizScene.js';
 import LeaderboardScene from './scenes/LeaderboardScene.js';
@@ -35,7 +36,7 @@ const config = {
     forceSetTimeOut: true,
     target: 60,
   },
-  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, RoomStomach, HudScene, QuizScene, LeaderboardScene],
+  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, RoomStomach, RoomSmallIntestine, HudScene, QuizScene, LeaderboardScene],
 };
 
 const game = new Phaser.Game(config);

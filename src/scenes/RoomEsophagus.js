@@ -37,9 +37,12 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.buildTube();
     this.spawnCheerio();
     this.spawnRings();
+    this.spawnMucusPatches();
+    this.spawnBranchFolds();
     this.spawnFiberToken();
     this.spawnExit();
     this.bindEsc();
+    this.startBurpCycle();
 
     this.scene.get('Hud')?.setRoomLabel('Room 2 — Esophagus');
   }
@@ -118,13 +121,117 @@ export default class RoomEsophagus extends Phaser.Scene {
   }
 
   spawnFiberToken() {
-    // One fiber token tucked into a riskier gap — for now, randomly
-    // placed adjacent to one of the rings. Full branching-folds
-    // logic is a later pass.
-    const ring = this.rings[Math.floor(this.rings.length / 2)];
-    const tokenX = ring.leftSeg.x > GAME_WIDTH / 2 ? TUBE_LEFT + 60 : TUBE_RIGHT - 60;
-    this.fiberToken = new FiberToken(this, tokenX, ring.y - 60);
+    // Fiber lives inside the riskier left-hand branch fold. The
+    // fold pinches the lane tight (less room to dodge the ring
+    // gap below) — that's the risk part of the risk-reward.
+    this.fiberToken = new FiberToken(this, TUBE_LEFT + 60, 1820);
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
+  }
+
+  // --- Mucus speed-boost patches ----------------------------------
+
+  spawnMucusPatches() {
+    // Per design §6.2: "Mucus stream patches along the wall = speed
+    // boost. Slide down faster." Patches are slick blue-green
+    // vertical strips. Touching one lifts the cheerio's terminal
+    // velocity briefly so they shoot downward.
+    this.mucusPatches = [];
+    const patchSpecs = [
+      { side: 'left',  y: 720,  h: 140 },
+      { side: 'right', y: 1100, h: 160 },
+      { side: 'left',  y: 1450, h: 120 },
+      { side: 'right', y: 2350, h: 160 },
+      { side: 'left',  y: 2700, h: 140 },
+    ];
+    for (const { side, y, h } of patchSpecs) {
+      const x = side === 'left' ? TUBE_LEFT + 12 : TUBE_RIGHT - 12;
+      const patch = this.add.rectangle(x, y, 18, h, 0x60d0d0, 0.7);
+      patch.setStrokeStyle(2, 0x40b0b0, 0.9);
+      this.physics.add.existing(patch, true);
+      this.physics.add.overlap(this.cheerio.sprite, patch, () => this.applyMucusBoost());
+      this.mucusPatches.push(patch);
+    }
+  }
+
+  applyMucusBoost() {
+    // Bump the cheerio's max-vy ceiling for ~400ms so they accelerate
+    // past the normal terminal. Reset back on a timer.
+    const boostedMaxVy = 720;
+    const body = this.cheerio.body;
+    body.setMaxVelocity(body.maxVelocity.x, boostedMaxVy);
+    body.setVelocityY(Math.max(body.velocity.y, 520));
+    if (this._mucusResetTimer) this._mucusResetTimer.remove(false);
+    this._mucusResetTimer = this.time.delayedCall(400, () => {
+      this.cheerio.body.setMaxVelocity(body.maxVelocity.x, ESOPHAGUS_TERMINAL_VY);
+    });
+  }
+
+  // --- Branching folds --------------------------------------------
+
+  spawnBranchFolds() {
+    // Mid-tube the lumen pinches into two narrower paths. A vertical
+    // wall in the middle creates a left lane (riskier — hides the
+    // fiber) and a right lane (safer, plain).
+    const branchTop = 1700;
+    const branchBot = 2000;
+    const dividerH = branchBot - branchTop;
+    const divider = this.add.rectangle(
+      GAME_WIDTH / 2,
+      (branchTop + branchBot) / 2,
+      36,
+      dividerH,
+      0x8a2a3a,
+    );
+    divider.setStrokeStyle(2, 0x4a1820);
+    this.physics.add.existing(divider, true);
+    this.platforms.add(divider);
+
+    // Decorative fold lips poking inward at the branch entrance —
+    // visual hint that "the path splits here".
+    const lipTopL = this.add.rectangle(TUBE_LEFT + 50, branchTop - 8, 100, 14, 0x882044);
+    const lipTopR = this.add.rectangle(TUBE_RIGHT - 50, branchTop - 8, 100, 14, 0x882044);
+    this.physics.add.existing(lipTopL, true);
+    this.physics.add.existing(lipTopR, true);
+    this.platforms.add(lipTopL);
+    this.platforms.add(lipTopR);
+
+    this.add.text(GAME_WIDTH / 2 - 130, branchTop - 36, '← fiber', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#40d070',
+    }).setOrigin(0.5);
+    this.add.text(GAME_WIDTH / 2 + 130, branchTop - 36, 'safe →', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#aaaaaa',
+    }).setOrigin(0.5);
+  }
+
+  // --- Burp event -------------------------------------------------
+
+  startBurpCycle() {
+    // Per design §6.2: "Burp event — on a timer. If the player has
+    // been in the room too long, a burp wave pushes them upward
+    // briefly, costing time." Fires once per N seconds while in
+    // play; resets after each burp.
+    this.nextBurpAt = this.time.now + 18000; // first burp ~18s in
+  }
+
+  triggerBurp() {
+    if (this.phase !== 'play' || !this.cheerio.alive) return;
+    // Visual: a yellow shockwave at the current camera y, sweeping
+    // up. Mechanical: shove the cheerio upward briefly.
+    const camY = this.cameras.main.scrollY + GAME_HEIGHT - 60;
+    const wave = this.add.rectangle(GAME_WIDTH / 2, camY, TUBE_W - 4, 36, 0xffd060, 0.85);
+    wave.setStrokeStyle(3, 0xff9020);
+    this.tweens.add({
+      targets: wave,
+      y: camY - 900,
+      alpha: 0,
+      duration: 900,
+      ease: 'Cubic.Out',
+      onComplete: () => wave.destroy(),
+    });
+    this.cheerio.applyDisplacement(0, -540, 450);
+    sound.playFart();
+    this.hud()?.flash('BUUUURP! shoved back up', 1400);
+    this.nextBurpAt = this.time.now + 14000;
   }
 
   // --- Exit -------------------------------------------------------
@@ -190,6 +297,11 @@ export default class RoomEsophagus extends Phaser.Scene {
       if (ring.alive && ring.y < this.cameras.main.scrollY - 60) {
         ring.destroy();
       }
+    }
+
+    // Burp timer.
+    if (this.phase === 'play' && this.time.now >= this.nextBurpAt) {
+      this.triggerBurp();
     }
 
     // Off-bottom safety — if for any reason the cheerio falls past

@@ -5,6 +5,7 @@ import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import ConstipationBlocker from '../entities/hazards/ConstipationBlocker.js';
 import PoopDisplacer from '../entities/enemies/PoopDisplacer.js';
+import { sound } from '../systems/SoundManager.js';
 
 // Room 6 — Anus (The Constipation Maze). Final room. The player
 // navigates the maze and stands on the one exit tile when a fart
@@ -232,6 +233,7 @@ export default class RoomAnus extends Phaser.Scene {
       && this.cheerio.body.bottom > perchTop - 4
       && this.cheerio.body.bottom < perchTop + 20;
 
+    sound.playFart();
     if (onTile) {
       this.launchVictory();
     } else {
@@ -254,6 +256,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setAllowGravity(false);
+    sound.playRoomClear();
     // Launch the cheerio up and to the right in a triumphant arc.
     this.tweens.add({
       targets: this.cheerio.sprite,

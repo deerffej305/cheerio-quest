@@ -7,6 +7,7 @@ import Villus from '../entities/enemies/Villus.js';
 import Microvilli from '../entities/hazards/Microvilli.js';
 import NutrientOrb from '../entities/NutrientOrb.js';
 import FiberToken from '../entities/FiberToken.js';
+import { sound } from '../systems/SoundManager.js';
 
 // Room 4 — Small Intestine. Auto-scroller. The camera moves right
 // at a fixed speed; the cheerio must keep up or get crushed off
@@ -203,6 +204,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
       v.squash();
       scoreManager.addPoints(10);
       this.cheerio.body.setVelocityY(-420);
+      sound.playStomp();
       this.hud()?.flash('+10');
     } else {
       this.applyHitToCheerio();
@@ -218,6 +220,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     if (orb.collected || !this.cheerio.alive) return;
     orb.collect();
     scoreManager.addPoints(5);
+    sound.playScore();
     this.hud()?.flash('+5');
   }
 
@@ -225,6 +228,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
+    sound.playFiber();
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -258,9 +262,10 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    this.hud()?.flash('ROOM CLEARED — to the large intestine!', 1800);
-    this.time.delayedCall(1900, () => {
-      this.scene.start('RoomLargeIntestine');
+    sound.playRoomClear();
+    this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
+    this.time.delayedCall(1600, () => {
+      this.scene.start('Quiz', { room: 'small_intestine', nextScene: 'RoomLargeIntestine' });
     });
   }
 

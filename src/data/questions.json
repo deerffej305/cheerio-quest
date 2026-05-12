@@ -1,0 +1,31 @@
+{
+  "_note": "Mock 9th-grade biology question bank. Real bank will be supplied by CJ's class group project (target 100 questions). Replace this file when those land. Schema matches GAME_DESIGN.md §7.",
+  "questions": [
+    { "id": 1,  "room": "mouth", "question": "What enzyme in saliva begins the digestion of starches?", "options": ["Pepsin", "Amylase", "Lipase", "Trypsin"], "correctAnswerIndex": 1 },
+    { "id": 2,  "room": "mouth", "question": "What is the main job of the tongue during eating?", "options": ["Produce stomach acid", "Mix food with saliva and form a bolus", "Absorb nutrients", "Make insulin"], "correctAnswerIndex": 1 },
+    { "id": 3,  "room": "mouth", "question": "Which kind of bacteria are responsible for tooth cavities?", "options": ["Streptococcus mutans", "E. coli", "Lactobacillus", "Salmonella"], "correctAnswerIndex": 0 },
+
+    { "id": 10, "room": "esophagus", "question": "What muscular contraction moves food through the esophagus?", "options": ["Mitosis", "Peristalsis", "Diffusion", "Osmosis"], "correctAnswerIndex": 1 },
+    { "id": 11, "room": "esophagus", "question": "Which flap prevents food from entering the windpipe when you swallow?", "options": ["Uvula", "Epiglottis", "Pyloric sphincter", "Larynx"], "correctAnswerIndex": 1 },
+    { "id": 12, "room": "esophagus", "question": "The esophagus connects the mouth to the…", "options": ["Liver", "Small intestine", "Stomach", "Pancreas"], "correctAnswerIndex": 2 },
+
+    { "id": 20, "room": "stomach", "question": "Which strong acid is found in the stomach?", "options": ["Sulfuric acid", "Citric acid", "Hydrochloric acid (HCl)", "Acetic acid"], "correctAnswerIndex": 2 },
+    { "id": 21, "room": "stomach", "question": "What enzyme in the stomach digests proteins?", "options": ["Amylase", "Pepsin", "Lipase", "Maltase"], "correctAnswerIndex": 1 },
+    { "id": 22, "room": "stomach", "question": "Which valve releases food from the stomach into the small intestine?", "options": ["Cardiac sphincter", "Pyloric sphincter", "Ileocecal valve", "Anal sphincter"], "correctAnswerIndex": 1 },
+
+    { "id": 30, "room": "small_intestine", "question": "What are villi?", "options": ["Stomach acids", "Tiny finger-like projections that absorb nutrients", "Muscles in the mouth", "Tooth enamel"], "correctAnswerIndex": 1 },
+    { "id": 31, "room": "small_intestine", "question": "Most of the body's nutrient absorption happens in the…", "options": ["Stomach", "Large intestine", "Small intestine", "Esophagus"], "correctAnswerIndex": 2 },
+    { "id": 32, "room": "small_intestine", "question": "Bile, used to break down fats, is produced by the…", "options": ["Pancreas", "Liver", "Spleen", "Kidneys"], "correctAnswerIndex": 1 },
+
+    { "id": 40, "room": "large_intestine", "question": "The main job of the large intestine is to…", "options": ["Make insulin", "Reabsorb water", "Digest proteins", "Produce bile"], "correctAnswerIndex": 1 },
+    { "id": 41, "room": "large_intestine", "question": "Helpful bacteria in the large intestine help produce which vitamin?", "options": ["Vitamin C", "Vitamin K", "Vitamin A", "Vitamin D"], "correctAnswerIndex": 1 },
+    { "id": 42, "room": "large_intestine", "question": "Which of these is the LAST section before the rectum?", "options": ["Ascending colon", "Transverse colon", "Sigmoid colon", "Cecum"], "correctAnswerIndex": 2 },
+
+    { "id": 50, "room": "anus", "question": "Why does dietary fiber help digestion?", "options": ["It kills germs", "It adds bulk and helps stool move through the intestines", "It makes you taller", "It produces stomach acid"], "correctAnswerIndex": 1 },
+    { "id": 51, "room": "anus", "question": "Which of these is NOT a good source of fiber?", "options": ["Whole grains", "Beans", "Plain white sugar", "Apples"], "correctAnswerIndex": 2 },
+
+    { "id": 90, "room": "general", "question": "Roughly how long is the small intestine in an adult?", "options": ["1 foot", "6 feet", "20 feet (6 m)", "100 feet"], "correctAnswerIndex": 2 },
+    { "id": 91, "room": "general", "question": "Another name for the digestive tract is the…", "options": ["Nervous system", "GI (gastrointestinal) tract", "Cardiovascular system", "Lymphatic system"], "correctAnswerIndex": 1 },
+    { "id": 92, "room": "general", "question": "Which organ is the LONGEST in the digestive system?", "options": ["Esophagus", "Stomach", "Small intestine", "Large intestine"], "correctAnswerIndex": 2 }
+  ]
+}

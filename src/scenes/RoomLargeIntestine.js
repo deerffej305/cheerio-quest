@@ -9,6 +9,7 @@ import WaterReabsorbingPlatform from '../entities/WaterReabsorbingPlatform.js';
 import MethanePocket from '../entities/MethanePocket.js';
 import FiberBrickWall from '../entities/FiberBrickWall.js';
 import FiberToken from '../entities/FiberToken.js';
+import { sound } from '../systems/SoundManager.js';
 
 // Room 5 — Large Intestine per GAME_DESIGN.md §6.5. Default
 // platforming returns; twisting fold-corridor terrain. Bad
@@ -217,6 +218,7 @@ export default class RoomLargeIntestine extends Phaser.Scene {
       b.squash();
       scoreManager.addPoints(10);
       this.cheerio.body.setVelocityY(-400);
+      sound.playStomp();
       this.hud()?.flash('+10');
     } else {
       this.applyHitToCheerio();
@@ -227,6 +229,7 @@ export default class RoomLargeIntestine extends Phaser.Scene {
     if (g.collected || !this.cheerio.alive) return;
     g.collect();
     scoreManager.addPoints(5);
+    sound.playScore();
     this.hud()?.flash('+5');
   }
 
@@ -234,6 +237,7 @@ export default class RoomLargeIntestine extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
+    sound.playFiber();
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -267,9 +271,10 @@ export default class RoomLargeIntestine extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    this.hud()?.flash('ROOM CLEARED — to the rectum!', 1800);
-    this.time.delayedCall(1900, () => {
-      this.scene.start('RoomAnus');
+    sound.playRoomClear();
+    this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
+    this.time.delayedCall(1600, () => {
+      this.scene.start('Quiz', { room: 'large_intestine', nextScene: 'RoomAnus' });
     });
   }
 

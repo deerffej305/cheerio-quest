@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { sound } from '../systems/SoundManager.js';
 
 const MOVE_SPEED = 280;
 const JUMP_VELOCITY_BIG = -780;
@@ -85,6 +86,7 @@ export default class Cheerio {
       const jv = this.state === 'big' ? JUMP_VELOCITY_BIG : JUMP_VELOCITY_SMALL;
       body.setVelocityY(jv);
       this.lastGroundedAt = 0;
+      sound.playJump();
     }
 
     // Damage-flash blink while invulnerable.
@@ -120,8 +122,10 @@ export default class Cheerio {
     if (this.state === 'big') {
       this.shrink();
       this.invulnUntil = this.scene.time.now + HIT_INVULN_MS;
+      sound.playOuch();
       return 'shrunk';
     }
+    sound.playDeath();
     this.die();
     return 'died';
   }

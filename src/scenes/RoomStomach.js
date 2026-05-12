@@ -7,6 +7,7 @@ import FoodPlatform from '../entities/FoodPlatform.js';
 import AcidDrop from '../entities/enemies/AcidDrop.js';
 import AcidBall from '../entities/enemies/AcidBall.js';
 import FiberToken from '../entities/FiberToken.js';
+import { sound } from '../systems/SoundManager.js';
 
 // Room 3 — Stomach. The largest, longest room in the game per the
 // design doc. Cavernous space; acid pool at the bottom (instant
@@ -218,6 +219,7 @@ export default class RoomStomach extends Phaser.Scene {
       drop.squash();
       scoreManager.addPoints(5);
       this.cheerio.body.setVelocityY(-400);
+      sound.playStomp();
       this.hud()?.flash('+5');
     } else {
       this.applyHitToCheerio();
@@ -234,6 +236,7 @@ export default class RoomStomach extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
+    sound.playFiber();
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -267,9 +270,10 @@ export default class RoomStomach extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    this.hud()?.flash('ROOM CLEARED — to the small intestine!', 1800);
-    this.time.delayedCall(1900, () => {
-      this.scene.start('RoomSmallIntestine');
+    sound.playRoomClear();
+    this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
+    this.time.delayedCall(1600, () => {
+      this.scene.start('Quiz', { room: 'stomach', nextScene: 'RoomSmallIntestine' });
     });
   }
 

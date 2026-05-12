@@ -8,6 +8,7 @@ import ChompingTeeth from '../entities/hazards/ChompingTeeth.js';
 import SalivaBlob from '../entities/hazards/SalivaBlob.js';
 import TongueBoss from '../entities/enemies/TongueBoss.js';
 import FiberToken from '../entities/FiberToken.js';
+import { sound } from '../systems/SoundManager.js';
 
 const ROOM_WIDTH = 2400;
 const FLOOR_Y = 640;
@@ -284,6 +285,7 @@ export default class RoomMouth extends Phaser.Scene {
       bacterium.squash();
       scoreManager.addPoints(10);
       this.cheerio.body.setVelocityY(-400);
+      sound.playStomp();
       this.hud()?.flash('+10');
     } else {
       this.applyHitToCheerio();
@@ -297,6 +299,7 @@ export default class RoomMouth extends Phaser.Scene {
       this.tongue.takeStomp();
       this.cheerio.body.setVelocityY(-520);
       scoreManager.addPoints(15);
+      sound.playStomp();
       this.hud()?.flash(this.tongue.isDead() ? 'TONGUE DOWN!' : '+15');
       if (this.tongue.isDead()) {
         this.unlockExit();
@@ -315,6 +318,7 @@ export default class RoomMouth extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
+    sound.playFiber();
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -387,12 +391,10 @@ export default class RoomMouth extends Phaser.Scene {
   completeRoom() {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
-    this.hud()?.flash('ROOM CLEARED — to the esophagus!', 1800);
-    // TODO: insert end-of-room quiz here once the Quiz scene ships.
-    // For now, route straight into Room 2 so the play-through is
-    // testable end-to-end.
-    this.time.delayedCall(1900, () => {
-      this.scene.start('RoomEsophagus');
+    sound.playRoomClear();
+    this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
+    this.time.delayedCall(1600, () => {
+      this.scene.start('Quiz', { room: 'mouth', nextScene: 'RoomEsophagus' });
     });
   }
 

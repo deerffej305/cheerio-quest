@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
+import { sound } from '../systems/SoundManager.js';
 
 // Overlay scene. Runs in parallel with the active room scene, fixed
 // to the camera, so the room scene can scroll without dragging HUD
@@ -35,8 +36,24 @@ export default class HudScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
+    // Mute indicator + key binding. M toggles audio globally.
+    this.muteText = this.add.text(GAME_WIDTH - 20, 70, this.muteLabel(), {
+      ...style,
+      fontSize: '14px',
+      color: '#aaaaaa',
+    }).setOrigin(1, 0);
+
+    this.input.keyboard.on('keydown-M', () => {
+      sound.toggleMute();
+      this.muteText.setText(this.muteLabel());
+    });
+
     this.cheerioSize = 'big';
     this.refresh();
+  }
+
+  muteLabel() {
+    return sound.isMuted() ? 'muted [M to unmute]' : 'audio on [M to mute]';
   }
 
   setRoomLabel(label) {

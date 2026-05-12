@@ -5,6 +5,7 @@ import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import PeristalsisRing from '../entities/hazards/PeristalsisRing.js';
 import FiberToken from '../entities/FiberToken.js';
+import { sound } from '../systems/SoundManager.js';
 
 const TUBE_W = 600;
 const TUBE_LEFT = (GAME_WIDTH - TUBE_W) / 2;       // 340
@@ -159,6 +160,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
+    sound.playFiber();
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -202,10 +204,10 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    this.hud()?.flash('ROOM CLEARED — to the stomach!', 1800);
-    // TODO: insert end-of-room quiz here once the Quiz scene ships.
-    this.time.delayedCall(1900, () => {
-      this.scene.start('RoomStomach');
+    sound.playRoomClear();
+    this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
+    this.time.delayedCall(1600, () => {
+      this.scene.start('Quiz', { room: 'esophagus', nextScene: 'RoomStomach' });
     });
   }
 

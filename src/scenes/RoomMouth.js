@@ -179,14 +179,14 @@ export default class RoomMouth extends Phaser.Scene {
       this.bacteria.push(b);
     }
 
-    // Two pairs of chomping teeth across the front of the mouth.
-    // The tongue's lunge pushes the player toward this row —
-    // catching a chomp is the damage source. Offsets are a half
-    // cycle apart (open phase is 1700ms) so when one is open the
-    // other is closing.
+    // Two pairs of chomping teeth clustered at the front of the
+    // mouth — visually a "front incisors" pair. The tongue's
+    // lunge pushes the player toward this cluster; catching a
+    // chomp is the damage source. Offsets are a half cycle apart
+    // so when one is open the other is closing.
     const teethPositions = [
-      { x: 320, offset: 0 },
-      { x: 540, offset: 1400 },
+      { x: 380, offset: 0 },
+      { x: 500, offset: 1600 },
     ];
     this.teethRow = teethPositions.map(({ x, offset }) =>
       new ChompingTeeth(this, x, FLOOR_Y, CEILING_Y + 40, { width: 80, phaseOffset: offset })

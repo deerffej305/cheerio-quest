@@ -122,16 +122,27 @@ export default class RoomAnus extends Phaser.Scene {
   // --- Poop displacers (patrolling shovers) ----------------------
 
   spawnPoopDisplacers() {
-    // Patrol several ledges. No damage on contact — just shove the
-    // cheerio in the displacer's direction of motion with a small
-    // upward pop, per the design's "displacement only" rule.
+    // Patrol every ledge and the open floor sections. No damage on
+    // contact — just shove the cheerio in the displacer's direction
+    // of motion with a small upward pop, per the design's
+    // "displacement only" rule. Density is intentionally heavy: the
+    // maze should feel crowded so positioning for the exit tile is
+    // a real timing problem.
     this.displacers = [];
     const specs = [
-      { x: 320, y: 440, range: [200, 460] },         // floor near entry
-      { x: 540, y: 330, range: [460, 620] },         // mid ledge
-      { x: 820, y: 440, range: [740, 900] },         // floor between exit ramp
-      { x: 700, y: 170, range: [640, 760] },         // high ledge
-      { x: 980, y: 220, range: [920, 1040] },        // top-right ledge near exit tile
+      // Lower-tier ledges + floor
+      { x: 280, y: 450, range: [200, 360] },    // ledge 1 (low-left)
+      { x: 200, y: 600, range: [60, 420] },     // floor far-left strip
+      { x: 820, y: 450, range: [740, 900] },    // ledge 3 (low-right)
+      { x: 620, y: 600, range: [500, 740] },    // floor between blockers
+      { x: 1100, y: 600, range: [960, 1240] },  // floor far-right
+      // Mid-tier ledges (y=360)
+      { x: 540, y: 340, range: [460, 620] },    // ledge 2 (mid)
+      { x: 1080, y: 340, range: [1020, 1140] }, // ledge 4 (mid-right, under exit tile)
+      // Top-tier ledges (y=200..250)
+      { x: 380, y: 230, range: [320, 440] },    // ledge 5 (high-left)
+      { x: 700, y: 170, range: [640, 760] },    // ledge 6 (highest)
+      { x: 980, y: 230, range: [920, 1040] },   // ledge 7 (top-right)
     ];
     for (const { x, y, range } of specs) {
       const d = new PoopDisplacer(this, x, y, { rangeLeft: range[0], rangeRight: range[1] });
@@ -209,10 +220,15 @@ export default class RoomAnus extends Phaser.Scene {
 
   triggerFart() {
     // Check if the cheerio is standing on the exit tile when the
-    // fart fires. "On" = within ±35 px horizontally of the tile
-    // center AND body bottom near the tile's surface y.
+    // fart fires. "On" = within ±40 px horizontally of the tile
+    // center AND body bottom landed on the ledge the tile marks.
+    // Threshold is loose on Y so any Big-or-Small cheerio standing
+    // on the ledge underneath counts (the tile is a visual marker
+    // floating above the ledge).
     const dx = Math.abs(this.cheerio.x - this.exitTileX);
-    const onTile = dx < 35 && Math.abs(this.cheerio.body.bottom - (this.exitTileY - 16)) < 16;
+    const onTile = dx < 40
+      && this.cheerio.body.bottom > this.exitTileY - 30
+      && this.cheerio.body.bottom < this.exitTileY + 20;
 
     if (onTile) {
       this.launchVictory();

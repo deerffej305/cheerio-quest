@@ -1,22 +1,27 @@
 import Phaser from 'phaser';
 
-// Tongue boss — anchored at the back-right of the mouth. The base
-// (right anchor) never moves; the tongue extends from the base's
-// left edge.
+// Tongue boss — anchored at the back-right of the mouth. Modeled
+// as two segments joined at a bend point:
 //
-// Lunge cycle:
-//   idle  → telegraph → lunging_out → hold_flat → curl_up →
-//   hold_curled → retracting → idle
+//     ┌────── proximal ──────┐  ┌────── distal ──────┐  ┌ base ┐
+//                                                              ▲
+//                                                          anchorX
 //
-// The curl_up state rotates the rectangle around the base anchor
-// (using Phaser's setOrigin(1, 1) so the anchor stays put), sweeping
-// the tip from horizontal-left to vertical-up — a windshield-wiper
-// motion that visually flicks the roof of the mouth.
+// The proximal segment is short (~150px) and attached to the base.
+// It always stays horizontal. The distal segment is the longer
+// portion (~350px) that does the flicking — during CURL_UP it
+// rotates around the joint (origin (1,1) on the distal places its
+// pivot at the bend point), arcing the tip up toward the roof of
+// the mouth.
 //
-// Stomp is only valid during the horizontal phases — once the
-// tongue curls up the player can't reach it. HP = 4. On the final
-// stomp the tongue slouches flat at full extension as a walkable
-// ramp the player runs over to reach the exit on the base.
+// State machine:
+//   idle → telegraph → lunging_out (proximal then distal extend)
+//   → hold_flat → curl_up (distal rotates 0→90°) → hold_curled
+//   → retracting (distal uncurls, then both retract) → idle.
+//
+// On the 4th stomp the tongue slouches flat at full extension —
+// a walkable ramp/floor extending leftward from the base, which
+// the player runs over to reach the exit on the base.
 
 const STATES = {
   IDLE: 'idle',
@@ -33,16 +38,23 @@ const STATES = {
 const DURATIONS = {
   idle: 1500,
   telegraph: 500,
-  lunging_out: 400,
+  lunging_out: 450,
   hold_flat: 150,
   curl_up: 400,
   hold_curled: 250,
-  retracting: 700, // covers both uncurl and horizontal retract
+  retracting: 700,
   recoil: 600,
 };
 
 export default class TongueBoss {
-  constructor(scene, anchorX, floorY, { reach = 500, height = 56, maxHp = 4, baseW = 120, baseH = 80 } = {}) {
+  constructor(scene, anchorX, floorY, {
+    reach = 500,
+    height = 56,
+    maxHp = 4,
+    baseW = 120,
+    baseH = 80,
+    jointDist = 150,
+  } = {}) {
     this.scene = scene;
     this.anchorX = anchorX;
     this.floorY = floorY;
@@ -50,28 +62,46 @@ export default class TongueBoss {
     this.baseW = baseW;
     this.baseH = baseH;
     this.maxReach = reach;
+    this.proxLen = jointDist;
+    this.distLen = reach - jointDist;
     this.hp = maxHp;
     this.maxHp = maxHp;
     this.state = STATES.IDLE;
     this.stateStartedAt = scene.time.now;
 
-    // The base — a solid pink hunk at the back-right of the mouth
-    // that stays put. The tongue extends from its left edge.
+    // Base — solid pink hunk at the back-right of the mouth.
     this.base = scene.add.rectangle(anchorX - baseW / 2, floorY - baseH / 2, baseW, baseH, 0xa05060);
 
-    // The tongue body. Width animates between 0 and maxReach.
-    // Origin pinned to the right edge so growing width extends
-    // leftward AND so rotating the rectangle pivots around the
-    // base anchor.
+    // Common anchor for the right edge of the proximal (sits just
+    // left of the base, at floor level).
     this.tongueAnchorX = anchorX - baseW;
     this.tongueAnchorY = floorY - 6;
-    this.tongue = scene.add.rectangle(this.tongueAnchorX, this.tongueAnchorY, 0, height, 0xcc5070);
-    this.tongue.setOrigin(1, 1);
-    scene.physics.add.existing(this.tongue);
-    this.tongue.body.setAllowGravity(false);
-    this.tongue.body.setImmovable(true);
-    this.tongue.tongueBoss = this;
-    this.syncBodyToWidth();
+
+    // Proximal segment — right-edge-anchored at the tongue anchor.
+    // setOrigin(1, 1) places origin at bottom-right so growing
+    // width extends leftward.
+    this.tongueProx = scene.add.rectangle(this.tongueAnchorX, this.tongueAnchorY, 1, height, 0xcc5070);
+    this.tongueProx.setOrigin(1, 1);
+    scene.physics.add.existing(this.tongueProx);
+    this.tongueProx.body.setAllowGravity(false);
+    this.tongueProx.body.setImmovable(true);
+    this.tongueProx.tongueBoss = this;
+    this.tongueProx.segmentRole = 'proximal';
+
+    // Distal segment — right-edge-anchored at the JOINT (which moves
+    // with the proximal's left edge). Origin (1,1) so rotation
+    // pivots around the joint, sweeping the tip upward.
+    this.tongueDist = scene.add.rectangle(this.tongueAnchorX, this.tongueAnchorY, 1, height, 0xcc5070);
+    this.tongueDist.setOrigin(1, 1);
+    scene.physics.add.existing(this.tongueDist);
+    this.tongueDist.body.setAllowGravity(false);
+    this.tongueDist.body.setImmovable(true);
+    this.tongueDist.tongueBoss = this;
+    this.tongueDist.segmentRole = 'distal';
+
+    // Initialize to fully retracted.
+    this.setExtent(0);
+    this.setCurlAngle(0);
 
     this.hpText = scene.add.text(anchorX - baseW / 2, floorY - baseH - 22, this.hpLabel(), {
       fontFamily: 'system-ui, sans-serif',
@@ -81,23 +111,30 @@ export default class TongueBoss {
     }).setOrigin(0.5);
   }
 
+  // Convenience: the segments array, used by RoomMouth when wiring
+  // up physics handlers. Order: proximal first.
+  get segments() {
+    return [this.tongueProx, this.tongueDist];
+  }
+
   hpLabel() {
     const hp = Math.max(0, this.hp);
     return `TONGUE ${'♥'.repeat(hp)}${'·'.repeat(this.maxHp - hp)}`;
   }
 
-  // World-space top of the tongue body (used for the stomp check).
+  // World-space top of the proximal segment, used for stomp checks
+  // against the horizontal portion of the tongue.
   topY() {
-    return this.tongue.y - this.tongue.height;
+    return this.tongueProx.y - this.tongueProx.displayHeight;
   }
 
-  // Width above zero — used to gate overlap calculations.
   isExtended() {
-    return this.tongue.width > 6;
+    return this.tongueProx.displayWidth + this.tongueDist.displayWidth > 6;
   }
 
-  // The horizontal phases — when the tongue is lying flat and the
-  // player can interact with it. Curl phases are out of reach.
+  // True when the tongue is lying flat (no curl). The stomp/push
+  // overlap is gated by this — the player can't reach the tongue
+  // once it curls up.
   isHorizontal() {
     return (
       this.state === STATES.LUNGING_OUT
@@ -107,37 +144,45 @@ export default class TongueBoss {
   }
 
   isDangerous() {
-    // Only active horizontal states inflict push.
     return this.state === STATES.LUNGING_OUT || this.state === STATES.HOLD_FLAT;
   }
 
-  syncBodyToWidth() {
-    const w = Math.max(1, this.tongue.width);
-    const h = this.tongue.height;
-    this.tongue.body.setSize(w, h);
-    // Origin (1, 1) means the body offset must keep the right edge pinned.
-    this.tongue.body.setOffset(this.tongue.displayWidth - w, this.tongue.displayHeight - h);
+  // Resize a segment using Phaser's setSize, which updates both the
+  // GameObject's width/height AND the underlying geom + body, so
+  // the rectangle actually re-tessellates. (Setting .width directly
+  // only updates the transform — the rendered geom keeps its
+  // constructor size.)
+  setSegmentWidth(seg, w) {
+    const safe = Math.max(1, w);
+    seg.setSize(safe, this.height);
+    seg.body.setSize(safe, this.height);
+    // Origin (1, 1) means the body needs negative offset to align
+    // with the rendered left-extending rectangle.
+    seg.body.setOffset(-safe, -this.height);
   }
 
   setExtent(extent) {
-    // extent in [0, 1] — 0 is fully retracted, 1 is full lunge.
-    this.tongue.width = Phaser.Math.Clamp(extent, 0, 1) * this.maxReach;
-    this.tongue.displayWidth = this.tongue.width;
-    this.syncBodyToWidth();
+    const total = Phaser.Math.Clamp(extent, 0, 1) * this.maxReach;
+    const proxW = Math.min(this.proxLen, total);
+    const distW = Math.max(0, total - this.proxLen);
+
+    this.setSegmentWidth(this.tongueProx, proxW);
+    // The distal hangs off the proximal's left edge — its pivot is
+    // the joint at anchorX - proxW.
+    this.tongueDist.setPosition(this.tongueAnchorX - proxW, this.tongueAnchorY);
+    this.setSegmentWidth(this.tongueDist, distW);
   }
 
   setCurlAngle(angleDeg) {
-    // angleDeg is the "curl up" amount, 0..90. Phaser's positive
-    // angle is screen-clockwise (a left-pointing rod would swing
-    // downward), so we negate to swing upward toward the roof of
-    // the mouth — the windshield-wiper flick.
+    // angleDeg is the "curl up" amount, 0..90.
+    // For a left-extending rectangle pivoted at origin (1,1), a
+    // POSITIVE Phaser angle (which is clockwise on screen) sweeps
+    // the rectangle's tip up and slightly to the right — exactly
+    // the windshield-wiper flick we want, hinged at the joint.
     const curl = Phaser.Math.Clamp(angleDeg, 0, 90);
-    this.tongue.angle = -curl;
-    // Defensive: keep the anchor pinned. The rotation pivots around
-    // origin (1,1), so the rectangle's *position* shouldn't drift,
-    // but if something upstream wrote NaN we want to recover.
-    if (Number.isNaN(this.tongue.x) || Number.isNaN(this.tongue.y)) {
-      this.tongue.setPosition(this.tongueAnchorX, this.tongueAnchorY);
+    this.tongueDist.angle = curl;
+    if (Number.isNaN(this.tongueDist.x) || Number.isNaN(this.tongueDist.y)) {
+      this.tongueDist.setPosition(this.tongueAnchorX - this.tongueProx.displayWidth, this.tongueAnchorY);
     }
   }
 
@@ -155,21 +200,23 @@ export default class TongueBoss {
       case STATES.IDLE: {
         this.setExtent(0);
         this.setCurlAngle(0);
-        this.tongue.fillColor = 0xcc5070;
+        this.tongueProx.fillColor = 0xcc5070;
+        this.tongueDist.fillColor = 0xcc5070;
         if (elapsed >= DURATIONS.idle) this.advance(STATES.TELEGRAPH);
         break;
       }
       case STATES.TELEGRAPH: {
-        // Pulsing widen — windup the tongue
-        this.tongue.fillColor = 0xff8090;
-        const pulse = 0.05 + 0.04 * Math.sin(now / 40);
+        this.tongueProx.fillColor = 0xff8090;
+        this.tongueDist.fillColor = 0xff8090;
+        const pulse = 0.06 + 0.03 * Math.sin(now / 40);
         this.setExtent(pulse);
         this.setCurlAngle(0);
         if (elapsed >= DURATIONS.telegraph) this.advance(STATES.LUNGING_OUT);
         break;
       }
       case STATES.LUNGING_OUT: {
-        this.tongue.fillColor = 0xff5070;
+        this.tongueProx.fillColor = 0xff5070;
+        this.tongueDist.fillColor = 0xff5070;
         const t = Phaser.Math.Easing.Quadratic.Out(elapsed / DURATIONS.lunging_out);
         this.setExtent(t);
         this.setCurlAngle(0);
@@ -183,28 +230,26 @@ export default class TongueBoss {
         break;
       }
       case STATES.CURL_UP: {
-        // Rotate the tongue around the base anchor from horizontal
-        // to vertical. Width stays at full extent — the visual is a
-        // rigid rod swinging up. Body collision is disabled during
-        // this phase via the overlap processCallback.
-        this.tongue.fillColor = 0xff6080;
-        const t = Phaser.Math.Easing.Quadratic.InOut(elapsed / DURATIONS.curl_up);
+        // Distal swings around the joint. Proximal stays flat.
+        this.tongueProx.fillColor = 0xff5070;
+        this.tongueDist.fillColor = 0xff6080;
         this.setExtent(1);
+        const t = Phaser.Math.Easing.Quadratic.InOut(elapsed / DURATIONS.curl_up);
         this.setCurlAngle(t * 90);
         if (elapsed >= DURATIONS.curl_up) this.advance(STATES.HOLD_CURLED);
         break;
       }
       case STATES.HOLD_CURLED: {
-        // Brief beat at the top — the tongue "flicks" the roof.
         this.setExtent(1);
         this.setCurlAngle(90);
         if (elapsed >= DURATIONS.hold_curled) this.advance(STATES.RETRACTING);
         break;
       }
       case STATES.RETRACTING: {
-        this.tongue.fillColor = 0xcc5070;
+        this.tongueProx.fillColor = 0xcc5070;
+        this.tongueDist.fillColor = 0xcc5070;
         const t = elapsed / DURATIONS.retracting;
-        // First half: uncurl angle 90 → 0. Second half: width 500 → 0.
+        // First half: uncurl. Second half: retract horizontally.
         if (t < 0.5) {
           this.setExtent(1);
           this.setCurlAngle((1 - t * 2) * 90);
@@ -216,8 +261,8 @@ export default class TongueBoss {
         break;
       }
       case STATES.RECOIL: {
-        // Post-stomp shrink. Uncurl quickly if it was curled.
-        this.tongue.fillColor = 0x903040;
+        this.tongueProx.fillColor = 0x903040;
+        this.tongueDist.fillColor = 0x903040;
         const t = elapsed / DURATIONS.recoil;
         this.setCurlAngle(0);
         this.setExtent(1 - Phaser.Math.Easing.Cubic.Out(t));
@@ -258,10 +303,12 @@ export default class TongueBoss {
 
   slouch() {
     this.state = STATES.SLOUCHED;
-    this.tongue.fillColor = 0x884050;
+    this.tongueProx.fillColor = 0x884050;
+    this.tongueDist.fillColor = 0x884050;
     this.setExtent(1);
     this.setCurlAngle(0);
-    this.tongue.body.setImmovable(true);
+    this.tongueProx.body.setImmovable(true);
+    this.tongueDist.body.setImmovable(true);
     this.hpText.setVisible(false);
   }
 

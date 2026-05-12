@@ -205,24 +205,27 @@ export default class RoomMouth extends Phaser.Scene {
       baseH: TONGUE_BASE_H,
     });
     // Overlap drives stomp / push verdicts while the tongue is in
-    // its horizontal (lunging-out or hold-flat) phases — once it
-    // curls up out of the floor zone, the tongue is no longer a
-    // threat and the player can't reach it to stomp.
-    this.physics.add.overlap(
-      this.cheerio.sprite,
-      this.tongue.tongue,
-      () => this.handleTongueContact(),
-      () => this.tongue.isHorizontal(),
-    );
-    // Once slouched, the tongue body becomes a solid platform — the
-    // ramp the player runs over to reach the exit on top of the base.
-    // processCallback gates the collision: ignored until isDead().
-    this.physics.add.collider(
-      this.cheerio.sprite,
-      this.tongue.tongue,
-      null,
-      () => this.tongue.isDead(),
-    );
+    // its horizontal (lunging-out or hold-flat) phases — once the
+    // distal curls up out of the floor zone, the tongue is no
+    // longer a threat and the player can't reach it to stomp.
+    // We wire both segments so a stomp on either counts.
+    for (const seg of this.tongue.segments) {
+      this.physics.add.overlap(
+        this.cheerio.sprite,
+        seg,
+        () => this.handleTongueContact(),
+        () => this.tongue.isHorizontal(),
+      );
+      // Once slouched, both segments become solid platforms — the
+      // ramp the player runs over to reach the exit on top of the
+      // base. processCallback gates the collision until isDead().
+      this.physics.add.collider(
+        this.cheerio.sprite,
+        seg,
+        null,
+        () => this.tongue.isDead(),
+      );
+    }
     // The tongue's base is always a solid platform.
     this.physics.add.existing(this.tongue.base, true);
     this.platforms.add(this.tongue.base);

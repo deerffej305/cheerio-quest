@@ -17,7 +17,7 @@ const EXIT_Y = ROOM_HEIGHT - 120;                  // 3080
 // Slow the fall so the player has time to read each ring's gap and
 // nudge sideways. Default Cheerio max y velocity is 1600 (built for
 // platformer drops) — way too fast for a 3200-tall tube.
-const ESOPHAGUS_TERMINAL_VY = 250;
+const ESOPHAGUS_TERMINAL_VY = 275;
 
 export default class RoomEsophagus extends Phaser.Scene {
   constructor() {
@@ -202,10 +202,10 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    this.hud()?.flash('ROOM CLEARED — Stomach next (placeholder)', 2400);
-    this.time.delayedCall(2300, () => {
-      this.scene.stop('Hud');
-      this.scene.start('Title');
+    this.hud()?.flash('ROOM CLEARED — to the stomach!', 1800);
+    // TODO: insert end-of-room quiz here once the Quiz scene ships.
+    this.time.delayedCall(1900, () => {
+      this.scene.start('RoomStomach');
     });
   }
 

@@ -25,6 +25,9 @@ export default class QuizScene extends Phaser.Scene {
     this.roomTag = data.room || 'general';
     this.nextScene = data.nextScene || null;
     this.count = data.count || 10;
+    // Optional labels used by the post-quiz cutscene placeholder.
+    this.cutsceneFrom = data.cutsceneFrom || this.roomLabel();
+    this.cutsceneTo = data.cutsceneTo || '';
     this.questions = [];
     this.idx = 0;
     this.answered = false;
@@ -164,7 +167,13 @@ export default class QuizScene extends Phaser.Scene {
     if (this._advanced) return;
     this._advanced = true;
     if (this.nextScene) {
-      this.scene.start(this.nextScene);
+      // Route through the cutscene placeholder on the way to the
+      // next room — populated in the polish pass.
+      this.scene.start('Cutscene', {
+        fromLabel: this.cutsceneFrom,
+        toLabel: this.cutsceneTo,
+        nextScene: this.nextScene,
+      });
     } else {
       this.scene.stop('Hud');
       this.scene.start('Title');

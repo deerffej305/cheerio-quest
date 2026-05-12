@@ -207,7 +207,10 @@ export default class RoomEsophagus extends Phaser.Scene {
     sound.playRoomClear();
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
-      this.scene.start('Quiz', { room: 'esophagus', nextScene: 'RoomStomach' });
+      this.scene.start('Quiz', {
+        room: 'esophagus', nextScene: 'RoomStomach',
+        cutsceneFrom: 'Esophagus', cutsceneTo: 'Stomach',
+      });
     });
   }
 

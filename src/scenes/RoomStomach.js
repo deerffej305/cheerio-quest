@@ -46,6 +46,7 @@ export default class RoomStomach extends Phaser.Scene {
     this.spawnAcidBalls();
     this.spawnFiberToken();
     this.spawnExit();
+    this.spawnPyloricSwitch();
 
     this.bindEsc();
     this.scene.get('Hud')?.setRoomLabel('Room 3 — Stomach');
@@ -192,15 +193,89 @@ export default class RoomStomach extends Phaser.Scene {
   // --- Exit (pyloric sphincter) ----------------------------------
 
   spawnExit() {
-    // Final landing pad + door on the right.
-    this.exitDoor = this.add.rectangle(EXIT_X, EXIT_Y, 60, 120, 0x80ffa0);
-    this.add.text(EXIT_X, EXIT_Y - 80, 'PYLORUS →\n(exit)', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#a0ffa0', align: 'center',
+    // Final landing pad + door on the right. Starts LOCKED behind
+    // a giant acid bubble at the pylorus — the player has to
+    // trigger the pyloric-sphincter switch elsewhere in the room
+    // to retract the bubble and unlock the exit.
+    this.exitDoor = this.add.rectangle(EXIT_X, EXIT_Y, 60, 120, 0x404040);
+    this.exitLabel = this.add.text(EXIT_X, EXIT_Y - 80, 'PYLORUS\n(locked)', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ff8080', align: 'center',
     }).setOrigin(0.5);
     this.physics.add.existing(this.exitDoor);
     this.exitDoor.body.setAllowGravity(false);
     this.exitDoor.body.setImmovable(true);
-    this.physics.add.overlap(this.cheerio.sprite, this.exitDoor, () => this.completeRoom());
+    this.physics.add.overlap(this.cheerio.sprite, this.exitDoor, () => {
+      if (this.exitUnlocked) this.completeRoom();
+    });
+
+    // Giant acid bubble blocking the exit.
+    this.exitBubble = this.add.ellipse(EXIT_X, EXIT_Y, 110, 150, 0xff7028, 0.55);
+    this.exitBubble.setStrokeStyle(3, 0xff5028);
+    this.tweens.add({
+      targets: this.exitBubble,
+      scaleX: 1.08,
+      scaleY: 1.08,
+      duration: 700,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.InOut',
+    });
+
+    this.exitUnlocked = false;
+  }
+
+  spawnPyloricSwitch() {
+    // A switch platform tucked low and to the right of the room —
+    // requires the player to drop down toward the acid, hit the
+    // switch, then climb back up to the exit. Mini-boss flavor.
+    const switchX = 2900;
+    const switchY = 530;
+    this.pyloricSwitch = this.add.rectangle(switchX, switchY, 80, 14, 0xffd060);
+    this.pyloricSwitch.setStrokeStyle(2, 0xc09030);
+    this.physics.add.existing(this.pyloricSwitch, true);
+    this.add.text(switchX, switchY - 28, 'PYLORIC SWITCH', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#ffd060', fontStyle: 'bold',
+    }).setOrigin(0.5);
+
+    // Subtle pulse so the switch reads as interactive.
+    this.tweens.add({
+      targets: this.pyloricSwitch,
+      alpha: 0.6,
+      duration: 600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.InOut',
+    });
+
+    this.physics.add.collider(this.cheerio.sprite, this.pyloricSwitch, () => {
+      if (this.cheerio.body.touching.down && this.pyloricSwitch.body.touching.up) {
+        this.activatePyloricSwitch();
+      }
+    });
+  }
+
+  activatePyloricSwitch() {
+    if (this.exitUnlocked) return;
+    this.exitUnlocked = true;
+    this.pyloricSwitch.fillColor = 0x60ff60;
+    this.pyloricSwitch.alpha = 1;
+    this.tweens.killTweensOf(this.pyloricSwitch);
+
+    // Retract the bubble.
+    this.tweens.add({
+      targets: this.exitBubble,
+      alpha: 0,
+      scaleX: 0.1,
+      scaleY: 0.1,
+      duration: 500,
+      onComplete: () => this.exitBubble.destroy(),
+    });
+
+    // Unlock the door visually.
+    this.exitDoor.fillColor = 0x80ffa0;
+    this.exitLabel.setText('PYLORUS →\n(open!)').setColor('#a0ffa0');
+    this.hud()?.flash('Pyloric sphincter open! Run to the exit →', 1800);
+    sound.playScore();
   }
 
   // --- Contact handlers ------------------------------------------
@@ -273,7 +348,10 @@ export default class RoomStomach extends Phaser.Scene {
     sound.playRoomClear();
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
-      this.scene.start('Quiz', { room: 'stomach', nextScene: 'RoomSmallIntestine' });
+      this.scene.start('Quiz', {
+        room: 'stomach', nextScene: 'RoomSmallIntestine',
+        cutsceneFrom: 'Stomach', cutsceneTo: 'Small Intestine',
+      });
     });
   }
 

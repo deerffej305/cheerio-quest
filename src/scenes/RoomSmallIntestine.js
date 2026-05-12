@@ -59,6 +59,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     this.spawnFiberToken();
     this.spawnExit();
     this.spawnWarningOverlay();
+    this.spawnBileInjector();
 
     this.bindEsc();
     this.scene.get('Hud')?.setRoomLabel('Room 4 — Small Intestine');
@@ -195,6 +196,83 @@ export default class RoomSmallIntestine extends Phaser.Scene {
       .setScrollFactor(0);
   }
 
+  // --- Bile injection event (per design §6.4) -------------------
+
+  spawnBileInjector() {
+    // Bile from the pancreas: a screen-wide chartreuse wave at
+    // chest height that the player must duck under (= stay
+    // grounded on the floor). Anyone mid-air during ACTIVE gets
+    // hit. Cycle: idle (5s) → telegraph (rumble + warning 1.4s)
+    // → active sweep (1.4s) → idle again.
+    this.bilePhase = 'idle';
+    this.bilePhaseAt = this.time.now;
+    this.bileDurations = { idle: 5000, telegraph: 1400, active: 1400 };
+    this.bileDangerY = 440;
+    this.bileDangerH = 56;
+
+    // Wave is camera-locked so it sweeps the visible viewport.
+    this.bileWave = this.add.rectangle(GAME_WIDTH + 100, this.bileDangerY, 1500, this.bileDangerH, 0xc8ff60)
+      .setOrigin(0, 0.5)
+      .setScrollFactor(0)
+      .setAlpha(0);
+
+    // Full-screen translucent green overlay flashing during the
+    // telegraph window — visual "DUCK" cue.
+    this.bileTelegraph = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0xc8ff60, 0)
+      .setScrollFactor(0);
+
+    this.bileWarningText = this.add.text(GAME_WIDTH / 2, 130, '', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '22px', color: '#c8ff60', fontStyle: 'bold',
+    }).setOrigin(0.5).setScrollFactor(0);
+  }
+
+  updateBile() {
+    const elapsed = this.time.now - this.bilePhaseAt;
+    const dur = this.bileDurations[this.bilePhase];
+
+    if (this.bilePhase === 'idle') {
+      this.bileTelegraph.setAlpha(0);
+      this.bileWarningText.setText('');
+      this.bileWave.setAlpha(0);
+      if (elapsed >= dur) {
+        this.bilePhase = 'telegraph';
+        this.bilePhaseAt = this.time.now;
+      }
+    } else if (this.bilePhase === 'telegraph') {
+      const pulse = 0.15 + 0.15 * Math.sin(this.time.now / 60);
+      this.bileTelegraph.setAlpha(pulse);
+      this.bileWarningText.setText('BILE INCOMING — STAY ON THE FLOOR!');
+      this.cameras.main.shake(60, 0.002);
+      if (elapsed >= dur) {
+        this.bilePhase = 'active';
+        this.bilePhaseAt = this.time.now;
+        this.bileWave.x = GAME_WIDTH + 100;
+        this.bileWave.setAlpha(0.85);
+      }
+    } else if (this.bilePhase === 'active') {
+      this.bileTelegraph.setAlpha(0);
+      this.bileWarningText.setText('');
+      const t = Phaser.Math.Clamp(elapsed / dur, 0, 1);
+      this.bileWave.x = (GAME_WIDTH + 100) - t * (GAME_WIDTH + 1700);
+      // Hit check uses SCREEN-space x because the wave is
+      // scroll-factor-0.
+      const cheerioScreenX = this.cheerio.x - this.cameras.main.scrollX;
+      const cheerioHalf = this.cheerio.sprite.displayWidth / 2;
+      const inXRange = cheerioScreenX + cheerioHalf > this.bileWave.x
+        && cheerioScreenX - cheerioHalf < this.bileWave.x + this.bileWave.width;
+      const cBottom = this.cheerio.body.bottom;
+      const cTop = cBottom - this.cheerio.sprite.displayHeight;
+      const bileTop = this.bileDangerY - this.bileDangerH / 2;
+      const bileBottom = this.bileDangerY + this.bileDangerH / 2;
+      const inYRange = cTop < bileBottom && cBottom > bileTop;
+      if (inXRange && inYRange) this.applyHitToCheerio();
+      if (elapsed >= dur) {
+        this.bilePhase = 'idle';
+        this.bilePhaseAt = this.time.now;
+      }
+    }
+  }
+
   // --- Contact handlers ------------------------------------------
 
   handleVillusContact(v) {
@@ -265,7 +343,10 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     sound.playRoomClear();
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
-      this.scene.start('Quiz', { room: 'small_intestine', nextScene: 'RoomLargeIntestine' });
+      this.scene.start('Quiz', {
+        room: 'small_intestine', nextScene: 'RoomLargeIntestine',
+        cutsceneFrom: 'Small Intestine', cutsceneTo: 'Large Intestine',
+      });
     });
   }
 
@@ -301,6 +382,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     }
 
     for (const v of this.villi) v.update();
+    this.updateBile();
   }
 
   // --- Helpers ----------------------------------------------------

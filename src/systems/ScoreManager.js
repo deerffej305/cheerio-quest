@@ -6,6 +6,9 @@
 class ScoreManager {
   constructor() {
     this.resetRun();
+    // Cross-run best — survives resetRun() so the Title leaderboard
+    // can show the player's best Quiz Mode streak across sessions.
+    this.bestQuizStreak = 0;
   }
 
   resetRun() {
@@ -13,6 +16,10 @@ class ScoreManager {
     this.fiberCount = 0;
     this.questionsCorrect = 0;
     this.roomIndex = 0;
+  }
+
+  recordQuizStreak(streak) {
+    if (streak > this.bestQuizStreak) this.bestQuizStreak = streak;
   }
 
   addPoints(n) {

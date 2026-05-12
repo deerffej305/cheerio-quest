@@ -27,7 +27,7 @@ export default class TitleScene extends Phaser.Scene {
     // Main menu — proper game modes.
     const mainItems = [
       { label: '[1] Game Mode (full play-through)', scene: 'GameMode', key: 'ONE' },
-      { label: '[2] Quiz Mode', scene: 'Quiz', key: 'TWO' },
+      { label: '[2] Quiz Mode (sudden-death streak)', scene: 'QuizArcade', key: 'TWO' },
       { label: '[3] Leaderboards', scene: 'Leaderboard', key: 'THREE' },
     ];
 

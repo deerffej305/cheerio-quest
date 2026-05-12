@@ -8,6 +8,8 @@ import RoomStomach from './scenes/RoomStomach.js';
 import RoomSmallIntestine from './scenes/RoomSmallIntestine.js';
 import RoomLargeIntestine from './scenes/RoomLargeIntestine.js';
 import RoomAnus from './scenes/RoomAnus.js';
+import CutsceneScene from './scenes/CutsceneScene.js';
+import QuizArcadeScene from './scenes/QuizArcadeScene.js';
 import HudScene from './scenes/HudScene.js';
 import QuizScene from './scenes/QuizScene.js';
 import LeaderboardScene from './scenes/LeaderboardScene.js';
@@ -38,7 +40,7 @@ const config = {
     forceSetTimeOut: true,
     target: 60,
   },
-  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, RoomStomach, RoomSmallIntestine, RoomLargeIntestine, RoomAnus, HudScene, QuizScene, LeaderboardScene],
+  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, RoomStomach, RoomSmallIntestine, RoomLargeIntestine, RoomAnus, CutsceneScene, QuizArcadeScene, HudScene, QuizScene, LeaderboardScene],
 };
 
 const game = new Phaser.Game(config);

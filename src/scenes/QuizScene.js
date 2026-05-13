@@ -25,9 +25,11 @@ export default class QuizScene extends Phaser.Scene {
     this.roomTag = data.room || 'general';
     this.nextScene = data.nextScene || null;
     this.count = data.count || 10;
-    // Optional labels used by the post-quiz cutscene placeholder.
-    this.cutsceneFrom = data.cutsceneFrom || this.roomLabel();
-    this.cutsceneTo = data.cutsceneTo || '';
+    // Optional cutscene key — if set, the post-quiz transition
+    // routes through CutsceneScene(key) on the way to nextScene.
+    // Only the Large Intestine quiz uses this (key='poop') under
+    // the locked 5-cutscene plan.
+    this.cutsceneKey = data.cutsceneKey || null;
     this.questions = [];
     this.idx = 0;
     this.answered = false;
@@ -166,17 +168,15 @@ export default class QuizScene extends Phaser.Scene {
   advance() {
     if (this._advanced) return;
     this._advanced = true;
-    if (this.nextScene) {
-      // Route through the cutscene placeholder on the way to the
-      // next room — populated in the polish pass.
-      this.scene.start('Cutscene', {
-        fromLabel: this.cutsceneFrom,
-        toLabel: this.cutsceneTo,
-        nextScene: this.nextScene,
-      });
-    } else {
+    if (!this.nextScene) {
       this.scene.stop('Hud');
       this.scene.start('Title');
+      return;
+    }
+    if (this.cutsceneKey) {
+      this.scene.start('Cutscene', { key: this.cutsceneKey, nextScene: this.nextScene });
+    } else {
+      this.scene.start(this.nextScene);
     }
   }
 }

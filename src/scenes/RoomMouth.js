@@ -394,10 +394,7 @@ export default class RoomMouth extends Phaser.Scene {
     sound.playRoomClear();
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
-      this.scene.start('Quiz', {
-        room: 'mouth', nextScene: 'RoomEsophagus',
-        cutsceneFrom: 'Mouth', cutsceneTo: 'Esophagus',
-      });
+      this.scene.start('Quiz', { room: 'mouth', nextScene: 'RoomEsophagus' });
     });
   }
 

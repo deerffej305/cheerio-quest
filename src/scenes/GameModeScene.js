@@ -16,6 +16,8 @@ export default class GameModeScene extends Phaser.Scene {
     scoreManager.resetRun();
     questionBank.resetRun();
     this.scene.launch('Hud', { roomLabel: 'Room 1 — Mouth' });
-    this.scene.start('RoomMouth');
+    // Lift Off cutscene plays before the mouth — kid eats Crispy,
+    // "Oh no.", etc. Real panels arrive with the art pass.
+    this.scene.start('Cutscene', { key: 'liftoff', nextScene: 'RoomMouth' });
   }
 }

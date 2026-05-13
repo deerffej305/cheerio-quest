@@ -9,8 +9,8 @@ const HIT_INVULN_MS = 1100;
 
 const BIG_SIZE = 48;
 const SMALL_SIZE = 28;
-const BIG_COLOR = 0xf4c87a;
-const SMALL_COLOR = 0xf0a050;
+const TEXTURE_BIG = 'crispy-big';
+const TEXTURE_SMALL = 'crispy-small';
 
 // The player character. Two states:
 //   - 'big'   : one hit absorbs a damage event and shrinks to small.
@@ -27,11 +27,12 @@ export default class Cheerio {
     this.displacedUntil = 0;
     this.alive = true;
 
-    this.sprite = scene.add.rectangle(x, y, BIG_SIZE, BIG_SIZE, BIG_COLOR);
+    this.sprite = scene.add.image(x, y, TEXTURE_BIG);
     scene.physics.add.existing(this.sprite);
 
     const body = this.sprite.body;
     body.setCollideWorldBounds(true);
+    body.setSize(BIG_SIZE, BIG_SIZE);
     body.setMaxVelocity(MOVE_SPEED * 1.5, 1600);
 
     // Keep handles to commonly-touched data on the sprite for collider
@@ -133,16 +134,14 @@ export default class Cheerio {
   shrink() {
     if (this.state === 'small') return;
     this.state = 'small';
-    this.sprite.setSize(SMALL_SIZE, SMALL_SIZE);
-    this.sprite.fillColor = SMALL_COLOR;
+    this.sprite.setTexture(TEXTURE_SMALL);
     this.body.setSize(SMALL_SIZE, SMALL_SIZE);
   }
 
   grow() {
     if (this.state === 'big') return false;
     this.state = 'big';
-    this.sprite.setSize(BIG_SIZE, BIG_SIZE);
-    this.sprite.fillColor = BIG_COLOR;
+    this.sprite.setTexture(TEXTURE_BIG);
     this.body.setSize(BIG_SIZE, BIG_SIZE);
     return true;
   }

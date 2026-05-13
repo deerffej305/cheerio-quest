@@ -3,8 +3,7 @@ import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
-import ConstipationBlocker from '../entities/hazards/ConstipationBlocker.js';
-import PoopDisplacer from '../entities/enemies/PoopDisplacer.js';
+import PoopBoss from '../entities/enemies/PoopBoss.js';
 import { sound } from '../systems/SoundManager.js';
 import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.js';
 
@@ -47,9 +46,8 @@ export default class RoomAnus extends Phaser.Scene {
 
     this.buildMaze();
     this.spawnCheerio();
-    this.spawnBlockers();
-    this.spawnPoopDisplacers();
     this.spawnExitTile();
+    this.spawnPoopBoss();
     this.spawnHud();
     this.startFartCycle();
 
@@ -107,65 +105,29 @@ export default class RoomAnus extends Phaser.Scene {
     this.cameras.main.startFollow(this.cheerio.sprite, true, 0.2, 0.2);
   }
 
-  // --- Constipation blockers (pushable + static) ------------------
+  // --- Poop Boss (sits on the exit tile) -------------------------
 
-  spawnBlockers() {
-    this.blockers = [];
-    const specs = [
-      { x: 460, y: FLOOR_Y - 20, pushable: false },
-      { x: 760, y: FLOOR_Y - 20, pushable: true },
-      { x: 920, y: FLOOR_Y - 20, pushable: false },
-    ];
-    for (const { x, y, pushable } of specs) {
-      const b = new ConstipationBlocker(this, x, y, { pushable });
-      this.physics.add.collider(this.cheerio.sprite, b.sprite);
-      if (pushable) this.physics.add.collider(b.sprite, this.platforms);
-      this.blockers.push(b);
-    }
+  spawnPoopBoss() {
+    // Boss is parked on the exit perch. Stomping him three times
+    // makes him grudgingly roll off; he doesn't die. After he
+    // relocates, Crispy can stand on the now-unblocked exit tile
+    // and wait for the next fart.
+    const ledgeTopY = this.exitTileY + 6; // perch ledge surface
+    this.poopBoss = new PoopBoss(this, this.exitTileX, ledgeTopY - 40);
+    this.physics.add.collider(this.poopBoss.sprite, this.platforms);
+    this.physics.add.collider(this.cheerio.sprite, this.poopBoss.sprite, () => this.handlePoopBossContact());
   }
 
-  // --- Poop displacers (patrolling shovers) ----------------------
-
-  spawnPoopDisplacers() {
-    // Patrol every ledge and the open floor sections. No damage on
-    // contact — just shove the cheerio in the displacer's direction
-    // of motion with a small upward pop, per the design's
-    // "displacement only" rule. Density is intentionally heavy: the
-    // maze should feel crowded so positioning for the exit tile is
-    // a real timing problem.
-    this.displacers = [];
-    const specs = [
-      // Lower-tier ledges + floor
-      { x: 280, y: 450, range: [200, 360] },    // ledge 1 (low-left)
-      { x: 200, y: 600, range: [60, 420] },     // floor far-left strip
-      { x: 820, y: 450, range: [740, 900] },    // ledge 3 (low-right)
-      { x: 620, y: 600, range: [500, 740] },    // floor between blockers
-      { x: 1100, y: 600, range: [960, 1240] },  // floor far-right
-      // Mid-tier ledges (y=360)
-      { x: 540, y: 340, range: [460, 620] },    // ledge 2 (mid)
-      { x: 1080, y: 340, range: [1020, 1140] }, // ledge 4 (mid-right, climb path)
-      // Top-tier ledges (y=200..250)
-      { x: 380, y: 230, range: [320, 440] },    // ledge 5 (high-left)
-      { x: 700, y: 170, range: [640, 760] },    // ledge 6 (highest)
-      { x: 980, y: 230, range: [920, 1040] },   // ledge 7 (top-right)
-    ];
-    for (const { x, y, range } of specs) {
-      const d = new PoopDisplacer(this, x, y, { rangeLeft: range[0], rangeRight: range[1] });
-      this.physics.add.collider(d.sprite, this.platforms);
-      this.physics.add.collider(this.cheerio.sprite, d.sprite, () => this.handleDisplacerContact(d));
-      this.displacers.push(d);
+  handlePoopBossContact() {
+    if (!this.poopBoss || this.poopBoss.isRelocated() || !this.cheerio.alive) return;
+    const stomped = this.cheerio.body.touching.down && this.poopBoss.sprite.body.touching.up;
+    if (stomped) {
+      const relocated = this.poopBoss.takeStomp();
+      this.cheerio.body.setVelocityY(-440);
+      sound.playStomp();
+      this.hud()?.flash(relocated ? 'BOSS ROLLED OFF!' : 'Stomp him again!');
     }
-  }
-
-  handleDisplacerContact(d) {
-    if (!d.alive || !this.cheerio.alive) return;
-    // Stomping does nothing — these aren't damageable enemies, and
-    // they aren't damaging in return. Just shove. applyDisplacement
-    // holds the player's input-driven velocity reset off for the
-    // shove window so the push actually carries.
-    const direction = d.isMovingRight() ? 1 : -1;
-    const popVy = this.cheerio.body.blocked.down ? -220 : null;
-    this.cheerio.applyDisplacement(direction * 360, popVy, 320);
+    // No damage on side contact — he's lazy, not aggressive.
   }
 
   // --- Exit tile (the one safe spot during a fart) ---------------
@@ -267,8 +229,24 @@ export default class RoomAnus extends Phaser.Scene {
       duration: 1100,
       ease: 'Cubic.Out',
     });
-    this.hud()?.flash('💨 LAUNCHED INTO THE TOILET!', 2200);
-    this.time.delayedCall(1200, () => this.showCredits());
+    this.hud()?.flash('LAUNCHED INTO THE TOILET!', 2200);
+    // After the launch animation, play the Splashdown cutscene,
+    // then show the credits / score recap.
+    this.time.delayedCall(1200, () => this.playSplashdownAndCredits());
+  }
+
+  playSplashdownAndCredits() {
+    // Splashdown cutscene plays as a transition; on advance, the
+    // CutsceneScene starts the (back) credits via Title — but we
+    // want the in-room credits screen, so the cutscene resumes
+    // this scene and we render credits next.
+    this.scene.pause();
+    this.scene.launch('Cutscene', {
+      key: 'splashdown',
+      resumeSceneKey: this.scene.key,
+    });
+    // When the cutscene resumes us, render the credits.
+    this.events.once(Phaser.Scenes.Events.RESUME, () => this.showCredits());
   }
 
   showCredits() {
@@ -279,7 +257,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.add.text(cx, 140, 'YOU MADE IT!', {
       fontFamily: 'system-ui, sans-serif', fontSize: '54px', color: '#ffcf73', fontStyle: 'bold',
     }).setOrigin(0.5).setScrollFactor(0);
-    this.add.text(cx, 220, 'A Cheerio\'s journey, complete.', {
+    this.add.text(cx, 220, 'Crispy made it through!', {
       fontFamily: 'system-ui, sans-serif', fontSize: '22px', color: '#e0c8ff', fontStyle: 'italic',
     }).setOrigin(0.5).setScrollFactor(0);
 
@@ -325,8 +303,6 @@ export default class RoomAnus extends Phaser.Scene {
   update(_time, delta) {
     if (this.cheerio) this.cheerio.update(delta);
     if (this.phase !== 'play') return;
-
-    for (const d of this.displacers) d.update();
 
     const remaining = this.nextFartAt - this.time.now;
     if (remaining <= COUNTDOWN_MS && remaining > 0) {

@@ -17,7 +17,7 @@ export default class TitleScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    this.add.text(cx, 140, 'a Cheerio\'s tale, in six organs', {
+    this.add.text(cx, 140, 'Crispy the Cheerio, in six organs', {
       fontFamily: 'system-ui, sans-serif',
       fontSize: '20px',
       color: '#e0c8ff',

@@ -343,10 +343,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     sound.playRoomClear();
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
-      this.scene.start('Quiz', {
-        room: 'small_intestine', nextScene: 'RoomLargeIntestine',
-        cutsceneFrom: 'Small Intestine', cutsceneTo: 'Large Intestine',
-      });
+      this.scene.start('Quiz', { room: 'small_intestine', nextScene: 'RoomLargeIntestine' });
     });
   }
 

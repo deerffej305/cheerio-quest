@@ -124,7 +124,7 @@ export default class HudScene extends Phaser.Scene {
   refresh() {
     this.pointsText.setText(`Points: ${scoreManager.points}`);
     this.fiberText.setText(`Fiber: ${scoreManager.fiberCount}`);
-    this.sizeText.setText(`Cheerio: ${this.cheerioSize.toUpperCase()}`);
+    this.sizeText.setText(`Crispy: ${this.cheerioSize.toUpperCase()}`);
   }
 
   update() {

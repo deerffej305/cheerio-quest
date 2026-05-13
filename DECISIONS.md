@@ -53,17 +53,28 @@ already built. Differences and how they were resolved:
   STORY.md lands I'll plumb the panel counts and labels through.
 - **`CLAUDE.md` is referenced in BUILD_STATUS.md but also not yet
   committed.** Add when ready.
-- **`tongue` and `blob` cutscene intros are not yet wired.** Of
-  the five named cut scenes in STORY.md, three are shipped
-  (`liftoff` at Game Mode start, `poop` after the Large Intestine
-  quiz, `splashdown` after the Anus victory). The two boss-intro
-  cutscenes (`tongue` in the Mouth, `blob` in the Stomach) are
-  defined in CutsceneScene but not yet triggered — they'd need
-  either mid-room pause/launch or a second back-to-back transition
-  cutscene before each room. Holding for a clarifying call on
-  preferred trigger point.
-- **Unreferenced entity files** left in `src/entities/` after
-  reworks. Leaving them for Jeff to delete:
-  - `enemies/CDiffBlob.js` (boss removed from Large Intestine)
-  - `enemies/PoopDisplacer.js` (replaced by PoopBoss)
-  - `hazards/ConstipationBlocker.js` (replaced by PoopBoss)
+- ~~**`tongue` and `blob` cutscene intros are not yet wired.**~~
+  RESOLVED 2026-05-12: Jeff picked option B (mid-room pause +
+  overlay). Triggers fire once per room run when the cheerio
+  crosses an x threshold (1500 in Mouth, 1200 in Stomach).
+- ~~**Unreferenced entity files**~~ DELETED 2026-05-12:
+  `enemies/CDiffBlob.js`, `enemies/PoopDisplacer.js`,
+  `hazards/ConstipationBlocker.js`.
+
+## 2026-05-12 (cont.) — Story-alignment fixes
+
+- **Poop Boss first-fart timer = 30s.** STORY.md panel 5 of the
+  Poop Boss cutscene shows "FART IN 30 SECONDS" — that 30-second
+  window is the player's designed time to stomp the boss off the
+  tile and position for the launch. `RoomAnus.startFartCycle`
+  now uses a hard 30s for the FIRST fart only; subsequent farts
+  fall back to the fiber-modulated standard period.
+- **Splashdown panel 6 = the credits/score recap.** Merged the
+  ending: `CutsceneScene.advance()` now accepts a
+  `submitOnAdvance` flag that runs the name-prompt + leaderboard
+  POSTs (points + correct) before exiting to Title. The old
+  `RoomAnus.showCredits()` flow is kept as a fallback for the
+  pause-menu "Quit to Title" path but no longer auto-submits.
+- **Audio stays procedural.** CLAUDE.md says "silent placeholders"
+  but Jeff confirmed in chat to keep the procedural beeps until
+  the real CC0 samples land in Phase 8.

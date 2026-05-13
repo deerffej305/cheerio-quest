@@ -5,7 +5,6 @@ import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import PoopBoss from '../entities/enemies/PoopBoss.js';
 import { sound } from '../systems/SoundManager.js';
-import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.js';
 
 // Room 6 — Anus (The Constipation Maze). Final room. The player
 // navigates the maze and stands on the one exit tile when a fart
@@ -182,7 +181,13 @@ export default class RoomAnus extends Phaser.Scene {
   }
 
   startFartCycle() {
-    this.nextFartAt = this.time.now + this.fartPeriod();
+    // STORY.md panel 5 of the Poop Boss cutscene shows a "FART IN
+    // 30 SECONDS" countdown — that 30s window is the player's
+    // designed time to stomp the boss off the tile and position
+    // for the launch. Subsequent farts use the fiber-modulated
+    // standard period.
+    const FIRST_FART_MS = 30000;
+    this.nextFartAt = this.time.now + FIRST_FART_MS;
   }
 
   triggerFart() {
@@ -236,19 +241,20 @@ export default class RoomAnus extends Phaser.Scene {
   }
 
   playSplashdownAndCredits() {
-    // Splashdown cutscene plays as a transition; on advance, the
-    // CutsceneScene starts the (back) credits via Title — but we
-    // want the in-room credits screen, so the cutscene resumes
-    // this scene and we render credits next.
-    this.scene.pause();
-    this.scene.launch('Cutscene', {
+    // The Splashdown cutscene IS the ending per STORY.md — its
+    // panel 6 shows the live score recap, and on its final advance
+    // it prompts for the player's name and submits to the
+    // leaderboard. No separate post-cutscene credits screen.
+    this.scene.stop('Hud');
+    this.scene.start('Cutscene', {
       key: 'splashdown',
-      resumeSceneKey: this.scene.key,
+      nextScene: 'Title',
+      submitOnAdvance: true,
     });
-    // When the cutscene resumes us, render the credits.
-    this.events.once(Phaser.Scenes.Events.RESUME, () => this.showCredits());
   }
 
+  // Kept as a fallback if the cutscene path ever fails — also
+  // reachable from the Anus quit-to-title flow in pause.
   showCredits() {
     // Final freeze-frame in the toilet bowl + score recap.
     const cx = GAME_WIDTH / 2;
@@ -272,30 +278,12 @@ export default class RoomAnus extends Phaser.Scene {
       }).setOrigin(0.5).setScrollFactor(0);
     });
 
-    this.statusText = this.add.text(cx, GAME_HEIGHT - 130, 'Submitting score to leaderboards…', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#aaaaaa',
-    }).setOrigin(0.5).setScrollFactor(0);
-
     this.add.text(cx, GAME_HEIGHT - 80, 'Press Esc to return to Title.', {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#aaaaaa',
     }).setOrigin(0.5).setScrollFactor(0);
-
-    // Submit to BOTH Game Mode leaderboards (points + correct).
-    // Wrap in time.delayedCall so the prompt fires after the score
-    // recap has had a beat to render.
-    this.time.delayedCall(600, () => this.submitRunScores());
-  }
-
-  async submitRunScores() {
-    const name = promptForName('PLAYER');
-    if (!name) {
-      this.statusText.setText('(score not submitted)');
-      return;
-    }
-    this.statusText.setText('Submitting…');
-    await leaderboardClient.submit('points', name, scoreManager.points);
-    await leaderboardClient.submit('correct', name, scoreManager.questionsCorrect);
-    this.statusText.setText(`Submitted as "${name}". Check Leaderboards from Title.`);
+    // No leaderboard submission here — the splashdown cutscene
+    // owns that flow now. This branch is only reachable as a
+    // fallback.
   }
 
   // --- Frame loop -------------------------------------------------

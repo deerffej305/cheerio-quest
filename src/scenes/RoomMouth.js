@@ -365,6 +365,15 @@ export default class RoomMouth extends Phaser.Scene {
     if (this.cheerio) this.cheerio.update(delta);
     if (this.phase === 'intro') return;
 
+    // Mid-room Tongue cutscene trigger (STORY.md §Cut Scene 2 —
+    // plays after Crispy has navigated the first part of the
+    // mouth and reached the back). Fires once per room run.
+    if (!this.tongueCutsceneFired && this.cheerio.x > 1500) {
+      this.tongueCutsceneFired = true;
+      this.scene.pause();
+      this.scene.launch('Cutscene', { key: 'tongue', resumeSceneKey: this.scene.key });
+    }
+
     for (const t of this.teethRow) {
       t.update();
       if (t.isClosed() && t.containsPlayer(this.cheerio)) {

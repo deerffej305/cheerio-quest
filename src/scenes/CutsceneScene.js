@@ -1,5 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
+import { scoreManager } from '../systems/ScoreManager.js';
+import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.js';
 
 // Five named cut scenes per STORY.md. Panel counts + one-line
 // beat captions are mirrored here so reviewers can see story
@@ -74,6 +76,10 @@ export default class CutsceneScene extends Phaser.Scene {
     this.key = data.key || 'liftoff';
     this.nextScene = data.nextScene || null;
     this.resumeSceneKey = data.resumeSceneKey || null;
+    // When true (used by the splashdown ending), the last panel's
+    // advance triggers the leaderboard submit prompt before
+    // routing to nextScene.
+    this.submitOnAdvance = !!data.submitOnAdvance;
     this._advanced = false;
     this.idx = 0;
   }
@@ -130,7 +136,19 @@ export default class CutsceneScene extends Phaser.Scene {
     const p = this.spec.panels[this.idx];
     this.panelLabel.setText(`PANEL ${this.idx + 1}`);
     this.panelCaption.setText(p?.caption || '');
-    this.panelDialogue.setText(p?.dialogue || '');
+    // Splashdown panel 6 swaps its dialogue placeholder for the
+    // live score recap (STORY.md panel 6 — THE END + final score
+    // + name entry prompt).
+    let dialogue = p?.dialogue || '';
+    if (this.key === 'splashdown' && this.idx === this.spec.panels.length - 1) {
+      dialogue =
+        `THE END.\n` +
+        `Final Score: ${scoreManager.points}\n` +
+        `Questions Correct: ${scoreManager.questionsCorrect}\n` +
+        `Fiber Tokens: ${scoreManager.fiberCount} / 6\n\n` +
+        `Click / SPACE to enter your name and submit →`;
+    }
+    this.panelDialogue.setText(dialogue);
     this.progressText.setText(`${this.idx + 1} / ${this.spec.panels.length}`);
   }
 
@@ -144,9 +162,12 @@ export default class CutsceneScene extends Phaser.Scene {
     }
   }
 
-  advance() {
+  async advance() {
     if (this._advanced) return;
     this._advanced = true;
+    if (this.submitOnAdvance) {
+      await this.submitFinalScores();
+    }
     if (this.resumeSceneKey) {
       this.scene.resume(this.resumeSceneKey);
       this.scene.stop();
@@ -155,5 +176,13 @@ export default class CutsceneScene extends Phaser.Scene {
     } else {
       this.scene.start('Title');
     }
+  }
+
+  async submitFinalScores() {
+    const name = promptForName('PLAYER');
+    if (!name) return;
+    // Game Mode posts to both points + correct boards.
+    await leaderboardClient.submit('points', name, scoreManager.points);
+    await leaderboardClient.submit('correct', name, scoreManager.questionsCorrect);
   }
 }

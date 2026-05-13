@@ -1,21 +1,35 @@
 import Phaser from 'phaser';
+import { sound } from '../systems/SoundManager.js';
 
-// Boot scene runs once at startup. Currently used to generate the
-// procedural placeholder textures (Crispy the yellow-ring cheerio,
-// at two sizes) so other scenes can pull them by key. Real PNG
-// sprites replace these in the Phase 7 art pass.
+// Boot scene runs once at startup. Two jobs:
+//   1. Generate placeholder ring textures for Crispy (real PNG
+//      sprites land in Phase 7).
+//   2. Preload the Phase 8 SFX bank as .wav files. SoundManager
+//      will prefer the loaded Phaser sample over the procedural
+//      fallback whenever a key exists in the audio cache.
+//
+// The .wav files in public/assets/audio/ are currently baked
+// from the same procedural recipes (see scripts/gen-audio.js);
+// real recorded audio from Cowork drops in at the same paths.
+const SFX_KEYS = ['jump', 'stomp', 'damage', 'score', 'fiber', 'death', 'room-clear', 'fart'];
+
 export default class BootScene extends Phaser.Scene {
   constructor() {
     super('Boot');
   }
 
   preload() {
-    // No external assets yet.
+    for (const key of SFX_KEYS) {
+      this.load.audio(key, `assets/audio/${key}.wav`);
+    }
   }
 
   create() {
     this.makeRingTexture('crispy-big', 48, 8);
     this.makeRingTexture('crispy-small', 28, 5);
+    // Hand SoundManager a scene so it can route play(key) to the
+    // loaded Phaser audio samples when they exist in cache.
+    sound.attachPhaserScene(this);
     this.scene.start('Title');
   }
 

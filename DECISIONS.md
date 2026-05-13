@@ -78,3 +78,20 @@ already built. Differences and how they were resolved:
 - **Audio stays procedural.** CLAUDE.md says "silent placeholders"
   but Jeff confirmed in chat to keep the procedural beeps until
   the real CC0 samples land in Phase 8.
+
+## 2026-05-12 (cont. 2) — Phase 8 audio pipeline
+
+- **Bundled .wav audio with procedural-recipe fallback.** Phase 8
+  expects real recorded audio from Cowork. To get the asset
+  pipeline in place TODAY without blocking on Cowork, I added
+  `scripts/gen-audio.js` which bakes the same procedural recipes
+  from `SoundManager.js` into eight 22 kHz mono PCM WAVs in
+  `public/assets/audio/` (jump, stomp, damage, score, fiber,
+  death, room-clear, fart). BootScene preloads them, and
+  `SoundManager.play(key)` prefers `game.sound.play(key)` when
+  the cache has the key, falling back to the runtime procedural
+  synth if not. Net effect: when Cowork drops real recorded
+  WAVs at the same paths, no code changes; just regenerate the
+  bundle.
+- Created `ATTRIBUTIONS.md` to track audio + art sources. All
+  current audio attributed to "own synthesis, CC0".

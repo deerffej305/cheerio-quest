@@ -20,13 +20,15 @@ class SoundManager {
     this.muted = false;
     // Set by the Boot scene if real audio assets are loaded —
     // play() then prefers the Phaser-loaded sound over procedural.
-    this.phaserScene = null;
+    // We hold the Phaser.Game (long-lived) rather than a Scene
+    // (which can be stopped/destroyed during play).
+    this.phaserGame = null;
   }
 
-  // Optional: a Phaser scene whose sound cache may contain
-  // real samples keyed by the same names as our procedural ones.
+  // Pass any Phaser scene; we grab the Game off it so audio plays
+  // continue working after the calling scene is stopped.
   attachPhaserScene(scene) {
-    this.phaserScene = scene;
+    this.phaserGame = scene.game;
   }
 
   init() {
@@ -60,11 +62,10 @@ class SoundManager {
   // available; otherwise fall through to the procedural recipe.
   play(key) {
     if (this.muted) return;
-    if (this.phaserScene
-        && this.phaserScene.sound
-        && this.phaserScene.cache
-        && this.phaserScene.cache.audio.exists(key)) {
-      this.phaserScene.sound.play(key);
+    if (this.phaserGame
+        && this.phaserGame.cache
+        && this.phaserGame.cache.audio.exists(key)) {
+      this.phaserGame.sound.play(key);
       return;
     }
     const recipe = SOUND_RECIPES[key];

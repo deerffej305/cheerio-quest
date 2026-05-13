@@ -87,7 +87,7 @@ export default class Cheerio {
       const jv = this.state === 'big' ? JUMP_VELOCITY_BIG : JUMP_VELOCITY_SMALL;
       body.setVelocityY(jv);
       this.lastGroundedAt = 0;
-      sound.playJump();
+      sound.play('jump');
     }
 
     // Damage-flash blink while invulnerable.
@@ -123,10 +123,10 @@ export default class Cheerio {
     if (this.state === 'big') {
       this.shrink();
       this.invulnUntil = this.scene.time.now + HIT_INVULN_MS;
-      sound.playOuch();
+      sound.play('damage');
       return 'shrunk';
     }
-    sound.playDeath();
+    sound.play('death');
     this.die();
     return 'died';
   }
@@ -146,10 +146,65 @@ export default class Cheerio {
     return true;
   }
 
-  die() {
+  // type: 'dissolve' (acid / saliva), 'squish' (chomp / blocker),
+  // 'fall' (off-screen / off-stage), 'fade' (default / generic).
+  // These are the polish-phase death animations from design §13.
+  die(type = 'fade') {
+    if (!this.alive) return;
     this.alive = false;
     this.body.setVelocity(0, 0);
     this.body.enable = false;
-    this.sprite.setAlpha(0.2);
+
+    const sprite = this.sprite;
+    this.scene.tweens.killTweensOf(sprite);
+
+    switch (type) {
+      case 'dissolve': {
+        // Acid / saliva — wiggle, fade, dwindle to nothing.
+        sprite.setTint(0xa0ff60);
+        this.scene.tweens.add({
+          targets: sprite,
+          scaleX: 0.3, scaleY: 0.1,
+          alpha: 0,
+          angle: 720,
+          duration: 900,
+          ease: 'Cubic.In',
+        });
+        break;
+      }
+      case 'squish': {
+        // Chomp / blocker — flattened pancake.
+        this.scene.tweens.add({
+          targets: sprite,
+          scaleY: 0.15, scaleX: 1.6,
+          alpha: 0.4,
+          duration: 240,
+          ease: 'Quadratic.Out',
+        });
+        break;
+      }
+      case 'fall': {
+        // Off-screen left — keep falling, spin out, fade.
+        this.body.enable = true;
+        this.body.setAllowGravity(true);
+        this.body.setVelocity(-180, -240);
+        this.scene.tweens.add({
+          targets: sprite,
+          alpha: 0,
+          angle: 540,
+          duration: 1000,
+        });
+        break;
+      }
+      default: {
+        // Generic damage death — dimmed, slight droop.
+        this.scene.tweens.add({
+          targets: sprite,
+          alpha: 0.2,
+          scaleY: 0.7,
+          duration: 350,
+        });
+      }
+    }
   }
 }

@@ -15,16 +15,21 @@ export default class HudScene extends Phaser.Scene {
   create(data = {}) {
     this.roomLabel = data.roomLabel || '';
 
+    // Accessibility-pass styles: bumped sizes for classroom projector
+    // legibility, with a thin black stroke on critical text so it
+    // pops against busy room backgrounds.
     const style = {
       fontFamily: 'system-ui, sans-serif',
-      fontSize: '20px',
+      fontSize: '24px',
       color: '#ffffff',
+      stroke: '#000000',
+      strokeThickness: 3,
     };
 
-    this.pointsText = this.add.text(20, 18, '', style);
-    this.fiberText = this.add.text(20, 44, '', style);
-    this.sizeText = this.add.text(GAME_WIDTH - 20, 18, '', style).setOrigin(1, 0);
-    this.roomText = this.add.text(GAME_WIDTH / 2, 18, this.roomLabel, {
+    this.pointsText = this.add.text(20, 14, '', style);
+    this.fiberText = this.add.text(20, 46, '', style);
+    this.sizeText = this.add.text(GAME_WIDTH - 20, 14, '', style).setOrigin(1, 0);
+    this.roomText = this.add.text(GAME_WIDTH / 2, 14, this.roomLabel, {
       ...style,
       fontStyle: 'bold',
       color: '#ffcf73',
@@ -32,9 +37,10 @@ export default class HudScene extends Phaser.Scene {
 
     this.flashText = this.add.text(GAME_WIDTH / 2, 100, '', {
       ...style,
-      fontSize: '28px',
+      fontSize: '34px',
       color: '#ffe070',
       fontStyle: 'bold',
+      strokeThickness: 4,
     }).setOrigin(0.5);
 
     // Mute indicator + key binding. M toggles audio globally.

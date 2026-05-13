@@ -12,14 +12,14 @@ This is a rolling status document. Read it after `CLAUDE.md`, `GAME_DESIGN.md`, 
 | --- | --- |
 | **Design (Game Design Document)** | ✅ Complete and locked. See `GAME_DESIGN.md`. |
 | **Story + cut scenes** | ✅ Complete and locked. Five comic-storyboard cut scenes drafted, with CJ's revisions applied. See `STORY.md`. |
-| **Phase 1–2 — Scaffold + Mouth room** | 🛠️ In progress. Mechanics work has begun. |
-| **Phase 3–4 — Quiz UI + remaining rooms** | ⏳ Pending. |
-| **Phase 5–6 — Leaderboards + Quiz Mode** | ⏳ Pending. |
-| **Phase 7 — Art pass** | ⏳ Pending. Will come back to Cowork (very soon, per Jeff). |
-| **Phase 8 — Audio pass** | ⏳ Pending. |
-| **Phase 9 — Polish + accessibility** | ⏳ Pending. |
-| **Phase 10 — Deploy** | ⏳ Pending. |
-| **Quiz bank (100 questions)** | ⏳ Awaiting CJ's class. Use ~15–20 placeholder questions in `src/data/questions.json` for testing. |
+| **Phase 1–2 — Scaffold + Mouth room** | ✅ Done. Mouth room playable end-to-end with the Tongue boss, chomping teeth, cavity bacteria, saliva dissolve, fiber token, swallow exit. |
+| **Phase 3–4 — Quiz UI + remaining rooms** | ✅ Done. End-of-room quiz with 20 placeholder questions, all six rooms (Mouth → Esophagus → Stomach → Small Intestine → Large Intestine → Anus) playable in sequence. |
+| **Phase 5–6 — Leaderboards + Quiz Mode** | ✅ Done. Cloudflare Worker + KV at `cheerio-quest-leaderboard.jeff-a23.workers.dev` backing three boards (points, correct, streak). Quiz Mode is sudden-death with streak tracking. |
+| **Phase 7 — Art pass** | ⏳ Pending. Awaiting Cowork. Placeholders in place: yellow ring for Crispy, colored shapes for enemies / bosses, labeled "PANEL N" boxes for cut scenes. Real PNGs drop into `public/assets/`. |
+| **Phase 8 — Audio pass** | 🛠️ Procedural starter shipped (Web-Audio synthesized SFX with keyed API: `sound.play('jump')`, `play('stomp')`, etc.). Real CC0 samples replace these in Cowork. SoundManager will prefer a loaded Phaser audio sample over the procedural fallback when one is dropped under the same key. |
+| **Phase 9 — Polish + accessibility** | 🛠️ In progress. Done: death animations (dissolve / squish / fall), font-size bumps + black strokes on critical HUD/menu text for projector legibility, pause menu, mute toggle. Pending: full accessibility review on a projector. |
+| **Phase 10 — Deploy** | 🛠️ Live at `cheerio-quest.pages.dev`. Custom domain pending (awaiting final game name). |
+| **Quiz bank (100 questions)** | ⏳ Awaiting CJ's class. 20 placeholder questions in `src/data/questions.json`; schema in `GAME_DESIGN.md §7`. |
 
 ---
 

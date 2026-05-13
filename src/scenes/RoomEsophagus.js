@@ -229,7 +229,7 @@ export default class RoomEsophagus extends Phaser.Scene {
       onComplete: () => wave.destroy(),
     });
     this.cheerio.applyDisplacement(0, -540, 450);
-    sound.playFart();
+    sound.play('fart');
     this.hud()?.flash('BUUUURP! shoved back up', 1400);
     this.nextBurpAt = this.time.now + 14000;
   }
@@ -267,7 +267,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
-    sound.playFiber();
+    sound.play('fiber');
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -316,7 +316,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    sound.playRoomClear();
+    sound.play('room-clear');
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
       this.scene.start('Quiz', { room: 'esophagus', nextScene: 'RoomStomach' });

@@ -1,18 +1,32 @@
-// Procedural Web Audio SFX. No external asset files yet — every
-// sound is synthesized with an oscillator + envelope so we can ship
-// audible feedback today without an asset pipeline. Real sampled
-// audio replaces this in Phase 8 of the design doc.
+// Procedural Web Audio SFX with a keyed API per CLAUDE.md:
+//   sound.play('jump'), sound.play('stomp'), etc.
 //
-// Browsers gate AudioContext until the first user interaction.
-// init() is called lazily before any sound; if the context starts
-// in "suspended" state we resume it. The TitleScene's first
-// keydown will unlock it for the whole session.
+// Every sound is synthesized with an oscillator + envelope so the
+// game has audible feedback today without an asset pipeline. Real
+// sampled audio replaces this in Phase 8 of the design doc. When
+// real WAVs land in public/assets/audio/, BootScene can preload
+// them under the same keys and SoundManager.play() will prefer
+// the loaded sample over the procedural fallback (see
+// attachPhaserScene below).
+//
+// Browsers gate AudioContext until the first user interaction. The
+// title-screen keypress unlocks it for the whole session via the
+// lazy init() inside _envOsc / _noiseBurst.
 
 class SoundManager {
   constructor() {
     this.ctx = null;
     this.master = null;
     this.muted = false;
+    // Set by the Boot scene if real audio assets are loaded —
+    // play() then prefers the Phaser-loaded sound over procedural.
+    this.phaserScene = null;
+  }
+
+  // Optional: a Phaser scene whose sound cache may contain
+  // real samples keyed by the same names as our procedural ones.
+  attachPhaserScene(scene) {
+    this.phaserScene = scene;
   }
 
   init() {
@@ -42,7 +56,22 @@ class SoundManager {
     return this.muted;
   }
 
-  // --- Building blocks -------------------------------------------
+  // The named-key dispatcher. Prefer a real loaded sample if
+  // available; otherwise fall through to the procedural recipe.
+  play(key) {
+    if (this.muted) return;
+    if (this.phaserScene
+        && this.phaserScene.sound
+        && this.phaserScene.cache
+        && this.phaserScene.cache.audio.exists(key)) {
+      this.phaserScene.sound.play(key);
+      return;
+    }
+    const recipe = SOUND_RECIPES[key];
+    if (recipe) recipe(this);
+  }
+
+  // --- Synthesis primitives --------------------------------------
 
   _envOsc(type, freqStart, freqEnd, durSec, gainPeak = 0.18, freqCurve = 'exp') {
     if (this.muted) return;
@@ -88,29 +117,28 @@ class SoundManager {
     src.start(now);
     src.stop(now + durSec + 0.02);
   }
-
-  // --- Game SFX --------------------------------------------------
-
-  playJump()       { this._envOsc('square',   220, 600, 0.10, 0.14); }
-  playStomp()      { this._envOsc('square',   320,  80, 0.08, 0.18); }
-  playOuch()       { this._noiseBurst(0.16, 0.18); }
-  playScore()      { this._envOsc('triangle', 880, 1320, 0.12, 0.14); }
-  playFiber()      {
-    // Two-note triumphant chirp.
-    this._envOsc('triangle', 660, 990, 0.10, 0.15);
-    setTimeout(() => this._envOsc('triangle', 990, 1320, 0.12, 0.15), 80);
-  }
-  playDeath()      { this._envOsc('sawtooth', 440, 80, 0.45, 0.18, 'lin'); }
-  playRoomClear()  {
-    this._envOsc('triangle', 523, 659, 0.12, 0.15);
-    setTimeout(() => this._envOsc('triangle', 659, 784, 0.12, 0.15), 100);
-    setTimeout(() => this._envOsc('triangle', 784, 1047, 0.18, 0.15), 200);
-  }
-  playFart()       {
-    // Low blat + noise on top.
-    this._envOsc('sawtooth', 130, 60, 0.30, 0.22, 'lin');
-    this._noiseBurst(0.30, 0.10);
-  }
 }
+
+// Named SFX recipes. Add new keys here; callers use sound.play(key).
+const SOUND_RECIPES = {
+  jump:        (s) => s._envOsc('square',   220, 600, 0.10, 0.14),
+  stomp:       (s) => s._envOsc('square',   320,  80, 0.08, 0.18),
+  damage:      (s) => s._noiseBurst(0.16, 0.18),
+  score:       (s) => s._envOsc('triangle', 880, 1320, 0.12, 0.14),
+  fiber:       (s) => {
+    s._envOsc('triangle', 660, 990, 0.10, 0.15);
+    setTimeout(() => s._envOsc('triangle', 990, 1320, 0.12, 0.15), 80);
+  },
+  death:       (s) => s._envOsc('sawtooth', 440,  80, 0.45, 0.18, 'lin'),
+  'room-clear': (s) => {
+    s._envOsc('triangle', 523, 659, 0.12, 0.15);
+    setTimeout(() => s._envOsc('triangle', 659, 784, 0.12, 0.15), 100);
+    setTimeout(() => s._envOsc('triangle', 784, 1047, 0.18, 0.15), 200);
+  },
+  fart:        (s) => {
+    s._envOsc('sawtooth', 130, 60, 0.30, 0.22, 'lin');
+    s._noiseBurst(0.30, 0.10);
+  },
+};
 
 export const sound = new SoundManager();

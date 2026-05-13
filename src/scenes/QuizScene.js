@@ -58,15 +58,15 @@ export default class QuizScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     this.questionText = this.add.text(cx, 200, '', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '26px', color: '#ffffff',
-      wordWrap: { width: GAME_WIDTH - 200 }, align: 'center',
+      fontFamily: 'system-ui, sans-serif', fontSize: '30px', color: '#ffffff',
+      wordWrap: { width: GAME_WIDTH - 160 }, align: 'center',
     }).setOrigin(0.5);
 
     this.optionTexts = [];
     for (let i = 0; i < 4; i++) {
-      const t = this.add.text(cx, 340 + i * 56, '', {
-        fontFamily: 'system-ui, sans-serif', fontSize: '22px', color: '#e8e8ff',
-        backgroundColor: '#2a1830', padding: { x: 16, y: 8 },
+      const t = this.add.text(cx, 340 + i * 60, '', {
+        fontFamily: 'system-ui, sans-serif', fontSize: '26px', color: '#e8e8ff',
+        backgroundColor: '#2a1830', padding: { x: 20, y: 10 },
       }).setOrigin(0.5).setInteractive({ useHandCursor: true });
       t.on('pointerdown', () => this.choose(i));
       this.optionTexts.push(t);

@@ -285,7 +285,7 @@ export default class RoomMouth extends Phaser.Scene {
       bacterium.squash();
       scoreManager.addPoints(10);
       this.cheerio.body.setVelocityY(-400);
-      sound.playStomp();
+      sound.play('stomp');
       this.hud()?.flash('+10');
     } else {
       this.applyHitToCheerio();
@@ -299,7 +299,7 @@ export default class RoomMouth extends Phaser.Scene {
       this.tongue.takeStomp();
       this.cheerio.body.setVelocityY(-520);
       scoreManager.addPoints(15);
-      sound.playStomp();
+      sound.play('stomp');
       this.hud()?.flash(this.tongue.isDead() ? 'TONGUE DOWN!' : '+15');
       if (this.tongue.isDead()) {
         this.unlockExit();
@@ -318,7 +318,7 @@ export default class RoomMouth extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
-    sound.playFiber();
+    sound.play('fiber');
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -335,7 +335,7 @@ export default class RoomMouth extends Phaser.Scene {
     // size, same rule as acid pits. The shrunk-state grace period
     // doesn't apply here.
     this.hud()?.flash('DISSOLVED!', 1200);
-    this.cheerio.die();
+    this.cheerio.die('dissolve');
     this.handleDeath();
   }
 
@@ -400,7 +400,7 @@ export default class RoomMouth extends Phaser.Scene {
   completeRoom() {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
-    sound.playRoomClear();
+    sound.play('room-clear');
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
       this.scene.start('Quiz', { room: 'mouth', nextScene: 'RoomEsophagus' });

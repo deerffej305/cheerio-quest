@@ -237,7 +237,7 @@ export default class RoomStomach extends Phaser.Scene {
       if (!this.cheerio.isStomping(this.acidBlob.mouthSprite.y - 12)) return;
       const defeated = this.acidBlob.takeStomp();
       this.cheerio.body.setVelocityY(-460);
-      sound.playStomp();
+      sound.play('stomp');
       scoreManager.addPoints(defeated ? 20 : 10);
       this.hud()?.flash(defeated ? 'BLOB DOWN!' : '+10');
       if (defeated) this.unlockExit();
@@ -249,7 +249,7 @@ export default class RoomStomach extends Phaser.Scene {
     this.exitUnlocked = true;
     this.exitDoor.fillColor = 0x80ffa0;
     this.exitLabel.setText('PYLORUS →\n(open!)').setColor('#a0ffa0');
-    sound.playScore();
+    sound.play('score');
   }
 
   // --- Contact handlers ------------------------------------------
@@ -257,7 +257,7 @@ export default class RoomStomach extends Phaser.Scene {
   handleAcidContact() {
     if (!this.cheerio.alive || this.phase === 'dying') return;
     this.hud()?.flash('DISSOLVED IN ACID!', 1200);
-    this.cheerio.die();
+    this.cheerio.die('dissolve');
     this.handleDeath();
   }
 
@@ -268,7 +268,7 @@ export default class RoomStomach extends Phaser.Scene {
       drop.squash();
       scoreManager.addPoints(5);
       this.cheerio.body.setVelocityY(-400);
-      sound.playStomp();
+      sound.play('stomp');
       this.hud()?.flash('+5');
     } else {
       this.applyHitToCheerio();
@@ -285,7 +285,7 @@ export default class RoomStomach extends Phaser.Scene {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
     scoreManager.addFiber();
-    sound.playFiber();
+    sound.play('fiber');
     if (this.cheerio.state === 'small') {
       this.cheerio.grow();
       this.hud()?.setSize('big');
@@ -319,7 +319,7 @@ export default class RoomStomach extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setVelocity(0, 0);
-    sound.playRoomClear();
+    sound.play('room-clear');
     this.hud()?.flash('ROOM CLEARED — quiz time!', 1500);
     this.time.delayedCall(1600, () => {
       this.scene.start('Quiz', { room: 'stomach', nextScene: 'RoomSmallIntestine' });

@@ -123,7 +123,7 @@ export default class RoomAnus extends Phaser.Scene {
     if (stomped) {
       const relocated = this.poopBoss.takeStomp();
       this.cheerio.body.setVelocityY(-440);
-      sound.playStomp();
+      sound.play('stomp');
       this.hud()?.flash(relocated ? 'BOSS ROLLED OFF!' : 'Stomp him again!');
     }
     // No damage on side contact — he's lazy, not aggressive.
@@ -201,7 +201,7 @@ export default class RoomAnus extends Phaser.Scene {
       && this.cheerio.body.bottom > perchTop - 4
       && this.cheerio.body.bottom < perchTop + 20;
 
-    sound.playFart();
+    sound.play('fart');
     if (onTile) {
       this.launchVictory();
     } else {
@@ -224,7 +224,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.phase = 'won';
     this.cheerio.freezeControl(true);
     this.cheerio.body.setAllowGravity(false);
-    sound.playRoomClear();
+    sound.play('room-clear');
     // Launch the cheerio up and to the right in a triumphant arc.
     this.tweens.add({
       targets: this.cheerio.sprite,

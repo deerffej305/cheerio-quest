@@ -32,10 +32,12 @@ export default class TitleScene extends Phaser.Scene {
     ];
 
     mainItems.forEach((item, i) => {
-      this.add.text(cx, 220 + i * 42, item.label, {
+      this.add.text(cx, 220 + i * 48, item.label, {
         fontFamily: 'system-ui, sans-serif',
-        fontSize: '24px',
+        fontSize: '28px',
         color: '#ffffff',
+        stroke: '#000000',
+        strokeThickness: 3,
       }).setOrigin(0.5);
     });
 
@@ -65,10 +67,12 @@ export default class TitleScene extends Phaser.Scene {
     ];
 
     beta.forEach((item, i) => {
-      this.add.text(cx, 420 + i * 32, item.label, {
+      this.add.text(cx, 420 + i * 36, item.label, {
         fontFamily: 'system-ui, sans-serif',
-        fontSize: '20px',
+        fontSize: '22px',
         color: '#ffd0a8',
+        stroke: '#000000',
+        strokeThickness: 2,
       }).setOrigin(0.5);
     });
 

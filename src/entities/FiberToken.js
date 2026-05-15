@@ -8,11 +8,11 @@ export default class FiberToken {
     this.scene = scene;
     this.collected = false;
 
-    this.sprite = scene.add.rectangle(x, y, 26, 26, 0x40d070);
-    this.sprite.setAngle(45);
+    this.sprite = scene.add.image(x, y, 'fiber-token');
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
+    this.sprite.body.setSize(26, 26);
     this.sprite.fiberToken = this;
 
     this.baseY = y;

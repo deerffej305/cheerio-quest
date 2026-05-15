@@ -26,19 +26,16 @@ export default class PoopBoss {
     this.startX = x;
     this.startY = y;
 
-    // Body: chunky dark-brown rectangle with rounded look (we just
-    // do a rect plus thick stroke for grey-box).
-    this.sprite = scene.add.rectangle(x, y, 110, 80, 0x5a2810);
-    this.sprite.setStrokeStyle(3, 0x3a1808);
+    // Body: SVG sprite. Eyes are baked into the artwork, so no
+    // separate eye game objects are needed.
+    this.sprite = scene.add.image(x, y, 'poop-boss');
+    this.sprite.setDisplaySize(110, 80);
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(true);
     this.sprite.body.setImmovable(true);   // platform-like, doesn't slide on stomp
     this.sprite.body.setCollideWorldBounds(true);
+    this.sprite.body.setSize(110, 80);
     this.sprite.poopBoss = this;
-
-    // Droopy eyes — half-closed lines.
-    this.eyeL = scene.add.rectangle(x - 22, y - 14, 18, 4, 0xfff0d0);
-    this.eyeR = scene.add.rectangle(x + 22, y - 14, 18, 4, 0xfff0d0);
 
     this.hpText = scene.add.text(x, y - 60, this.hpLabel(), {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold',
@@ -69,10 +66,7 @@ export default class PoopBoss {
   }
 
   syncEyes() {
-    this.eyeL.x = this.sprite.x - 22;
-    this.eyeL.y = this.sprite.y - 14;
-    this.eyeR.x = this.sprite.x + 22;
-    this.eyeR.y = this.sprite.y - 14;
+    // Eyes are baked into the SVG; just keep the HP label pinned.
     this.hpText.x = this.sprite.x;
     this.hpText.y = this.sprite.y - 60;
   }
@@ -83,8 +77,8 @@ export default class PoopBoss {
     this.hpText.setText(this.hpLabel());
 
     // Tint slightly lighter on each hit (he's losing composure).
-    const tints = [0x5a2810, 0x6e3a18, 0x824a20];
-    this.sprite.fillColor = tints[Math.max(0, Math.min(2, this.maxHp - this.hp))];
+    const tints = [0xffffff, 0xffe0c8, 0xffc890];
+    this.sprite.setTint(tints[Math.max(0, Math.min(2, this.maxHp - this.hp))]);
 
     // Lazy bounce reaction so the player feels the impact.
     this.scene.tweens.add({
@@ -103,6 +97,10 @@ export default class PoopBoss {
   }
 
   rollOff() {
+    // Swap to the rolled-off SVG once he's deciding to move.
+    this.sprite.setTexture('poop-boss-rolled-off');
+    this.sprite.setDisplaySize(110, 80);
+    this.sprite.clearTint();
     // He grudgingly rolls left, exposing the exit tile. He doesn't
     // die — just clears off.
     this.state = STATES.ROLLING;

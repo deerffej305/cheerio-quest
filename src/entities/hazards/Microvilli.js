@@ -21,8 +21,10 @@ export default class Microvilli {
       const sy = attach === 'floor'
         ? floorY - spikeH / 2
         : floorY + spikeH / 2;
-      const sp = scene.add.rectangle(sx, sy, spikeW, spikeH, color);
+      const sp = scene.add.image(sx, sy, 'microvilli-spike');
+      sp.setDisplaySize(spikeW, spikeH);
       scene.physics.add.existing(sp, true);
+      sp.body.setSize(spikeW, spikeH);
       sp.microvilli = this;
       this.spikes.push(sp);
     }

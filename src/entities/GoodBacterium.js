@@ -8,11 +8,11 @@ export default class GoodBacterium {
     this.scene = scene;
     this.collected = false;
 
-    this.sprite = scene.add.rectangle(x, y, 18, 18, 0x60d860);
-    this.sprite.setAngle(15);
+    this.sprite = scene.add.image(x, y, 'good-bacterium');
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
+    this.sprite.body.setSize(18, 18);
     this.sprite.goodBacterium = this;
 
     this.bobTween = scene.tweens.add({

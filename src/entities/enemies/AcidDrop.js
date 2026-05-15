@@ -13,9 +13,10 @@ export default class AcidDrop {
     this.rangeRight = rangeRight ?? x + 80;
     this.speed = speed;
 
-    this.sprite = scene.add.rectangle(x, y, 26, 22, 0xa8e060);
+    this.sprite = scene.add.image(x, y, 'acid-drop');
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(true);
+    this.sprite.body.setSize(26, 22);
     this.sprite.body.setVelocityX(-speed);
     this.sprite.acidDrop = this;
   }

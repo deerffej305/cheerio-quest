@@ -77,11 +77,20 @@ export default class TongueBoss {
     this.tongueAnchorX = anchorX - baseW;
     this.tongueAnchorY = floorY - 6;
 
+    // Idle-pose tongue (coiled at the base) — visible only when the
+    // segments are fully retracted. Positioned just left of the
+    // base, anchored at its right-bottom so it sits next to the base.
+    this.idlePose = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss');
+    this.idlePose.setOrigin(1, 1);
+    this.idlePose.setDisplaySize(baseW * 1.6, baseH * 1.4);
+
     // Proximal segment — right-edge-anchored at the tongue anchor.
     // setOrigin(1, 1) places origin at bottom-right so growing
-    // width extends leftward.
-    this.tongueProx = scene.add.rectangle(this.tongueAnchorX, this.tongueAnchorY, 1, height, 0xcc5070);
+    // width extends leftward. Texture is the lunge artwork; we
+    // setDisplaySize to scale it as the tongue extends.
+    this.tongueProx = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss-lunge');
     this.tongueProx.setOrigin(1, 1);
+    this.tongueProx.setDisplaySize(1, height);
     scene.physics.add.existing(this.tongueProx);
     this.tongueProx.body.setAllowGravity(false);
     this.tongueProx.body.setImmovable(true);
@@ -91,8 +100,9 @@ export default class TongueBoss {
     // Distal segment — right-edge-anchored at the JOINT (which moves
     // with the proximal's left edge). Origin (1,1) so rotation
     // pivots around the joint, sweeping the tip upward.
-    this.tongueDist = scene.add.rectangle(this.tongueAnchorX, this.tongueAnchorY, 1, height, 0xcc5070);
+    this.tongueDist = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss-lunge');
     this.tongueDist.setOrigin(1, 1);
+    this.tongueDist.setDisplaySize(1, height);
     scene.physics.add.existing(this.tongueDist);
     this.tongueDist.body.setAllowGravity(false);
     this.tongueDist.body.setImmovable(true);
@@ -147,17 +157,14 @@ export default class TongueBoss {
     return this.state === STATES.LUNGING_OUT || this.state === STATES.HOLD_FLAT;
   }
 
-  // Resize a segment using Phaser's setSize, which updates both the
-  // GameObject's width/height AND the underlying geom + body, so
-  // the rectangle actually re-tessellates. (Setting .width directly
-  // only updates the transform — the rendered geom keeps its
-  // constructor size.)
+  // Resize a segment by changing its display size (Image scales its
+  // texture) and matching the physics body. Origin (1, 1) means the
+  // body needs negative offset to align with the rendered
+  // left-extending image.
   setSegmentWidth(seg, w) {
     const safe = Math.max(1, w);
-    seg.setSize(safe, this.height);
+    seg.setDisplaySize(safe, this.height);
     seg.body.setSize(safe, this.height);
-    // Origin (1, 1) means the body needs negative offset to align
-    // with the rendered left-extending rectangle.
     seg.body.setOffset(-safe, -this.height);
   }
 
@@ -191,6 +198,15 @@ export default class TongueBoss {
     this.stateStartedAt = this.scene.time.now;
   }
 
+  setSegTint(tint) {
+    this.tongueProx.setTint(tint);
+    this.tongueDist.setTint(tint);
+  }
+
+  showIdlePose(visible) {
+    this.idlePose.setVisible(visible);
+  }
+
   update() {
     if (this.state === STATES.SLOUCHED) return;
     const now = this.scene.time.now;
@@ -200,14 +216,14 @@ export default class TongueBoss {
       case STATES.IDLE: {
         this.setExtent(0);
         this.setCurlAngle(0);
-        this.tongueProx.fillColor = 0xcc5070;
-        this.tongueDist.fillColor = 0xcc5070;
+        this.setSegTint(0xffffff);
+        this.showIdlePose(true);
         if (elapsed >= DURATIONS.idle) this.advance(STATES.TELEGRAPH);
         break;
       }
       case STATES.TELEGRAPH: {
-        this.tongueProx.fillColor = 0xff8090;
-        this.tongueDist.fillColor = 0xff8090;
+        this.setSegTint(0xffe080);
+        this.showIdlePose(true);
         const pulse = 0.06 + 0.03 * Math.sin(now / 40);
         this.setExtent(pulse);
         this.setCurlAngle(0);
@@ -215,8 +231,8 @@ export default class TongueBoss {
         break;
       }
       case STATES.LUNGING_OUT: {
-        this.tongueProx.fillColor = 0xff5070;
-        this.tongueDist.fillColor = 0xff5070;
+        this.setSegTint(0xffffff);
+        this.showIdlePose(false);
         const t = Phaser.Math.Easing.Quadratic.Out(elapsed / DURATIONS.lunging_out);
         this.setExtent(t);
         this.setCurlAngle(0);
@@ -231,8 +247,7 @@ export default class TongueBoss {
       }
       case STATES.CURL_UP: {
         // Distal swings around the joint. Proximal stays flat.
-        this.tongueProx.fillColor = 0xff5070;
-        this.tongueDist.fillColor = 0xff6080;
+        this.setSegTint(0xffffff);
         this.setExtent(1);
         const t = Phaser.Math.Easing.Quadratic.InOut(elapsed / DURATIONS.curl_up);
         this.setCurlAngle(t * 90);
@@ -246,8 +261,7 @@ export default class TongueBoss {
         break;
       }
       case STATES.RETRACTING: {
-        this.tongueProx.fillColor = 0xcc5070;
-        this.tongueDist.fillColor = 0xcc5070;
+        this.setSegTint(0xffffff);
         const t = elapsed / DURATIONS.retracting;
         // First half: uncurl. Second half: retract horizontally.
         if (t < 0.5) {
@@ -257,16 +271,22 @@ export default class TongueBoss {
           this.setCurlAngle(0);
           this.setExtent(1 - (t - 0.5) * 2);
         }
-        if (elapsed >= DURATIONS.retracting) this.advance(STATES.IDLE);
+        if (elapsed >= DURATIONS.retracting) {
+          this.showIdlePose(true);
+          this.advance(STATES.IDLE);
+        }
         break;
       }
       case STATES.RECOIL: {
-        this.tongueProx.fillColor = 0x903040;
-        this.tongueDist.fillColor = 0x903040;
+        this.setSegTint(0xa05060);
+        this.showIdlePose(false);
         const t = elapsed / DURATIONS.recoil;
         this.setCurlAngle(0);
         this.setExtent(1 - Phaser.Math.Easing.Cubic.Out(t));
-        if (elapsed >= DURATIONS.recoil) this.advance(STATES.IDLE);
+        if (elapsed >= DURATIONS.recoil) {
+          this.showIdlePose(true);
+          this.advance(STATES.IDLE);
+        }
         break;
       }
       default:
@@ -303,8 +323,10 @@ export default class TongueBoss {
 
   slouch() {
     this.state = STATES.SLOUCHED;
-    this.tongueProx.fillColor = 0x884050;
-    this.tongueDist.fillColor = 0x884050;
+    this.tongueProx.setTexture('tongue-boss-defeated');
+    this.tongueDist.setTexture('tongue-boss-defeated');
+    this.setSegTint(0xffffff);
+    this.showIdlePose(false);
     this.setExtent(1);
     this.setCurlAngle(0);
     this.tongueProx.body.setImmovable(true);

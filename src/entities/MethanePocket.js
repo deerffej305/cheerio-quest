@@ -8,8 +8,10 @@ const BOUNCE_VY = -900;
 export default class MethanePocket {
   constructor(scene, x, y, w = 90, h = 26) {
     this.scene = scene;
-    this.sprite = scene.add.rectangle(x, y, w, h, 0x70d0a0, 0.7);
+    this.sprite = scene.add.image(x, y, 'methane-pocket');
+    this.sprite.setDisplaySize(w, h);
     scene.physics.add.existing(this.sprite, true);
+    this.sprite.body.setSize(w, h);
     this.sprite.methanePocket = this;
 
     scene.tweens.add({

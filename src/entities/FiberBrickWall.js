@@ -15,9 +15,10 @@ export default class FiberBrickWall {
     this.scene = scene;
     this.alive = true;
 
-    this.sprite = scene.add.rectangle(x, y, w, h, color);
-    this.sprite.setStrokeStyle(2, 0x6a4020);
+    this.sprite = scene.add.image(x, y, 'fiber-brick-wall');
+    this.sprite.setDisplaySize(w, h);
     scene.physics.add.existing(this.sprite, true);
+    this.sprite.body.setSize(w, h);
     this.sprite.fiberBrickWall = this;
   }
 

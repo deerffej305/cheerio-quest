@@ -20,13 +20,13 @@ export default class PeristalsisRing {
     const leftSegW = Math.max(2, leftEnd - tubeLeft);
     const rightSegW = Math.max(2, tubeRight - rightEnd);
 
-    this.leftSeg = scene.add.rectangle(tubeLeft + leftSegW / 2, y, leftSegW, thickness, color);
-    this.leftSeg.setStrokeStyle(2, 0xc02040);
+    this.leftSeg = scene.add.image(tubeLeft + leftSegW / 2, y, 'peristalsis-ring-left');
+    this.leftSeg.setDisplaySize(leftSegW, thickness);
     scene.physics.add.existing(this.leftSeg, true);
     this.leftSeg.peristalsis = this;
 
-    this.rightSeg = scene.add.rectangle(rightEnd + rightSegW / 2, y, rightSegW, thickness, color);
-    this.rightSeg.setStrokeStyle(2, 0xc02040);
+    this.rightSeg = scene.add.image(rightEnd + rightSegW / 2, y, 'peristalsis-ring-right');
+    this.rightSeg.setDisplaySize(rightSegW, thickness);
     scene.physics.add.existing(this.rightSeg, true);
     this.rightSeg.peristalsis = this;
   }

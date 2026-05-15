@@ -42,26 +42,23 @@ export default class StomachAcidBlob {
     this.state = STATES.IDLE;
     this.stateStartedAt = scene.time.now;
 
-    // Body: oblong purple-red blob.
-    this.body = scene.add.ellipse(x, y, 140, 170, 0xff5028);
-    this.body.setStrokeStyle(3, 0x802010);
+    // Body: SVG sprite. We swap texture between idle / roaring based
+    // on the current state (mouth open = roaring artwork). Eyes and
+    // teeth are baked into the SVGs, so no extra display elements.
+    this.body = scene.add.image(x, y, 'stomach-acid-blob');
+    this.body.setDisplaySize(140, 170);
     // Idle bob.
     scene.tweens.add({
       targets: this.body,
-      scaleY: 1.06,
+      scaleY: this.body.scaleY * 1.06,
       duration: 1000,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.InOut',
     });
 
-    // Eyes — angry stripes above the mouth.
-    this.eyeL = scene.add.rectangle(x - 24, y - 36, 12, 4, 0x401010);
-    this.eyeR = scene.add.rectangle(x + 24, y - 36, 12, 4, 0x401010);
-
-    // Mouth — a stomp-friendly hitbox + visible jagged-teeth row.
-    // The hitbox spans the top of the body when the mouth is open;
-    // stomping the hitbox is what damages the boss.
+    // Mouth — a stomp-friendly hitbox. The hitbox spans the top of
+    // the body when the mouth is open; stomping it damages the boss.
     this.mouthHit = scene.add.rectangle(x, y - 50, 100, 24, 0x000000, 0);
     scene.physics.add.existing(this.mouthHit);
     this.mouthHit.body.setAllowGravity(false);
@@ -69,11 +66,7 @@ export default class StomachAcidBlob {
     this.mouthHit.stomachAcidBlob = this;
     this.mouthHit.body.enable = false;
 
-    // Teeth row — a Graphics object that we re-draw on each state
-    // tick to animate the mouth opening.
-    this.teeth = scene.add.graphics();
     this.openness = 0; // 0 = closed, 1 = wide open
-    this.redrawTeeth();
 
     this.hpText = scene.add.text(x, y - 110, this.hpLabel(), {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#ffffff', fontStyle: 'bold',
@@ -85,43 +78,13 @@ export default class StomachAcidBlob {
     return `ACID BLOB ${'♥'.repeat(hp)}${'·'.repeat(this.maxHp - hp)}`;
   }
 
-  redrawTeeth() {
-    const g = this.teeth;
-    g.clear();
-    // Mouth slot — only visible during windup/roar.
-    if (this.openness <= 0) return;
-    const opening = this.openness;
-    const slotW = 100;
-    const slotCx = this.x;
-    const slotCy = this.y - 50;
-    const slotH = 40 * opening;
-    // Dark mouth interior.
-    g.fillStyle(0x300810, 1);
-    g.fillRect(slotCx - slotW / 2, slotCy - slotH / 2, slotW, slotH);
-    // Upper teeth (downward triangles).
-    g.fillStyle(0xfff0c0, 1);
-    const toothW = 12;
-    const toothCount = 7;
-    for (let i = 0; i < toothCount; i++) {
-      const tx = slotCx - slotW / 2 + 4 + i * (toothW + 2);
-      const tipY = slotCy - slotH / 2 + 10 * opening + 8;
-      g.beginPath();
-      g.moveTo(tx, slotCy - slotH / 2);
-      g.lineTo(tx + toothW, slotCy - slotH / 2);
-      g.lineTo(tx + toothW / 2, tipY);
-      g.closePath();
-      g.fillPath();
-    }
-    // Lower teeth.
-    for (let i = 0; i < toothCount; i++) {
-      const tx = slotCx - slotW / 2 + 4 + i * (toothW + 2);
-      const tipY = slotCy + slotH / 2 - 10 * opening - 8;
-      g.beginPath();
-      g.moveTo(tx, slotCy + slotH / 2);
-      g.lineTo(tx + toothW, slotCy + slotH / 2);
-      g.lineTo(tx + toothW / 2, tipY);
-      g.closePath();
-      g.fillPath();
+  // Swap between idle and roaring SVG textures based on openness.
+  refreshTexture() {
+    const wantsOpen = this.openness > 0.4;
+    const key = wantsOpen ? 'stomach-acid-blob-roaring' : 'stomach-acid-blob';
+    if (this.body.texture && this.body.texture.key !== key) {
+      this.body.setTexture(key);
+      this.body.setDisplaySize(140, 170);
     }
   }
 
@@ -183,16 +146,16 @@ export default class StomachAcidBlob {
       default: break;
     }
 
-    this.redrawTeeth();
+    this.refreshTexture();
   }
 
   takeStomp() {
     if (this.state !== STATES.ROAR) return false;
     this.hp -= 1;
     this.hpText.setText(this.hpLabel());
-    // Tint the body redder/darker as he weakens.
-    const tints = [0xff5028, 0xc04020, 0x803010];
-    this.body.fillColor = tints[Math.max(0, Math.min(2, this.maxHp - this.hp - 1))];
+    // Tint the body darker as he weakens.
+    const tints = [0xffffff, 0xd0a0a0, 0xa07070];
+    this.body.setTint(tints[Math.max(0, Math.min(2, this.maxHp - this.hp - 1))]);
     if (this.hp <= 0) {
       this.defeat();
       return true;
@@ -209,16 +172,13 @@ export default class StomachAcidBlob {
     this.hpText.setColor('#90ff90');
     this.scene.tweens.killTweensOf(this.body);
     this.scene.tweens.add({
-      targets: [this.body, this.eyeL, this.eyeR, this.teeth],
+      targets: [this.body],
       alpha: 0,
-      scaleX: 0.4,
-      scaleY: 0.4,
+      scaleX: this.body.scaleX * 0.4,
+      scaleY: this.body.scaleY * 0.4,
       duration: 700,
       onComplete: () => {
         this.body.destroy();
-        this.eyeL.destroy();
-        this.eyeR.destroy();
-        this.teeth.destroy();
       },
     });
   }

@@ -28,8 +28,10 @@ export default class ChompingTeeth {
     this.lowerOpenY = floorY - toothHeight / 2;
     this.lowerClosedY = (floorY + ceilingY) / 2 + 4;
 
-    this.upper = scene.add.rectangle(x, this.upperOpenY, width, toothHeight, 0xeeeeee);
-    this.lower = scene.add.rectangle(x, this.lowerOpenY, width, toothHeight, 0xeeeeee);
+    this.upper = scene.add.image(x, this.upperOpenY, 'chomping-tooth-upper');
+    this.upper.setDisplaySize(width, toothHeight);
+    this.lower = scene.add.image(x, this.lowerOpenY, 'chomping-tooth-lower');
+    this.lower.setDisplaySize(width, toothHeight);
 
     // phaseOffset shifts this tooth's cycle so a row of teeth can
     // stagger — the player gets timing windows instead of one
@@ -68,8 +70,10 @@ export default class ChompingTeeth {
 
     this.upper.y = Phaser.Math.Linear(this.upperOpenY, this.upperClosedY, progress);
     this.lower.y = Phaser.Math.Linear(this.lowerOpenY, this.lowerClosedY, progress);
-    this.upper.fillColor = phase.color;
-    this.lower.fillColor = phase.color;
+    // Tint the SVG sprites per phase. White (0xffffff) = no tint.
+    const tint = this.phase === 'open' ? 0xffffff : phase.color;
+    this.upper.setTint(tint);
+    this.lower.setTint(tint);
 
     if (t >= 1) this.advancePhase();
   }

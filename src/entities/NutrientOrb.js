@@ -11,10 +11,11 @@ export default class NutrientOrb {
     this.scene = scene;
     this.collected = false;
 
-    this.sprite = scene.add.rectangle(x, y, 16, 16, 0xffe070);
+    this.sprite = scene.add.image(x, y, 'nutrient-orb');
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
+    this.sprite.body.setSize(16, 16);
     this.sprite.nutrientOrb = this;
 
     this.bobTween = scene.tweens.add({

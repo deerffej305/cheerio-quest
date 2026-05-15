@@ -18,8 +18,10 @@ export default class FoodPlatform {
     this.alive = true;
     this.touchedAt = null;
 
-    this.sprite = scene.add.rectangle(x, y, w, h, color);
+    this.sprite = scene.add.image(x, y, 'food-platform');
+    this.sprite.setDisplaySize(w, h);
     scene.physics.add.existing(this.sprite, true);
+    this.sprite.body.setSize(w, h);
     this.sprite.foodPlatform = this;
   }
 
@@ -40,7 +42,7 @@ export default class FoodPlatform {
       100,
       Math.floor(t * 100),
     );
-    this.sprite.fillColor = Phaser.Display.Color.GetColor(c.r, c.g, c.b);
+    this.sprite.setTint(Phaser.Display.Color.GetColor(c.r, c.g, c.b));
     this.sprite.setAlpha(1 - t * 0.6);
     if (t >= 1) this.dissolve();
   }

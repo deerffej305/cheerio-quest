@@ -15,8 +15,10 @@ export default class WaterReabsorbingPlatform {
     this.touchedAt = null;
     this.color = color;
 
-    this.sprite = scene.add.rectangle(x, y, w, h, color);
+    this.sprite = scene.add.image(x, y, 'water-platform');
+    this.sprite.setDisplaySize(w, h);
     scene.physics.add.existing(this.sprite, true);
+    this.sprite.body.setSize(w, h);
     this.sprite.waterPlatform = this;
   }
 
@@ -34,7 +36,7 @@ export default class WaterReabsorbingPlatform {
     // setSize + refreshBody so the static body shrinks with the
     // visual; otherwise the cheerio keeps standing on invisible
     // edges of the original platform.
-    this.sprite.setSize(newW, this.height);
+    this.sprite.setDisplaySize(newW, this.height);
     this.sprite.body.setSize(newW, this.height);
     this.sprite.body.updateFromGameObject();
   }

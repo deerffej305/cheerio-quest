@@ -12,9 +12,10 @@ export default class BadBacterium {
     this.rangeRight = rangeRight ?? x + 90;
     this.speed = speed;
 
-    this.sprite = scene.add.rectangle(x, y, 30, 24, 0xa01818);
+    this.sprite = scene.add.image(x, y, 'bad-bacterium');
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(true);
+    this.sprite.body.setSize(30, 24);
     this.sprite.body.setVelocityX(-speed);
     this.sprite.badBacterium = this;
   }

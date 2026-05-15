@@ -11,11 +11,12 @@ export default class SalivaBlob {
   constructor(scene, x, y, { width = 60, height = 24 } = {}) {
     this.scene = scene;
 
-    this.sprite = scene.add.rectangle(x, y, width, height, 0xcfe9ff);
-    this.sprite.setAlpha(0.85);
+    this.sprite = scene.add.image(x, y, 'saliva-blob');
+    this.sprite.setDisplaySize(width, height);
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
+    this.sprite.body.setSize(width, height);
     this.sprite.salivaBlob = this;
 
     // Wet pulse animation — alpha + slight scale swell so it

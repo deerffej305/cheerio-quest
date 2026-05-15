@@ -15,16 +15,20 @@ export default class Villus {
     this.floorY = floorY;
     this.spawnedAt = scene.time.now;
 
-    this.sprite = scene.add.rectangle(x, floorY, 26, height, color);
+    this.height = height;
+    this.sprite = scene.add.image(x, floorY, 'villus');
+    this.sprite.setDisplaySize(26, height);
     this.sprite.setOrigin(0.5, 1); // anchor at the base, so it sways from the floor
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
+    this.sprite.body.setSize(26, height);
+    this.sprite.body.setOffset(-13, -height); // re-center with origin 0.5, 1
     this.sprite.villus = this;
   }
 
   topY() {
-    return this.sprite.y - this.sprite.height;
+    return this.sprite.y - this.height;
   }
 
   update() {

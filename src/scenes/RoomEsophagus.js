@@ -11,10 +11,10 @@ import { sound } from '../systems/SoundManager.js';
 const TUBE_W = 600;
 const TUBE_LEFT = (GAME_WIDTH - TUBE_W) / 2;       // 340
 const TUBE_RIGHT = TUBE_LEFT + TUBE_W;             // 940
-const ROOM_HEIGHT = 3200;
+const ROOM_HEIGHT = 5200;
 const SPAWN_X = GAME_WIDTH / 2;                    // 640
 const SPAWN_Y = 120;
-const EXIT_Y = ROOM_HEIGHT - 120;                  // 3080
+const EXIT_Y = ROOM_HEIGHT - 120;                  // 5080
 
 // Cheerio's terminal velocity in the tube. Significantly faster than
 // waveSpeed so a clean straight-down fall comfortably clears the exit.
@@ -100,9 +100,9 @@ export default class RoomEsophagus extends Phaser.Scene {
     // on them or walk off the edge into the gap to keep falling.
     // No damage — they're just walkable rest spots between crushers.
     this.rings = [];
-    const ringCount = 7;
-    const startY = 480;
-    const endY = EXIT_Y - 240;
+    const ringCount = 5;
+    const startY = 600;
+    const endY = EXIT_Y - 360;
     const spacing = (endY - startY) / (ringCount - 1);
 
     for (let i = 0; i < ringCount; i++) {
@@ -151,7 +151,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     // Fiber sits on top of one of the middle walkable rings. Reaching
     // it just requires landing on the ring's solid segment — no risky
     // side-branch.
-    const target = this.rings[3];
+    const target = this.rings[2];
     const fiberX = target.leftSeg.x - target.leftSeg.width / 2 + 30;
     const fiberY = target.y - 32;
     this.fiberToken = new FiberToken(this, fiberX, fiberY);

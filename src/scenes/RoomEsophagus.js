@@ -16,11 +16,10 @@ const SPAWN_X = GAME_WIDTH / 2;                    // 640
 const SPAWN_Y = 120;
 const EXIT_Y = ROOM_HEIGHT - 120;                  // 3080
 
-// Cheerio's terminal velocity in the tube. With the crusher hazard
-// model the player isn't racing a death-line — they just need to time
-// drops through the open phase of each crusher. 275 keeps falls
-// readable without feeling sluggish.
-const ESOPHAGUS_TERMINAL_VY = 275;
+// Cheerio's terminal velocity in the tube. Significantly faster than
+// waveSpeed so a clean straight-down fall comfortably clears the exit.
+// Hitting rings/platforms costs enough seconds that the wave can catch.
+const ESOPHAGUS_TERMINAL_VY = 480;
 
 export default class RoomEsophagus extends Phaser.Scene {
   constructor() {
@@ -144,7 +143,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     // Wave state — descends from above the tube. One pass only; once
     // the wave reaches the bottom, every segment is locked closed.
     this.waveY = -400;
-    this.waveSpeed = 300; // px/s — slightly above Cheerio terminal so it presses
+    this.waveSpeed = 360; // px/s — below Cheerio terminal so a clean fall is safe
     this.waveStopY = ROOM_HEIGHT + 400;
   }
 
@@ -173,7 +172,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     //   d <= closeAt → closed (deadly, locks shut)
     // Telegraph window is large so the inward squeeze is gradual,
     // even though the wave itself moves at full waveSpeed.
-    const TELEGRAPH_DIST = 240;
+    const TELEGRAPH_DIST = 520;
     const closeAt = 30;
 
     for (const c of this.crushers) {

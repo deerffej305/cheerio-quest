@@ -54,13 +54,16 @@ export default class RoomLargeIntestine extends Phaser.Scene {
   // --- Terrain ----------------------------------------------------
 
   buildTerrain() {
-    // Floor across the room.
-    const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0x884028);
+    // Background — painted large-intestine corridor.
+    this.add.image(ROOM_WIDTH / 2, GAME_HEIGHT / 2, 'room-large-intestine-bg').setDepth(-10);
+
+    // Floor across the room — invisible hitbox.
+    const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0x884028).setVisible(false);
     this.physics.add.existing(ground, true);
     this.platforms.add(ground);
 
-    // Roof — fold-corridor ceiling.
-    const roof = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x6a2418);
+    // Roof — invisible hitbox.
+    const roof = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x6a2418).setVisible(false);
     this.physics.add.existing(roof, true);
     this.platforms.add(roof);
 
@@ -199,7 +202,8 @@ export default class RoomLargeIntestine extends Phaser.Scene {
   // --- Exit -------------------------------------------------------
 
   spawnExit() {
-    this.exitDoor = this.add.rectangle(EXIT_X, FLOOR_Y - 60, 60, 120, 0x80ffa0);
+    this.exitDoor = this.add.image(EXIT_X, FLOOR_Y - 60, 'exit-sigmoid');
+    this.exitDoor.setDisplaySize(60, 120);
     this.add.text(EXIT_X, FLOOR_Y - 140, 'SIGMOID →\n(to rectum)', {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#a0ffa0', align: 'center',
     }).setOrigin(0.5);

@@ -51,15 +51,22 @@ export default class RoomEsophagus extends Phaser.Scene {
   // --- Geometry ---------------------------------------------------
 
   buildTube() {
-    // Left and right walls of the tube. Solid colliders so the
-    // cheerio bounces between them while falling.
+    // Background — the painted esophagus, walls and lumen included.
+    // Cowork shipped it at 1280x3200; we scale to GAME_WIDTH x
+    // ROOM_HEIGHT so the muscle texture spans the full level.
+    const bg = this.add.image(GAME_WIDTH / 2, ROOM_HEIGHT / 2, 'room-esophagus-bg');
+    bg.setDisplaySize(GAME_WIDTH, ROOM_HEIGHT);
+    bg.setDepth(-10);
+
+    // Left and right walls of the tube. Invisible hitboxes; the
+    // wall art is painted into the background.
     const leftWall = this.add.rectangle(
       TUBE_LEFT / 2,
       ROOM_HEIGHT / 2,
       TUBE_LEFT,
       ROOM_HEIGHT,
       0x4a1020,
-    );
+    ).setVisible(false);
     this.physics.add.existing(leftWall, true);
     this.platforms.add(leftWall);
 
@@ -70,13 +77,9 @@ export default class RoomEsophagus extends Phaser.Scene {
       rightWallW,
       ROOM_HEIGHT,
       0x4a1020,
-    );
+    ).setVisible(false);
     this.physics.add.existing(rightWall, true);
     this.platforms.add(rightWall);
-
-    // Tube interior tint — a slight gradient feel using two stripes.
-    this.add.rectangle(GAME_WIDTH / 2, ROOM_HEIGHT / 2, TUBE_W, ROOM_HEIGHT, 0x6a1828, 0.4)
-      .setStrokeStyle(2, 0x882030);
 
     // Top cap label.
     this.add.text(GAME_WIDTH / 2, 50, 'from the mouth ↓', {

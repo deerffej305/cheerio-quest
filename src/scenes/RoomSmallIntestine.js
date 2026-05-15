@@ -68,13 +68,16 @@ export default class RoomSmallIntestine extends Phaser.Scene {
   // --- World geometry ---------------------------------------------
 
   buildWorld() {
-    // Floor across the room.
-    const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0xc06078);
+    // Background — painted intestine.
+    this.add.image(ROOM_WIDTH / 2, GAME_HEIGHT / 2, 'room-small-intestine-bg').setDepth(-10);
+
+    // Floor across the room — invisible hitbox.
+    const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0xc06078).setVisible(false);
     this.physics.add.existing(ground, true);
     this.platforms.add(ground);
 
-    // Ceiling — rumbly pink lining at the top.
-    const ceiling = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x882044);
+    // Ceiling — invisible hitbox.
+    const ceiling = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x882044).setVisible(false);
     this.physics.add.existing(ceiling, true);
     this.platforms.add(ceiling);
 
@@ -175,7 +178,8 @@ export default class RoomSmallIntestine extends Phaser.Scene {
   // --- Exit -------------------------------------------------------
 
   spawnExit() {
-    this.exitDoor = this.add.rectangle(EXIT_X, FLOOR_Y - 60, 60, 120, 0x80ffa0);
+    this.exitDoor = this.add.image(EXIT_X, FLOOR_Y - 60, 'exit-ileocecal');
+    this.exitDoor.setDisplaySize(60, 120);
     this.add.text(EXIT_X, FLOOR_Y - 140, 'ILEOCECAL\nVALVE →', {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#a0ffa0', align: 'center',
     }).setOrigin(0.5);

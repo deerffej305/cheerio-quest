@@ -56,38 +56,30 @@ export default class RoomStomach extends Phaser.Scene {
   // --- Static world geometry --------------------------------------
 
   buildAcidAndCeiling() {
-    // Roof of the stomach (visual cap, also a collider so the
-    // cheerio can't escape upward off the cameraless top).
-    const roof = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x5a2024);
+    // Background — painted stomach walls + green acid pool baked in.
+    this.add.image(ROOM_WIDTH / 2, GAME_HEIGHT / 2, 'room-stomach-bg').setDepth(-10);
+
+    // Roof of the stomach — invisible hitbox; art is in the background.
+    const roof = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x5a2024).setVisible(false);
     this.physics.add.existing(roof, true);
     this.platforms.add(roof);
 
-    // Acid pool — bright orange-red strip at the bottom. Contact is
-    // instant restart, no shrink intermediate (the lava rule).
+    // Acid pool — invisible hitbox over the painted acid in the bg.
+    // Contact is instant restart, no shrink intermediate (lava rule).
     this.acid = this.add.rectangle(
       ROOM_WIDTH / 2,
       ACID_TOP_Y + (GAME_HEIGHT - ACID_TOP_Y) / 2,
       ROOM_WIDTH,
       GAME_HEIGHT - ACID_TOP_Y,
       0xff5028,
-    );
+    ).setVisible(false);
     this.physics.add.existing(this.acid);
     this.acid.body.setAllowGravity(false);
     this.acid.body.setImmovable(true);
-    // Make the acid wavy by tinting two overlay strips a slightly
-    // darker color and giving them a subtle drift.
-    this.add.rectangle(
-      ROOM_WIDTH / 2,
-      ACID_TOP_Y + 6,
-      ROOM_WIDTH,
-      8,
-      0xffa830,
-      0.8,
-    );
 
     // Entry ledge on the left so the player has a place to land
-    // when they drop in from the esophagus.
-    const entry = this.add.rectangle(60, 270, 140, 18, 0xc4915a);
+    // when they drop in from the esophagus. Invisible hitbox.
+    const entry = this.add.rectangle(60, 270, 140, 18, 0xc4915a).setVisible(false);
     this.physics.add.existing(entry, true);
     this.platforms.add(entry);
   }
@@ -197,7 +189,9 @@ export default class RoomStomach extends Phaser.Scene {
     // Pylorus door at the right edge. Starts LOCKED behind the
     // Stomach Acid Blob boss — defeating the boss (3 mouth-stomps
     // during a roar) unlocks the door.
-    this.exitDoor = this.add.rectangle(EXIT_X, EXIT_Y, 60, 120, 0x404040);
+    this.exitDoor = this.add.image(EXIT_X, EXIT_Y, 'exit-pylorus');
+    this.exitDoor.setDisplaySize(60, 120);
+    this.exitDoor.setTint(0x606060); // dim while locked
     this.exitLabel = this.add.text(EXIT_X, EXIT_Y - 80, 'PYLORUS\n(locked)', {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ff8080', align: 'center',
     }).setOrigin(0.5);
@@ -247,7 +241,7 @@ export default class RoomStomach extends Phaser.Scene {
   unlockExit() {
     if (this.exitUnlocked) return;
     this.exitUnlocked = true;
-    this.exitDoor.fillColor = 0x80ffa0;
+    this.exitDoor.clearTint();
     this.exitLabel.setText('PYLORUS →\n(open!)').setColor('#a0ffa0');
     sound.play('score');
   }

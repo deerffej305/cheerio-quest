@@ -10,6 +10,9 @@ export default class TitleScene extends Phaser.Scene {
   create() {
     const cx = GAME_WIDTH / 2;
 
+    // Hero portrait, top-right so it doesn't crowd the menu column.
+    this.add.image(GAME_WIDTH - 160, GAME_HEIGHT / 2, 'crispy-big').setDisplaySize(220, 220);
+
     this.add.text(cx, 90, 'Journey to the Center of the Anus', {
       fontFamily: 'system-ui, sans-serif',
       fontSize: '48px',

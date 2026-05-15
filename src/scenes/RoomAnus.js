@@ -57,21 +57,24 @@ export default class RoomAnus extends Phaser.Scene {
   // --- Maze geometry ---------------------------------------------
 
   buildMaze() {
-    // Floor.
-    const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0x5a2a14);
+    // Background — painted maze chamber.
+    this.add.image(ROOM_WIDTH / 2, ROOM_HEIGHT / 2, 'room-anus-bg').setDepth(-10);
+
+    // Floor — invisible hitbox.
+    const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0x5a2a14).setVisible(false);
     this.physics.add.existing(ground, true);
     this.platforms.add(ground);
 
-    // Ceiling.
-    const roof = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x3a1a08);
+    // Ceiling — invisible hitbox.
+    const roof = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x3a1a08).setVisible(false);
     this.physics.add.existing(roof, true);
     this.platforms.add(roof);
 
-    // Side walls.
-    const leftWall = this.add.rectangle(20, ROOM_HEIGHT / 2, 40, ROOM_HEIGHT, 0x3a1a08);
+    // Side walls — invisible hitboxes.
+    const leftWall = this.add.rectangle(20, ROOM_HEIGHT / 2, 40, ROOM_HEIGHT, 0x3a1a08).setVisible(false);
     this.physics.add.existing(leftWall, true);
     this.platforms.add(leftWall);
-    const rightWall = this.add.rectangle(ROOM_WIDTH - 20, ROOM_HEIGHT / 2, 40, ROOM_HEIGHT, 0x3a1a08);
+    const rightWall = this.add.rectangle(ROOM_WIDTH - 20, ROOM_HEIGHT / 2, 40, ROOM_HEIGHT, 0x3a1a08).setVisible(false);
     this.physics.add.existing(rightWall, true);
     this.platforms.add(rightWall);
 
@@ -137,8 +140,8 @@ export default class RoomAnus extends Phaser.Scene {
     // hovering just above the perch's surface.
     this.exitTileX = 1130;
     this.exitTileY = 131;       // top of perch is y = 140 - 9 = 131
-    this.exitTile = this.add.rectangle(this.exitTileX, this.exitTileY - 6, 80, 8, 0xa0ffa0);
-    this.exitTile.setStrokeStyle(2, 0x40ff80);
+    this.exitTile = this.add.image(this.exitTileX, this.exitTileY - 6, 'exit-tile');
+    this.exitTile.setDisplaySize(80, 8);
 
     this.add.text(this.exitTileX, this.exitTileY - 26, 'EXIT TILE', {
       fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#a0ffa0', fontStyle: 'bold',

@@ -98,13 +98,16 @@ export default class CutsceneScene extends Phaser.Scene {
       fontFamily: 'system-ui, sans-serif', fontSize: '20px', color: '#e0c8ff', fontStyle: 'italic',
     }).setOrigin(0.5);
 
-    // The big panel placeholder box that we re-fill per panel.
-    this.panelBox = this.add.rectangle(cx, GAME_HEIGHT / 2 + 20, 800, 380, 0x2a1830);
-    this.panelBox.setStrokeStyle(4, 0xffcf73);
+    // The big panel image that we re-fill per panel. Native size is
+    // 800x380; we scale to 1.6 so it fills the 1280×720 viewport
+    // nicely. The labeled "PANEL N" placeholder is gone.
+    this.panelImage = this.add.image(cx, GAME_HEIGHT / 2 + 20, 'cutscene-liftoff-1');
+    this.panelImage.setScale(1.6);
 
+    // Hidden — kept so existing references to panelLabel don't crash.
     this.panelLabel = this.add.text(cx, GAME_HEIGHT / 2 - 90, '', {
       fontFamily: 'system-ui, sans-serif', fontSize: '40px', color: '#ffcf73', fontStyle: 'bold',
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setVisible(false);
 
     this.panelCaption = this.add.text(cx, GAME_HEIGHT / 2, '', {
       fontFamily: 'system-ui, sans-serif', fontSize: '18px', color: '#dddddd',
@@ -134,7 +137,11 @@ export default class CutsceneScene extends Phaser.Scene {
 
   renderPanel() {
     const p = this.spec.panels[this.idx];
-    this.panelLabel.setText(`PANEL ${this.idx + 1}`);
+    // Map cutscene key + panel index → asset key (cutscene-<key>-N).
+    const panelKey = `cutscene-${this.key}-${this.idx + 1}`;
+    if (this.scene.systems.cache.obj?.exists?.(panelKey) || this.textures.exists(panelKey)) {
+      this.panelImage.setTexture(panelKey);
+    }
     this.panelCaption.setText(p?.caption || '');
     // Splashdown panel 6 swaps its dialogue placeholder for the
     // live score recap (STORY.md panel 6 — THE END + final score

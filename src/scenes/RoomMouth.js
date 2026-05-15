@@ -52,6 +52,12 @@ export default class RoomMouth extends Phaser.Scene {
   // --- Geometry ---------------------------------------------------
 
   buildStaticGeometry() {
+    // Background — full room. Mouth, teeth, taste buds, molars etc.
+    // are baked into the SVG; our colored rectangles below stay as
+    // physics-only hitboxes (invisible) so the painted scenery and
+    // the collision geometry line up.
+    this.add.image(ROOM_WIDTH / 2, GAME_HEIGHT / 2, 'room-mouth-bg').setDepth(-10);
+
     // Mouth floor spans the room. The spoon visual lifts in from
     // below the screen — it doesn't need a gap in the floor.
     const ground = this.add.rectangle(
@@ -60,17 +66,17 @@ export default class RoomMouth extends Phaser.Scene {
       ROOM_WIDTH,
       80,
       0xff90a8,
-    );
+    ).setVisible(false);
     this.physics.add.existing(ground, true);
     this.platforms.add(ground);
 
     // Roof of the mouth.
-    const roof = this.add.rectangle(ROOM_WIDTH / 2, CEILING_Y - 20, ROOM_WIDTH, 40, 0x8a2a48);
+    const roof = this.add.rectangle(ROOM_WIDTH / 2, CEILING_Y - 20, ROOM_WIDTH, 40, 0x8a2a48).setVisible(false);
     this.physics.add.existing(roof, true);
     this.platforms.add(roof);
 
     // Right wall — back of the mouth before the exit.
-    const backWall = this.add.rectangle(ROOM_WIDTH - 20, GAME_HEIGHT / 2, 40, GAME_HEIGHT, 0x5a1430);
+    const backWall = this.add.rectangle(ROOM_WIDTH - 20, GAME_HEIGHT / 2, 40, GAME_HEIGHT, 0x5a1430).setVisible(false);
     this.physics.add.existing(backWall, true);
     this.platforms.add(backWall);
 
@@ -83,25 +89,20 @@ export default class RoomMouth extends Phaser.Scene {
       { x: 1140, y: FLOOR_Y - 230, color: 0x90a070 }, // bitter
     ];
     tasteBuds.forEach(({ x, y, color }) => {
-      const pad = this.add.rectangle(x, y, 140, 18, color);
+      const pad = this.add.rectangle(x, y, 140, 18, color).setVisible(false);
       this.physics.add.existing(pad, true);
       this.platforms.add(pad);
     });
 
-    // Back molars — high platforms near the right side. The fiber
-    // token sits on the rear molar.
-    this.molarRear = this.add.rectangle(1830, FLOOR_Y - 250, 160, 28, 0xf5e7c0);
+    // Back molars — invisible hitboxes; the molar art is painted
+    // into the background. The fiber token sits on the rear molar.
+    this.molarRear = this.add.rectangle(1830, FLOOR_Y - 250, 160, 28, 0xf5e7c0).setVisible(false);
     this.physics.add.existing(this.molarRear, true);
     this.platforms.add(this.molarRear);
 
-    const molarFront = this.add.rectangle(1620, FLOOR_Y - 160, 140, 26, 0xf5e7c0);
+    const molarFront = this.add.rectangle(1620, FLOOR_Y - 160, 140, 26, 0xf5e7c0).setVisible(false);
     this.physics.add.existing(molarFront, true);
     this.platforms.add(molarFront);
-
-    // Atmospheric labels — quick orientation aids for grey-box.
-    this.add.text(420, CEILING_Y + 20, '↓ chomping teeth row ↓', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
-    this.add.text(1700, CEILING_Y + 20, 'molars + fiber token', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
-    this.add.text(2080, CEILING_Y + 20, '← back of mouth', { fontFamily: 'system-ui', fontSize: '14px', color: '#ffffff' });
   }
 
   // --- Cheerio + spoon intro -------------------------------------
@@ -120,7 +121,8 @@ export default class RoomMouth extends Phaser.Scene {
     // both positions manually.
     const spoonStartY = GAME_HEIGHT + 60;
     const spoonEndY = FLOOR_Y - 4;
-    this.spoon = this.add.rectangle(SPAWN_X, spoonStartY, 110, 24, 0xb0b8c0);
+    this.spoon = this.add.image(SPAWN_X, spoonStartY, 'spoon');
+    this.spoon.setDisplaySize(110, 24);
 
     this.cheerio.setPosition(SPAWN_X, spoonStartY - 36);
     this.cheerio.body.setAllowGravity(false);
@@ -261,14 +263,16 @@ export default class RoomMouth extends Phaser.Scene {
     // The exit/swallow sits on top of the tongue's base. Once the
     // tongue slouches the player runs over it, hops up onto the
     // base, and steps into the door to clear the room.
-    this.exitDoor = this.add.rectangle(EXIT_X, EXIT_Y, 60, 120, 0x202020);
+    this.exitDoor = this.add.image(EXIT_X, EXIT_Y, 'exit-swallow');
+    this.exitDoor.setDisplaySize(60, 120);
+    this.exitDoor.setTint(0x606060); // dim while locked
     this.exitLockText = this.add.text(EXIT_X, EXIT_Y - 80, 'LOCKED\n(beat tongue)', {
       fontFamily: 'system-ui', fontSize: '14px', color: '#ff8080', align: 'center',
     }).setOrigin(0.5);
   }
 
   unlockExit() {
-    this.exitDoor.fillColor = 0x80ffa0;
+    this.exitDoor.clearTint();
     this.exitLockText.setText('EXIT →\nswallow');
     this.exitLockText.setColor('#a0ffa0');
   }

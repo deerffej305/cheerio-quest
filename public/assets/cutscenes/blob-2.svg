@@ -1,0 +1,18 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Acid panel 2 — bubbles churn</title>
+  <desc>Stomach acid churns violently. Large white bubbles rise through the green acid. No characters visible — building tension before the reveal.</desc>
+  <rect width="800" height="380" fill="#8B3030"/>
+  <path d="M 0,100 L 800,100 L 800,380 L 0,380 Z" fill="#C8D54E" opacity="0.7"/>
+  <circle cx="220" cy="220" r="28" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="220" cy="220" r="18" fill="#FFFFFF" opacity="0.75"/>
+  <circle cx="410" cy="160" r="38" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="410" cy="160" r="25" fill="#FFFFFF" opacity="0.75"/>
+  <circle cx="600" cy="240" r="22" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="600" cy="240" r="14" fill="#FFFFFF" opacity="0.75"/>
+  <circle cx="120" cy="290" r="18" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="700" cy="300" r="20" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="320" cy="310" r="13" fill="#FFFFFF" opacity="0.65"/>
+  <circle cx="510" cy="320" r="16" fill="#FFFFFF" opacity="0.65"/>
+  <circle cx="180" cy="350" r="9" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="650" cy="355" r="8" fill="#FFFFFF" opacity="0.5"/>
+</svg>

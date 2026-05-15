@@ -1,0 +1,17 @@
+<svg width="3800" height="720" viewBox="0 0 3800 720" xmlns="http://www.w3.org/2000/svg">
+  <title>Large intestine room background</title>
+  <desc>Brown-tan twisting fold corridor. Wavy horizontal fold lines suggest the haustral pockets. Scattered red and green bacteria color dots. Engine draws platforms, fiber-brick walls, bacteria, exit sigmoid on top.</desc>
+  <rect width="3800" height="720" fill="#8B5A2B"/>
+  <path d="M 0,80 Q 400,140 800,80 Q 1200,140 1600,80 Q 2000,140 2400,80 Q 2800,140 3200,80 Q 3600,140 3800,80" stroke="#5C3A1A" stroke-width="8" fill="none" opacity="0.55"/>
+  <path d="M 0,220 Q 400,280 800,220 Q 1200,280 1600,220 Q 2000,280 2400,220 Q 2800,280 3200,220 Q 3600,280 3800,220" stroke="#5C3A1A" stroke-width="7" fill="none" opacity="0.55"/>
+  <path d="M 0,360 Q 400,420 800,360 Q 1200,420 1600,360 Q 2000,420 2400,360 Q 2800,420 3200,360 Q 3600,420 3800,360" stroke="#5C3A1A" stroke-width="7" fill="none" opacity="0.5"/>
+  <path d="M 0,500 Q 400,560 800,500 Q 1200,560 1600,500 Q 2000,560 2400,500 Q 2800,560 3200,500 Q 3600,560 3800,500" stroke="#5C3A1A" stroke-width="7" fill="none" opacity="0.5"/>
+  <path d="M 0,640 Q 400,680 800,640 Q 1200,680 1600,640 Q 2000,680 2400,640 Q 2800,680 3200,640 Q 3600,680 3800,640" stroke="#5C3A1A" stroke-width="6" fill="none" opacity="0.45"/>
+  <circle cx="380" cy="320" r="7" fill="#7FD060" opacity="0.6"/>
+  <circle cx="1120" cy="420" r="7" fill="#C7363D" opacity="0.6"/>
+  <circle cx="1480" cy="280" r="7" fill="#7FD060" opacity="0.6"/>
+  <circle cx="2180" cy="360" r="7" fill="#C7363D" opacity="0.6"/>
+  <circle cx="2640" cy="500" r="7" fill="#7FD060" opacity="0.6"/>
+  <circle cx="3220" cy="320" r="7" fill="#C7363D" opacity="0.6"/>
+  <circle cx="3540" cy="460" r="7" fill="#7FD060" opacity="0.6"/>
+</svg>

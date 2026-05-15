@@ -1,0 +1,17 @@
+<svg width="280" height="280" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg">
+  <title>Poop Boss — anus final obstacle, rolled off / grumpy</title>
+  <desc>Poop Boss after three stomps. Same swirl shape but tilted to the right with the top peak pushed over, eyes more open and annoyed, angry slash brows, downturned frown mouth, stink wisps coming off the new top angle. Use this sprite once Crispy has stomped the boss off the exit tile.</desc>
+  <path d="M 130,85 Q 125,70 135,65 Q 145,60 130,45" stroke="#A89180" stroke-width="1.8" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <path d="M 160,90 Q 165,75 155,70 Q 145,65 160,50" stroke="#A89180" stroke-width="1.8" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <path d="M 20,275 Q 10,230 45,215 Q 25,170 80,165 Q 65,120 130,120 Q 110,85 165,95 Q 200,95 195,125 Q 215,145 190,170 Q 220,205 200,235 Q 240,275 175,280 L 20,275 Z" fill="#8B5A2B" stroke="#5C3A1A" stroke-width="3.5"/>
+  <path d="M 70,185 Q 90,180 110,185" stroke="#5C3A1A" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 140,185 Q 160,183 180,188" stroke="#5C3A1A" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 100,135 Q 130,130 160,135" stroke="#5C3A1A" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 80,142 L 105,150" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 155,142 L 130,150" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="98" cy="165" rx="13" ry="7" fill="#FFFFFF" stroke="#3A2417" stroke-width="2"/>
+  <ellipse cx="137" cy="165" rx="13" ry="7" fill="#FFFFFF" stroke="#3A2417" stroke-width="2"/>
+  <circle cx="98" cy="166" r="4" fill="#3A2417"/>
+  <circle cx="137" cy="166" r="4" fill="#3A2417"/>
+  <path d="M 100,205 Q 120,195 140,205" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,26 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Tongue cut scene panel 5 — lunge moment</title>
+  <desc>The Tongue lunges forward toward Crispy on the left, who crouches ready to jump. Motion lines suggest forward force.</desc>
+  <rect width="800" height="380" fill="#FFC8D0"/>
+  <path d="M 0,300 L 800,300 L 800,380 L 0,380 Z" fill="#E07090" opacity="0.5"/>
+  <g transform="translate(150, 100)">
+    <path d="M 580,80 L 580,145 Q 400,158 200,138 Q 100,132 60,134 Q 25,132 25,115 Q 25,85 60,84 Q 100,86 200,88 Q 400,65 580,80 Z" fill="#FF99AA" stroke="#C7637C" stroke-width="3"/>
+    <circle cx="480" cy="92" r="3" fill="#C7637C" opacity="0.55"/>
+    <ellipse cx="75" cy="110" rx="15" ry="18" fill="#FFFFFF" stroke="#3A2417" stroke-width="2.2"/>
+    <ellipse cx="115" cy="110" rx="15" ry="18" fill="#FFFFFF" stroke="#3A2417" stroke-width="2.2"/>
+    <circle cx="69" cy="110" r="8" fill="#1A1A1A"/>
+    <circle cx="109" cy="110" r="8" fill="#1A1A1A"/>
+    <path d="M 60,90 L 92,99" stroke="#3A2417" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 130,90 L 98,99" stroke="#3A2417" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </g>
+  <g transform="translate(40, 150) scale(0.55)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <line x1="108" y1="210" x2="98" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="148" y1="210" x2="158" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="108" cy="76" rx="13" ry="15" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+    <ellipse cx="148" cy="76" rx="13" ry="15" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+    <circle cx="108" cy="80" r="7" fill="#3A2417"/>
+    <circle cx="148" cy="80" r="7" fill="#3A2417"/>
+  </g>
+  <path d="M 250,180 L 200,180 M 270,210 L 220,210 M 290,150 L 240,150" stroke="#6B4423" stroke-width="3.5" stroke-linecap="round" opacity="0.6"/>
+</svg>

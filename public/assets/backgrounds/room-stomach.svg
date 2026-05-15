@@ -1,0 +1,20 @@
+<svg width="3600" height="720" viewBox="0 0 3600 720" xmlns="http://www.w3.org/2000/svg">
+  <title>Stomach room background</title>
+  <desc>Cavernous orange-red stomach interior with darker walls at top and a large green acid pool covering the bottom 200 pixels of the room. Acid color matches the Stomach Acid Blob's green. Engine draws food platforms, acid drops, acid balls, exit pylorus on top.</desc>
+  <rect width="3600" height="720" fill="#8B3030"/>
+  <path d="M 0,0 L 3600,0 L 3600,220 Q 3200,260 2800,230 Q 2400,260 2000,230 Q 1600,260 1200,230 Q 800,260 400,230 Q 200,260 0,230 Z" fill="#5C1A20" opacity="0.55"/>
+  <path d="M 0,520 Q 400,506 800,520 Q 1200,506 1600,520 Q 2000,506 2400,520 Q 2800,506 3200,520 Q 3400,512 3600,520 L 3600,720 L 0,720 Z" fill="#7FD13B"/>
+  <path d="M 0,520 Q 400,506 800,520 Q 1200,506 1600,520 Q 2000,506 2400,520 Q 2800,506 3200,520 Q 3400,512 3600,520" fill="none" stroke="#3A8C1A" stroke-width="5"/>
+  <path d="M 80,560 Q 200,552 320,560 M 460,575 Q 580,567 700,575 M 840,560 Q 960,552 1080,560 M 1220,575 Q 1340,567 1460,575 M 1600,560 Q 1720,552 1840,560 M 1980,575 Q 2100,567 2220,575 M 2360,560 Q 2480,552 2600,560 M 2740,575 Q 2860,567 2980,575 M 3120,560 Q 3240,552 3360,560 M 3460,575 Q 3520,569 3580,575" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.6"/>
+  <circle cx="240" cy="660" r="14" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="700" cy="680" r="10" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="1280" cy="650" r="16" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="1800" cy="690" r="11" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="2400" cy="660" r="13" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="3000" cy="685" r="10" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="3380" cy="655" r="12" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="600" cy="380" r="14" fill="#FF6B40" opacity="0.35"/>
+  <circle cx="1400" cy="320" r="16" fill="#FF6B40" opacity="0.35"/>
+  <circle cx="2200" cy="370" r="14" fill="#FF6B40" opacity="0.35"/>
+  <circle cx="2900" cy="340" r="15" fill="#FF6B40" opacity="0.35"/>
+</svg>

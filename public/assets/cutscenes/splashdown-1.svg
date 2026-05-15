@@ -1,0 +1,17 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Splashdown panel 1 — WHOOSH launch</title>
+  <desc>The fart fires. Crispy is launched at incredible speed with WHOOSH lines radiating around him. Bright gold-orange background suggests energetic launch.</desc>
+  <rect width="800" height="380" fill="#FFD060"/>
+  <path d="M 100,50 L 320,180 M 30,200 L 280,200 M 100,330 L 320,210 M 580,50 L 380,180 M 700,200 L 420,200 M 580,330 L 380,210 M 60,110 L 290,170 M 660,110 L 410,170 M 90,290 L 300,220 M 660,290 L 400,220" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" opacity="0.85"/>
+  <g transform="translate(290, 110) scale(0.75)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <line x1="56" y1="106" x2="28" y2="60" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="200" y1="106" x2="228" y2="60" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="108" y1="210" x2="100" y2="244" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="148" y1="210" x2="156" y2="244" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="108" cy="76" rx="14" ry="16" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.5"/>
+    <ellipse cx="148" cy="76" rx="14" ry="16" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.5"/>
+    <circle cx="108" cy="80" r="8" fill="#3A2417"/>
+    <circle cx="148" cy="80" r="8" fill="#3A2417"/>
+  </g>
+</svg>

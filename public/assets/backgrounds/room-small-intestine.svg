@@ -1,0 +1,10 @@
+<svg width="5200" height="720" viewBox="0 0 5200 720" xmlns="http://www.w3.org/2000/svg">
+  <title>Small intestine room background</title>
+  <desc>Auto-scroller background. Pink-orange tube with horizontal flow lines and faint green bile streaks. Engine draws villi, microvilli, nutrient orbs, and the exit ileocecal on top.</desc>
+  <rect width="5200" height="720" fill="#FFA890"/>
+  <path d="M 0,0 L 5200,0 L 5200,100 Q 4800,130 4400,108 Q 4000,130 3600,108 Q 3200,130 2800,108 Q 2400,130 2000,108 Q 1600,130 1200,108 Q 800,130 400,108 Q 200,130 0,108 Z" fill="#C8704A" opacity="0.55"/>
+  <path d="M 0,620 Q 400,608 800,620 Q 1200,608 1600,620 Q 2000,608 2400,620 Q 2800,608 3200,620 Q 3600,608 4000,620 Q 4400,608 4800,620 Q 5000,614 5200,620 L 5200,720 L 0,720 Z" fill="#C8704A" opacity="0.45"/>
+  <path d="M 200,280 Q 600,272 1000,280 M 1400,300 Q 1800,292 2200,300 M 2600,280 Q 3000,272 3400,280 M 3800,300 Q 4200,292 4600,300 M 4800,280 Q 5000,275 5200,280" stroke="#A8B528" stroke-width="4" fill="none" opacity="0.6"/>
+  <path d="M 100,400 Q 700,395 1300,400 M 1700,420 Q 2300,415 2900,420 M 3300,400 Q 3900,395 4500,400" stroke="#A8B528" stroke-width="3" fill="none" opacity="0.5"/>
+  <path d="M 0,520 Q 800,512 1600,520 Q 2400,512 3200,520 Q 4000,512 4800,520 Q 5100,516 5200,520" stroke="#C8704A" stroke-width="3" fill="none" opacity="0.5"/>
+</svg>

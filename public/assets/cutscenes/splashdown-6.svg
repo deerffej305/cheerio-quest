@@ -1,0 +1,10 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Splashdown panel 6 — title backdrop</title>
+  <desc>End-of-game title backdrop. Black background with stylized "THE END" in yellow. Two Cheerio-ring decorations frame the title. Engine overlays final score, fiber count, time, and name-entry prompt on top of this panel.</desc>
+  <rect width="800" height="380" fill="#1A0F08"/>
+  <text x="400" y="160" text-anchor="middle" font-family="sans-serif" font-size="68" font-weight="bold" fill="#F4B942">THE END</text>
+  <circle cx="130" cy="200" r="28" fill="none" stroke="#F4B942" stroke-width="5"/>
+  <circle cx="130" cy="200" r="12" fill="none" stroke="#F4B942" stroke-width="4"/>
+  <circle cx="670" cy="200" r="28" fill="none" stroke="#F4B942" stroke-width="5"/>
+  <circle cx="670" cy="200" r="12" fill="none" stroke="#F4B942" stroke-width="4"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <title>Bad bacterium — large-intestine enemy</title>
+  <desc>Stompable enemy in the large intestine. Darker red than the cavity bacterium, meaner with spikes around the perimeter. Angry eyes, sharp teeth, stubby feet.</desc>
+  <path d="M 55,130 Q 32,110 42,85 Q 52,70 77,70 Q 112,65 127,80 Q 142,95 137,115 Q 132,135 112,145 Q 87,150 62,140 Q 52,135 55,130 Z" fill="#8B1A22" stroke="#4A0A12" stroke-width="3"/>
+  <polygon points="42,75 32,65 47,70" fill="#8B1A22" stroke="#4A0A12" stroke-width="2"/>
+  <polygon points="137,80 147,70 140,88" fill="#8B1A22" stroke="#4A0A12" stroke-width="2"/>
+  <polygon points="37,120 27,128 42,128" fill="#8B1A22" stroke="#4A0A12" stroke-width="2"/>
+  <polygon points="142,110 154,118 140,120" fill="#8B1A22" stroke="#4A0A12" stroke-width="2"/>
+  <polygon points="67,55 72,45 77,58" fill="#8B1A22" stroke="#4A0A12" stroke-width="2"/>
+  <polygon points="107,55 112,45 117,58" fill="#8B1A22" stroke="#4A0A12" stroke-width="2"/>
+  <path d="M 62,88 L 84,100" stroke="#2A0008" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 117,88 L 95,100" stroke="#2A0008" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="74" cy="105" rx="7" ry="9" fill="#FFFFFF" stroke="#2A0008" stroke-width="1.8"/>
+  <ellipse cx="105" cy="105" rx="7" ry="9" fill="#FFFFFF" stroke="#2A0008" stroke-width="1.8"/>
+  <circle cx="75" cy="107" r="4" fill="#1A0000"/>
+  <circle cx="106" cy="107" r="4" fill="#1A0000"/>
+  <path d="M 74,130 L 79,140 L 84,130 L 89,140 L 94,130 L 99,140 L 104,130" stroke="#FFFFFF" stroke-width="2.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="77" cy="158" rx="8" ry="4" fill="#4A0A12"/>
+  <ellipse cx="107" cy="158" rx="8" ry="4" fill="#4A0A12"/>
+</svg>

@@ -1,0 +1,18 @@
+<svg width="140" height="160" viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+  <title>Acid ball — stomach hazard</title>
+  <desc>Orange podoboo bubble that rises from the acid pit. Round body with angry eyes, mean mouth, glowing inner core, and small flame wisps trailing below. Not stompable. Contact damages player.</desc>
+  <path d="M 50,140 Q 55,150 45,156" stroke="#FFA460" stroke-width="3" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <path d="M 68,143 Q 73,155 63,158" stroke="#FFA460" stroke-width="3" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <path d="M 87,140 Q 82,150 92,156" stroke="#FFA460" stroke-width="3" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <circle cx="68" cy="78" r="50" fill="#FF6B40" stroke="#8B2A1A" stroke-width="3"/>
+  <ellipse cx="50" cy="108" rx="20" ry="12" fill="#FFA460" opacity="0.5"/>
+  <path d="M 43,50 L 63,60" stroke="#3A0A0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 93,50 L 73,60" stroke="#3A0A0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="53" cy="70" rx="8" ry="10" fill="#FFFFFF" stroke="#3A0A0A" stroke-width="1.8"/>
+  <ellipse cx="83" cy="70" rx="8" ry="10" fill="#FFFFFF" stroke="#3A0A0A" stroke-width="1.8"/>
+  <circle cx="53" cy="72" r="4" fill="#1A0000"/>
+  <circle cx="83" cy="72" r="4" fill="#1A0000"/>
+  <circle cx="55" cy="69" r="1.5" fill="#FFFFFF"/>
+  <circle cx="85" cy="69" r="1.5" fill="#FFFFFF"/>
+  <path d="M 57,96 Q 68,92 79,96" stroke="#3A0A0A" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

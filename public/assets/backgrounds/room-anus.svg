@@ -1,0 +1,13 @@
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <title>Anus room background</title>
+  <desc>Earth-tone maze chamber. Deep brown background with darker chamber shapes suggesting maze divisions. Wavy floor and ceiling lines suggest the inner-rectal walls. Engine draws stool blockers, exit tile, the Poop Boss on top.</desc>
+  <rect width="1280" height="720" fill="#5C3A1A"/>
+  <path d="M 0,40 Q 160,70 320,40 Q 480,70 640,40 Q 800,70 960,40 Q 1120,70 1280,40" stroke="#3A2417" stroke-width="5" fill="none" opacity="0.6"/>
+  <rect x="100" y="180" width="280" height="120" rx="30" fill="#3A2417" opacity="0.5"/>
+  <rect x="540" y="200" width="320" height="140" rx="35" fill="#3A2417" opacity="0.5"/>
+  <rect x="180" y="380" width="340" height="160" rx="40" fill="#3A2417" opacity="0.5"/>
+  <rect x="700" y="400" width="280" height="160" rx="35" fill="#3A2417" opacity="0.5"/>
+  <rect x="1030" y="180" width="180" height="350" rx="35" fill="#3A2417" opacity="0.5"/>
+  <path d="M 0,650 Q 160,635 320,650 Q 480,635 640,650 Q 800,635 960,650 Q 1120,635 1280,650" stroke="#3A2417" stroke-width="5" fill="none" opacity="0.6"/>
+  <path d="M 0,680 Q 160,665 320,680 Q 480,665 640,680 Q 800,665 960,680 Q 1120,665 1280,680" stroke="#3A2417" stroke-width="4" fill="none" opacity="0.5"/>
+</svg>

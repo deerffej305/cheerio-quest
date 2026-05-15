@@ -1,0 +1,18 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Lift Off panel 3 — POV from inside the mouth</title>
+  <desc>Looking down from inside the kid's open mouth. Two giant white teeth frame the foreground. Crispy is tiny on the spoon far below.</desc>
+  <rect width="800" height="380" fill="#3A2417"/>
+  <path d="M 120,0 L 175,0 L 200,110 Q 188,170 158,205 Q 132,180 125,110 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M 625,0 L 680,0 L 675,110 Q 668,180 642,205 Q 612,170 600,110 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="3" stroke-linejoin="round"/>
+  <ellipse cx="400" cy="295" rx="80" ry="28" fill="#B0B0B5" stroke="#707075" stroke-width="2.5"/>
+  <rect x="470" y="282" width="200" height="28" rx="14" fill="#B0B0B5" stroke="#707075" stroke-width="2.5"/>
+  <g transform="translate(370, 215) scale(0.35)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <line x1="108" y1="210" x2="98" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="148" y1="210" x2="158" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="108" cy="76" rx="12" ry="14" fill="#FFFFFF"/>
+    <ellipse cx="148" cy="76" rx="12" ry="14" fill="#FFFFFF"/>
+    <circle cx="108" cy="79" r="6" fill="#3A2417"/>
+    <circle cx="148" cy="79" r="6" fill="#3A2417"/>
+  </g>
+</svg>

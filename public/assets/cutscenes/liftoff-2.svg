@@ -1,0 +1,19 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Lift Off panel 2 — close-up on Crispy's face</title>
+  <desc>Tight close-up of Crispy. Eyes huge, knees trembling, scared. The "Oh no" beat — speech bubble overlaid by engine. Tremble lines around him.</desc>
+  <rect width="800" height="380" fill="#FFF5DC"/>
+  <path d="M 700,40 L 720,55 M 715,80 L 735,95 M 60,50 L 80,65 M 40,100 L 60,115 M 720,180 L 740,195 M 50,200 L 70,215" stroke="#6B4423" stroke-width="3" stroke-linecap="round" opacity="0.5"/>
+  <g transform="translate(245, 30) scale(1.5)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <ellipse cx="108" cy="76" rx="16" ry="18" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.5"/>
+    <ellipse cx="148" cy="76" rx="16" ry="18" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.5"/>
+    <circle cx="108" cy="80" r="8" fill="#3A2417"/>
+    <circle cx="148" cy="80" r="8" fill="#3A2417"/>
+    <circle cx="111" cy="74" r="3" fill="#FFFFFF"/>
+    <circle cx="151" cy="74" r="3" fill="#FFFFFF"/>
+    <path d="M 85,55 Q 100,48 122,60" stroke="#6B4423" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 171,55 Q 156,48 134,60" stroke="#6B4423" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <ellipse cx="83" cy="95" rx="8" ry="4" fill="#FFB6B6" opacity="0.55"/>
+    <ellipse cx="173" cy="95" rx="8" ry="4" fill="#FFB6B6" opacity="0.55"/>
+  </g>
+</svg>

@@ -1,0 +1,16 @@
+<svg width="1280" height="3200" viewBox="0 0 1280 3200" xmlns="http://www.w3.org/2000/svg">
+  <title>Esophagus room background</title>
+  <desc>Vertical tube background. Deep red walls with vertical muscle striations and mucus shimmer highlights. Engine draws contraction rings and the drop path on top.</desc>
+  <rect width="1280" height="3200" fill="#8B2030"/>
+  <path d="M 200,0 Q 240,800 200,1600 Q 240,2400 200,3200" stroke="#5C1020" stroke-width="6" fill="none" opacity="0.5"/>
+  <path d="M 360,0 Q 400,800 360,1600 Q 400,2400 360,3200" stroke="#5C1020" stroke-width="6" fill="none" opacity="0.5"/>
+  <path d="M 920,0 Q 880,800 920,1600 Q 880,2400 920,3200" stroke="#5C1020" stroke-width="6" fill="none" opacity="0.5"/>
+  <path d="M 1080,0 Q 1040,800 1080,1600 Q 1040,2400 1080,3200" stroke="#5C1020" stroke-width="6" fill="none" opacity="0.5"/>
+  <path d="M 280,200 Q 320,800 280,1400 Q 320,2000 280,2600 Q 320,3000 280,3200" stroke="#D04060" stroke-width="4" fill="none" opacity="0.55"/>
+  <path d="M 1000,300 Q 960,900 1000,1500 Q 960,2100 1000,2700 Q 960,3100 1000,3200" stroke="#D04060" stroke-width="4" fill="none" opacity="0.55"/>
+  <path d="M 600,400 Q 680,1100 600,1800 Q 680,2500 600,3100" stroke="#D04060" stroke-width="3" fill="none" opacity="0.4"/>
+  <ellipse cx="340" cy="600" rx="30" ry="14" fill="#FFFFFF" opacity="0.3"/>
+  <ellipse cx="950" cy="1200" rx="30" ry="14" fill="#FFFFFF" opacity="0.3"/>
+  <ellipse cx="400" cy="1800" rx="30" ry="14" fill="#FFFFFF" opacity="0.3"/>
+  <ellipse cx="900" cy="2400" rx="30" ry="14" fill="#FFFFFF" opacity="0.3"/>
+</svg>

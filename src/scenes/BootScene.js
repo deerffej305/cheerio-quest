@@ -1,17 +1,21 @@
 import Phaser from 'phaser';
 import { sound } from '../systems/SoundManager.js';
 
-// Boot scene runs once at startup. Two jobs:
-//   1. Generate placeholder ring textures for Crispy (real PNG
-//      sprites land in Phase 7).
-//   2. Preload the Phase 8 SFX bank as .wav files. SoundManager
-//      will prefer the loaded Phaser sample over the procedural
-//      fallback whenever a key exists in the audio cache.
-//
-// The .wav files in public/assets/audio/ are currently baked
-// from the same procedural recipes (see scripts/gen-audio.js);
-// real recorded audio from Cowork drops in at the same paths.
+// Boot scene runs once at startup. Loads the full art + audio
+// manifest per ASSET_WIRE_IN.md. Cowork shipped 33 sprite SVGs,
+// 26 cut-scene panel SVGs, 6 room backgrounds, and 10 SFX WAVs.
+// Replaces the earlier grey-box ring placeholders and procedural
+// audio fallbacks; SoundManager prefers loaded audio when present.
+
 const SFX_KEYS = ['jump', 'stomp', 'damage', 'score', 'fiber', 'death', 'room-clear', 'fart', 'crunch', 'squelch'];
+
+const CUTSCENE_PANELS = [
+  'liftoff-1', 'liftoff-2', 'liftoff-3', 'liftoff-4', 'liftoff-5',
+  'tongue-1', 'tongue-2', 'tongue-3', 'tongue-4', 'tongue-5',
+  'blob-1', 'blob-2', 'blob-3', 'blob-4', 'blob-5',
+  'poop-1', 'poop-2', 'poop-3', 'poop-4', 'poop-5',
+  'splashdown-1', 'splashdown-2', 'splashdown-3', 'splashdown-4', 'splashdown-5', 'splashdown-6',
+];
 
 export default class BootScene extends Phaser.Scene {
   constructor() {
@@ -19,31 +23,76 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload() {
+    // --- Hero ---
+    this.load.svg('crispy-big',         'assets/sprites/crispy-big.svg',         { width: 48, height: 48 });
+    this.load.svg('crispy-small',       'assets/sprites/crispy-big.svg',         { width: 28, height: 28 });
+    this.load.svg('crispy-big-jump',    'assets/sprites/crispy-big-jump.svg',    { width: 48, height: 48 });
+    this.load.svg('crispy-small-jump',  'assets/sprites/crispy-big-jump.svg',    { width: 28, height: 28 });
+
+    // --- Bosses ---
+    this.load.svg('tongue-boss',                'assets/sprites/tongue-boss.svg',                { width: 220, height: 130 });
+    this.load.svg('tongue-boss-lunge',          'assets/sprites/tongue-boss-lunge.svg',          { width: 500, height: 56 });
+    this.load.svg('tongue-boss-defeated',       'assets/sprites/tongue-boss-defeated.svg',       { width: 500, height: 56 });
+    this.load.svg('stomach-acid-blob',          'assets/sprites/stomach-acid-blob.svg',          { width: 140, height: 170 });
+    this.load.svg('stomach-acid-blob-roaring',  'assets/sprites/stomach-acid-blob-roaring.svg',  { width: 140, height: 170 });
+    this.load.svg('poop-boss',                  'assets/sprites/poop-boss.svg',                  { width: 110, height: 80 });
+    this.load.svg('poop-boss-rolled-off',       'assets/sprites/poop-boss-rolled-off.svg',       { width: 110, height: 80 });
+
+    // --- Enemies ---
+    this.load.svg('cavity-bacterium',  'assets/sprites/cavity-bacterium.svg',  { width: 30,  height: 24  });
+    this.load.svg('bad-bacterium',     'assets/sprites/bad-bacterium.svg',     { width: 30,  height: 24  });
+    this.load.svg('acid-drop',         'assets/sprites/acid-drop.svg',         { width: 26,  height: 22  });
+    this.load.svg('villus',            'assets/sprites/villus.svg',            { width: 26,  height: 140 });
+
+    // --- Hazards / platforms ---
+    this.load.svg('chomping-tooth-upper',   'assets/sprites/chomping-tooth-upper.svg',   { width: 80,  height: 60  });
+    this.load.svg('chomping-tooth-lower',   'assets/sprites/chomping-tooth-lower.svg',   { width: 80,  height: 60  });
+    this.load.svg('peristalsis-ring-left',  'assets/sprites/peristalsis-ring-left.svg',  { width: 700, height: 28  });
+    this.load.svg('peristalsis-ring-right', 'assets/sprites/peristalsis-ring-right.svg', { width: 700, height: 28  });
+    this.load.svg('saliva-blob',            'assets/sprites/saliva-blob.svg',            { width: 70,  height: 22  });
+    this.load.svg('microvilli-spike',       'assets/sprites/microvilli-spike.svg',       { width: 8,   height: 18  });
+    this.load.svg('food-platform',          'assets/sprites/food-platform.svg',          { width: 130, height: 18  });
+    this.load.svg('water-platform',         'assets/sprites/water-platform.svg',         { width: 120, height: 18  });
+    this.load.svg('methane-pocket',         'assets/sprites/methane-pocket.svg',         { width: 90,  height: 26  });
+    this.load.svg('fiber-brick-wall',       'assets/sprites/fiber-brick-wall.svg',       { width: 24,  height: 80  });
+    this.load.svg('acid-ball',              'assets/sprites/acid-ball.svg',              { width: 30,  height: 30  });
+
+    // --- Collectibles ---
+    this.load.svg('fiber-token',     'assets/sprites/fiber-token.svg',     { width: 26, height: 26 });
+    this.load.svg('nutrient-orb',    'assets/sprites/nutrient-orb.svg',    { width: 16, height: 16 });
+    this.load.svg('good-bacterium',  'assets/sprites/good-bacterium.svg',  { width: 18, height: 18 });
+
+    // --- Exits + props ---
+    this.load.svg('exit-swallow',    'assets/sprites/exit-swallow.svg',    { width: 60,  height: 120 });
+    this.load.svg('exit-pylorus',    'assets/sprites/exit-pylorus.svg',    { width: 60,  height: 120 });
+    this.load.svg('exit-ileocecal',  'assets/sprites/exit-ileocecal.svg',  { width: 60,  height: 120 });
+    this.load.svg('exit-sigmoid',    'assets/sprites/exit-sigmoid.svg',    { width: 60,  height: 120 });
+    this.load.svg('exit-tile',       'assets/sprites/exit-tile.svg',       { width: 80,  height: 8   });
+    this.load.svg('spoon',           'assets/sprites/spoon.svg',           { width: 110, height: 24  });
+
+    // --- Room backgrounds (full-size; cameras scroll across them) ---
+    this.load.svg('room-mouth-bg',             'assets/backgrounds/room-mouth.svg',            { width: 2400, height: 720  });
+    this.load.svg('room-esophagus-bg',         'assets/backgrounds/room-esophagus.svg',        { width: 1280, height: 3200 });
+    this.load.svg('room-stomach-bg',           'assets/backgrounds/room-stomach.svg',          { width: 3600, height: 720  });
+    this.load.svg('room-small-intestine-bg',   'assets/backgrounds/room-small-intestine.svg',  { width: 5200, height: 720  });
+    this.load.svg('room-large-intestine-bg',   'assets/backgrounds/room-large-intestine.svg',  { width: 3800, height: 720  });
+    this.load.svg('room-anus-bg',              'assets/backgrounds/room-anus.svg',             { width: 1280, height: 720  });
+
+    // --- Cut-scene panels (all 800x380 native) ---
+    for (const p of CUTSCENE_PANELS) {
+      this.load.svg(`cutscene-${p}`, `assets/cutscenes/${p}.svg`, { width: 800, height: 380 });
+    }
+
+    // --- Audio ---
     for (const key of SFX_KEYS) {
       this.load.audio(key, `assets/audio/${key}.wav`);
     }
   }
 
   create() {
-    this.makeRingTexture('crispy-big', 48, 8);
-    this.makeRingTexture('crispy-small', 28, 5);
     // Hand SoundManager a scene so it can route play(key) to the
     // loaded Phaser audio samples when they exist in cache.
     sound.attachPhaserScene(this);
     this.scene.start('Title');
-  }
-
-  // A yellow donut: outlined circle of the given outer size and
-  // ring thickness. Origin is the texture's top-left so it composes
-  // cleanly with arcade physics bodies.
-  makeRingTexture(key, size, ringWidth) {
-    const g = this.add.graphics({ x: 0, y: 0, add: false });
-    g.lineStyle(ringWidth, 0xffd040);
-    g.strokeCircle(size / 2, size / 2, size / 2 - ringWidth / 2);
-    // A subtle darker outline so the ring reads against pink/red rooms.
-    g.lineStyle(2, 0xc09020);
-    g.strokeCircle(size / 2, size / 2, size / 2 - ringWidth / 2);
-    g.generateTexture(key, size, size);
-    g.destroy();
   }
 }

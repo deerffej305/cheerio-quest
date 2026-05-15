@@ -1,0 +1,17 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Splashdown panel 2 — censored kid's backside fades</title>
+  <desc>Sky behind. The kid's backside is rendered as a pixel-mosaic chunky censored shape in the foreground, fading into the distance. Crispy from behind on the left, flying outward.</desc>
+  <rect width="800" height="220" fill="#87CEEB"/>
+  <rect width="800" height="160" y="220" fill="#A8DCB0"/>
+  <g transform="translate(500, 110)">
+    <rect x="0" y="0" width="25" height="25" fill="#E8B898"/><rect x="25" y="0" width="25" height="25" fill="#D8A888"/><rect x="50" y="0" width="25" height="25" fill="#E8B898"/><rect x="75" y="0" width="25" height="25" fill="#C89878"/><rect x="100" y="0" width="25" height="25" fill="#D8A888"/><rect x="125" y="0" width="25" height="25" fill="#E8B898"/>
+    <rect x="0" y="25" width="25" height="25" fill="#D8A888"/><rect x="25" y="25" width="25" height="25" fill="#C89878"/><rect x="50" y="25" width="25" height="25" fill="#D8A888"/><rect x="75" y="25" width="25" height="25" fill="#E8B898"/><rect x="100" y="25" width="25" height="25" fill="#D8A888"/><rect x="125" y="25" width="25" height="25" fill="#C89878"/>
+    <rect x="0" y="50" width="25" height="25" fill="#E8B898"/><rect x="25" y="50" width="25" height="25" fill="#D8A888"/><rect x="50" y="50" width="25" height="25" fill="#C89878"/><rect x="75" y="50" width="25" height="25" fill="#D8A888"/><rect x="100" y="50" width="25" height="25" fill="#E8B898"/><rect x="125" y="50" width="25" height="25" fill="#D8A888"/>
+    <rect x="0" y="75" width="25" height="25" fill="#D8A888"/><rect x="25" y="75" width="25" height="25" fill="#E8B898"/><rect x="50" y="75" width="25" height="25" fill="#D8A888"/><rect x="75" y="75" width="25" height="25" fill="#C89878"/><rect x="100" y="75" width="25" height="25" fill="#D8A888"/><rect x="125" y="75" width="25" height="25" fill="#E8B898"/>
+    <rect x="0" y="100" width="25" height="25" fill="#C89878"/><rect x="25" y="100" width="25" height="25" fill="#D8A888"/><rect x="50" y="100" width="25" height="25" fill="#E8B898"/><rect x="75" y="100" width="25" height="25" fill="#D8A888"/><rect x="100" y="100" width="25" height="25" fill="#C89878"/><rect x="125" y="100" width="25" height="25" fill="#D8A888"/>
+  </g>
+  <g transform="translate(160, 150) scale(0.55)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+  </g>
+  <path d="M 60,180 L 150,190 M 60,240 L 150,235 M 80,290 L 165,280" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" opacity="0.85"/>
+</svg>

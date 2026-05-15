@@ -1,0 +1,7 @@
+<svg width="220" height="60" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+  <title>Peristalsis ring — esophagus contraction band</title>
+  <desc>Pink-red anatomical muscle ring. Travels up the esophagus tube. Provided as one wide horizontal segment; in-game code tiles or stretches as needed. No face — purely anatomical.</desc>
+  <ellipse cx="110" cy="30" rx="100" ry="18" fill="#D04060" stroke="#7A1A30" stroke-width="3"/>
+  <ellipse cx="110" cy="34" rx="85" ry="10" fill="#A02040" opacity="0.6"/>
+  <ellipse cx="110" cy="25" rx="75" ry="3" fill="#F08090" opacity="0.7"/>
+</svg>

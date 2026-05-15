@@ -1,0 +1,12 @@
+<svg width="220" height="60" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+  <title>Food platform — stomach platform</title>
+  <desc>Half-dissolved bread chunk floating on stomach acid. Tan-brown with darker hole texture and lighter crust highlights. Dissolves over time when stood on.</desc>
+  <path d="M 13,35 Q 13,20 35,18 Q 65,16 95,18 Q 135,22 180,21 Q 207,22 207,38 Q 207,55 185,53 Q 155,55 125,54 Q 85,55 55,54 Q 25,54 13,46 Z" fill="#B8895A" stroke="#6B4423" stroke-width="3"/>
+  <ellipse cx="40" cy="36" rx="5" ry="3" fill="#8B6332" opacity="0.5"/>
+  <ellipse cx="75" cy="40" rx="4" ry="2.5" fill="#8B6332" opacity="0.5"/>
+  <ellipse cx="110" cy="36" rx="5" ry="3" fill="#8B6332" opacity="0.5"/>
+  <ellipse cx="145" cy="40" rx="4" ry="2.5" fill="#8B6332" opacity="0.5"/>
+  <ellipse cx="173" cy="36" rx="4" ry="2.5" fill="#8B6332" opacity="0.5"/>
+  <ellipse cx="30" cy="25" rx="6" ry="2" fill="#D4A872" opacity="0.6"/>
+  <ellipse cx="155" cy="25" rx="6" ry="2" fill="#D4A872" opacity="0.6"/>
+</svg>

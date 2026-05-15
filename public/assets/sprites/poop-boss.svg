@@ -1,0 +1,17 @@
+<svg width="280" height="300" viewBox="0 0 280 300" xmlns="http://www.w3.org/2000/svg">
+  <title>Poop Boss — anus final obstacle, sitting / idle</title>
+  <desc>Lazy brown turd boss sitting on the exit tile in the Anus room. Classic stacked-swirl shape with subtle layer creases, sleepy half-closed eyes with pupil dots, soft droopy eyelid arcs above, chill smirk mouth, two stink wisps curling off the top. Renders at ~110 wide in-game.</desc>
+  <path d="M 155,48 Q 150,33 160,28 Q 170,23 155,8" stroke="#A89180" stroke-width="1.8" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <path d="M 180,48 Q 185,33 175,28 Q 165,23 180,8" stroke="#A89180" stroke-width="1.8" fill="none" opacity="0.55" stroke-linecap="round"/>
+  <path d="M 60,275 Q 40,240 75,220 Q 50,170 110,160 Q 80,110 150,100 Q 125,65 175,65 Q 210,60 200,100 Q 230,130 210,165 Q 255,200 240,240 Q 280,280 220,280 L 60,275 Z" fill="#8B5A2B" stroke="#5C3A1A" stroke-width="3.5"/>
+  <path d="M 110,180 Q 125,175 145,180" stroke="#5C3A1A" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 175,180 Q 195,178 210,185" stroke="#5C3A1A" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 135,130 Q 155,125 180,130" stroke="#5C3A1A" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <path d="M 125,135 Q 140,132 155,135" stroke="#3A2417" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <path d="M 165,135 Q 180,132 195,135" stroke="#3A2417" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.6"/>
+  <ellipse cx="140" cy="150" rx="13" ry="4.5" fill="#FFFFFF" stroke="#3A2417" stroke-width="2"/>
+  <ellipse cx="180" cy="150" rx="13" ry="4.5" fill="#FFFFFF" stroke="#3A2417" stroke-width="2"/>
+  <circle cx="140" cy="151" r="3" fill="#3A2417"/>
+  <circle cx="180" cy="151" r="3" fill="#3A2417"/>
+  <path d="M 150,180 Q 165,186 180,180" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+</svg>

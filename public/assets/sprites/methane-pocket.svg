@@ -1,0 +1,11 @@
+<svg width="200" height="70" viewBox="0 0 200 70" xmlns="http://www.w3.org/2000/svg">
+  <title>Methane pocket — large-intestine bounce platform</title>
+  <desc>Translucent green gas bubble. Bouncy platform — Crispy bounces off it. Subtle internal bubble highlights suggest trapped gas. Slightly translucent.</desc>
+  <ellipse cx="100" cy="35" rx="85" ry="24" fill="#B0E090" stroke="#5C9C3A" stroke-width="2.5" opacity="0.7"/>
+  <ellipse cx="100" cy="25" rx="60" ry="4" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="75" cy="35" r="4" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="100" cy="30" r="3" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="130" cy="38" r="3.5" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="65" cy="32" r="2" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="145" cy="35" r="2.5" fill="#FFFFFF" opacity="0.5"/>
+</svg>

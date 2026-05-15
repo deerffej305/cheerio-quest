@@ -1,0 +1,9 @@
+<svg width="180" height="60" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">
+  <title>Saliva blob — slip hazard</title>
+  <desc>Pale blue translucent puddle on the mouth floor. Slippery surface that affects Crispy's movement.</desc>
+  <ellipse cx="90" cy="32" rx="70" ry="18" fill="#D6E8EE" stroke="#A0BFD0" stroke-width="2.5" opacity="0.9"/>
+  <ellipse cx="90" cy="36" rx="55" ry="12" fill="#A8C0CE" opacity="0.35"/>
+  <path d="M 47,24 Q 82,18 117,24" stroke="#FFFFFF" stroke-width="2.5" fill="none" opacity="0.75" stroke-linecap="round"/>
+  <circle cx="137" cy="27" r="3" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="55" cy="40" r="2" fill="#FFFFFF" opacity="0.6"/>
+</svg>

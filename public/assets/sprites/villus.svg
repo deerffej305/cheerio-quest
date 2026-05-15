@@ -1,0 +1,9 @@
+<svg width="60" height="280" viewBox="0 0 60 280" xmlns="http://www.w3.org/2000/svg">
+  <title>Villus — small-intestine hazard</title>
+  <desc>Tall wavy pink tentacle anchored at the bottom, swaying above. Whips across the play area as an obstacle in the auto-scroller. Stompable.</desc>
+  <path d="M 15,270 L 40,270 L 38,240 Q 35,210 42,185 Q 48,160 38,135 Q 35,115 33,90 L 27,90 Q 25,115 22,135 Q 12,160 18,185 Q 25,210 22,240 L 15,270 Z" fill="#FFB0C0" stroke="#B05070" stroke-width="2.5"/>
+  <circle cx="30" cy="120" r="2" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="30" cy="170" r="2" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="30" cy="210" r="2" fill="#FFFFFF" opacity="0.7"/>
+  <circle cx="30" cy="250" r="2" fill="#FFFFFF" opacity="0.7"/>
+</svg>

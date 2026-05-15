@@ -1,0 +1,19 @@
+<svg width="640" height="160" viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg">
+  <title>The Tongue — boss, defeated / slouched pose</title>
+  <desc>Tongue flat on the ground after four stomps. The "head" end (left) retains some volume so the closed droopy eyes still fit. Asymmetric slouch, body dragging back to the anchored right base. Sparse papillae since the body is flattened.</desc>
+  <path d="M 580,75 L 580,108 Q 400,120 200,114 Q 100,110 60,112 Q 25,108 25,98 Q 25,80 60,80 Q 100,82 200,84 Q 400,72 580,75 Z" fill="#FF99AA" stroke="#C7637C" stroke-width="3"/>
+  <circle cx="490" cy="86" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="490" cy="108" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="400" cy="84" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="400" cy="112" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="310" cy="86" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="310" cy="110" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="220" cy="88" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="220" cy="108" r="2.5" fill="#C7637C" opacity="0.55"/>
+  <circle cx="150" cy="92" r="2" fill="#C7637C" opacity="0.55"/>
+  <circle cx="150" cy="106" r="2" fill="#C7637C" opacity="0.55"/>
+  <path d="M 60,96 Q 75,103 90,96" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 100,96 Q 115,103 130,96" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 60,91 Q 75,87 90,91" stroke="#3A2417" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+  <path d="M 100,91 Q 115,87 130,91" stroke="#3A2417" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+</svg>

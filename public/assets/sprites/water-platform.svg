@@ -1,0 +1,9 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg">
+  <title>Water platform — large-intestine shrinking platform</title>
+  <desc>Like the food platform but with a wet/shrinking vibe representing water reabsorption in the colon. Lighter tan with blue highlights. Shrinks under the player's feet over time.</desc>
+  <path d="M 12,35 Q 12,20 27,18 Q 52,15 82,18 Q 122,21 167,18 Q 192,19 192,34 Q 192,49 170,48 Q 137,51 107,49 Q 72,50 37,49 Q 14,49 12,41 Z" fill="#C8B080" stroke="#8B6332" stroke-width="3"/>
+  <ellipse cx="100" cy="40" rx="70" ry="8" fill="#9CBFD0" opacity="0.45"/>
+  <path d="M 32,27 Q 62,24 92,27" stroke="#A0BFD0" stroke-width="2" fill="none" opacity="0.7"/>
+  <circle cx="142" cy="30" r="2.5" fill="#A0BFD0" opacity="0.7"/>
+  <circle cx="52" cy="42" r="2" fill="#A0BFD0" opacity="0.6"/>
+</svg>

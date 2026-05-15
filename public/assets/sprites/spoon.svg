@@ -1,0 +1,8 @@
+<svg width="220" height="80" viewBox="0 0 220 80" xmlns="http://www.w3.org/2000/svg">
+  <title>Spoon — mouth-room intro prop</title>
+  <desc>Stainless steel spoon that lifts Crispy toward the mouth at the start of the game. Oval bowl on the left, long rounded handle on the right.</desc>
+  <ellipse cx="55" cy="40" rx="50" ry="25" fill="#B0B0B5" stroke="#707075" stroke-width="3"/>
+  <rect x="100" y="28" width="115" height="22" rx="11" fill="#B0B0B5" stroke="#707075" stroke-width="3"/>
+  <ellipse cx="43" cy="28" rx="25" ry="7" fill="#E8E8ED" opacity="0.7"/>
+  <ellipse cx="160" cy="34" rx="40" ry="3" fill="#E8E8ED" opacity="0.7"/>
+</svg>

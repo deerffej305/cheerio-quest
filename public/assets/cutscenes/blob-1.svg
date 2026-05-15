@@ -1,0 +1,23 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Acid panel 1 — Crispy peers at the acid</title>
+  <desc>Crispy stands on a half-dissolved bread platform above a large pool of green stomach acid that fills the bottom third of the panel. Acid matches the boss's green.</desc>
+  <rect width="800" height="380" fill="#8B3030"/>
+  <path d="M 0,200 Q 200,188 400,200 Q 600,188 800,200 L 800,380 L 0,380 Z" fill="#7FD13B"/>
+  <path d="M 0,200 Q 200,188 400,200 Q 600,188 800,200" fill="none" stroke="#3A8C1A" stroke-width="4"/>
+  <path d="M 60,215 Q 160,209 260,215 M 360,225 Q 460,219 560,225 M 620,215 Q 700,210 780,215" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.6"/>
+  <g transform="translate(280, 145) scale(1.2)">
+    <path d="M 13,35 Q 13,20 35,18 Q 65,16 95,18 Q 135,22 180,21 Q 207,22 207,38 Q 207,55 185,53 Q 155,55 125,54 Q 85,55 55,54 Q 25,54 13,46 Z" fill="#B8895A" stroke="#6B4423" stroke-width="3"/>
+  </g>
+  <g transform="translate(370, 45) scale(0.5)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <line x1="108" y1="210" x2="98" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="148" y1="210" x2="158" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="108" cy="76" rx="13" ry="15" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+    <ellipse cx="148" cy="76" rx="13" ry="15" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+    <circle cx="108" cy="83" r="7" fill="#3A2417"/>
+    <circle cx="148" cy="83" r="7" fill="#3A2417"/>
+  </g>
+  <circle cx="120" cy="320" r="10" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="650" cy="340" r="8" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="400" cy="350" r="9" fill="#FFFFFF" opacity="0.6"/>
+</svg>

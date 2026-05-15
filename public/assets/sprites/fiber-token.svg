@@ -1,0 +1,13 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <title>Fiber token — power-up collectible</title>
+  <desc>Glowing green diamond. Magical fiber token. One per room. Touch while small to grow big. Touch while big for +10 points. Powers up the anus-room fart cycle.</desc>
+  <circle cx="60" cy="60" r="42" fill="#A8FFB0" opacity="0.3"/>
+  <circle cx="60" cy="60" r="32" fill="#A8FFB0" opacity="0.35"/>
+  <path d="M 60,25 L 93,60 L 60,95 L 27,60 Z" fill="#50D060" stroke="#1E5A28" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 60,25 L 60,95" stroke="#1E5A28" stroke-width="1.5" fill="none"/>
+  <path d="M 27,60 L 93,60" stroke="#1E5A28" stroke-width="1.5" fill="none"/>
+  <path d="M 60,25 L 45,60 L 60,60 Z" fill="#A8FFB0" opacity="0.6"/>
+  <path d="M 3,30 L 3,40 M -2,35 L 8,35" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 113,80 L 113,92 M 107,86 L 119,86" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+  <path d="M 58,110 L 58,118 M 54,114 L 62,114" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity="0.8"/>
+</svg>

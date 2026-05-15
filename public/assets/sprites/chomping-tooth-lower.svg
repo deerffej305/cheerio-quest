@@ -1,0 +1,6 @@
+<svg width="120" height="200" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
+  <title>Chomping tooth — lower</title>
+  <desc>White cartoon tooth pointing upward. Hazard in the Mouth room. Mirror of the upper tooth.</desc>
+  <path d="M 25,170 L 60,185 L 95,170 L 100,100 Q 80,45 60,30 Q 40,45 20,100 L 25,170 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M 80,150 Q 75,100 92,55" stroke="#C0C0C0" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

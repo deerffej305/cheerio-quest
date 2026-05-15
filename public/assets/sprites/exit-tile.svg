@@ -1,0 +1,10 @@
+<svg width="240" height="80" viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
+  <title>Exit tile — anus launch pad</title>
+  <desc>Glowing green pad. Crispy must stand on this when the fart fires to be launched out of the body. Pulsing glow halo and small upward chevrons suggest its launch-pad purpose.</desc>
+  <ellipse cx="120" cy="42" rx="120" ry="32" fill="#A8FFB0" opacity="0.35"/>
+  <ellipse cx="120" cy="42" rx="100" ry="22" fill="#A8FFB0" opacity="0.4"/>
+  <rect x="35" y="29" width="170" height="22" rx="11" fill="#50D060" stroke="#1E5A28" stroke-width="2.5"/>
+  <rect x="45" y="32" width="150" height="5" rx="2.5" fill="#A8FFB0" opacity="0.85"/>
+  <path d="M 82,15 L 92,10 L 102,15" stroke="#FFFFFF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 137,15 L 147,10 L 157,15" stroke="#FFFFFF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

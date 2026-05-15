@@ -1,0 +1,24 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Tongue cut scene panel 1 — Crispy walks past teeth</title>
+  <desc>Crispy walks through the slimy pink mouth, past a row of teeth in the background. Saliva drips from above.</desc>
+  <rect width="800" height="380" fill="#FFC8D0"/>
+  <path d="M 0,300 L 800,300 L 800,380 L 0,380 Z" fill="#E07090" opacity="0.5"/>
+  <path d="M 120,15 L 155,15 L 165,100 Q 155,150 138,160 Q 122,150 112,100 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="2.5"/>
+  <path d="M 190,15 L 225,15 L 235,100 Q 225,150 208,160 Q 192,150 182,100 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="2.5"/>
+  <path d="M 580,15 L 615,15 L 625,100 Q 615,150 598,160 Q 582,150 572,100 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="2.5"/>
+  <path d="M 650,15 L 685,15 L 695,100 Q 685,150 668,160 Q 652,150 642,100 Z" fill="#FFFFFF" stroke="#5C5C5C" stroke-width="2.5"/>
+  <ellipse cx="320" cy="70" rx="10" ry="6" fill="#D6E8EE" stroke="#A0BFD0" stroke-width="1.8" opacity="0.85"/>
+  <ellipse cx="460" cy="55" rx="8" ry="5" fill="#D6E8EE" stroke="#A0BFD0" stroke-width="1.8" opacity="0.85"/>
+  <path d="M 318,80 L 322,110 M 458,65 L 462,90" stroke="#A0BFD0" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+  <g transform="translate(340, 200) scale(0.6)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <line x1="108" y1="210" x2="98" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="148" y1="210" x2="158" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="56" y1="134" x2="82" y2="167" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="200" y1="134" x2="174" y2="167" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="108" cy="76" rx="12" ry="14" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+    <ellipse cx="148" cy="76" rx="12" ry="14" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+    <circle cx="108" cy="79" r="6" fill="#3A2417"/>
+    <circle cx="148" cy="79" r="6" fill="#3A2417"/>
+  </g>
+</svg>

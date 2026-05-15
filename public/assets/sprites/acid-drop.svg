@@ -1,0 +1,21 @@
+<svg width="220" height="260" viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg">
+  <title>Acid Drop — stomach-room enemy</title>
+  <desc>Goomba-style stomach enemy. Yellow-green acid blob (rounded body, not pointy teardrop) with a small angry face, slash brows, two stubby feet. Patrols food platforms. Stompable for +5 points. Renders at 26x22 in-game.</desc>
+  <ellipse cx="90" cy="240" rx="14" ry="6" fill="#6B7B1E"/>
+  <ellipse cx="130" cy="240" rx="14" ry="6" fill="#6B7B1E"/>
+  <path d="M 110,40 Q 15,60 15,155 Q 20,230 110,235 Q 200,230 205,155 Q 205,60 110,40 Z" fill="#C8D54E" stroke="#6B7B1E" stroke-width="4"/>
+  <circle cx="50" cy="105" r="3" fill="#A8B528" opacity="0.6"/>
+  <circle cx="170" cy="105" r="3" fill="#A8B528" opacity="0.6"/>
+  <circle cx="40" cy="165" r="3" fill="#A8B528" opacity="0.6"/>
+  <circle cx="180" cy="165" r="3" fill="#A8B528" opacity="0.6"/>
+  <circle cx="60" cy="210" r="2.5" fill="#A8B528" opacity="0.6"/>
+  <circle cx="160" cy="210" r="2.5" fill="#A8B528" opacity="0.6"/>
+  <ellipse cx="90" cy="140" rx="14" ry="16" fill="#FFFFFF" stroke="#3A2417" stroke-width="2.2"/>
+  <ellipse cx="130" cy="140" rx="14" ry="16" fill="#FFFFFF" stroke="#3A2417" stroke-width="2.2"/>
+  <circle cx="88" cy="143" r="7" fill="#1A1A1A"/>
+  <circle cx="132" cy="143" r="7" fill="#1A1A1A"/>
+  <circle cx="91" cy="139" r="2.2" fill="#FFFFFF"/>
+  <circle cx="135" cy="139" r="2.2" fill="#FFFFFF"/>
+  <path d="M 70,113 L 102,122" stroke="#3A2417" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 150,113 L 118,122" stroke="#3A2417" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

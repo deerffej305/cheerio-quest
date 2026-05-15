@@ -1,0 +1,18 @@
+<svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
+  <title>Poop panel 1 — tired Crispy enters</title>
+  <desc>Crispy enters the final chamber tired. Sweat drop, drooping eyes. Earth-toned anus-room interior in the background.</desc>
+  <rect width="800" height="380" fill="#5C3A1A"/>
+  <path d="M 0,300 L 800,300 L 800,380 L 0,380 Z" fill="#3A2417"/>
+  <g transform="translate(330, 150) scale(0.65)">
+    <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+    <line x1="108" y1="210" x2="98" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <line x1="148" y1="210" x2="158" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+    <ellipse cx="108" cy="80" rx="12" ry="6" fill="#FFFFFF" stroke="#6B4423" stroke-width="2"/>
+    <ellipse cx="148" cy="80" rx="12" ry="6" fill="#FFFFFF" stroke="#6B4423" stroke-width="2"/>
+    <circle cx="108" cy="80" r="4" fill="#3A2417"/>
+    <circle cx="148" cy="80" r="4" fill="#3A2417"/>
+    <path d="M 90,60 Q 100,65 115,62" stroke="#6B4423" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    <path d="M 166,60 Q 156,65 141,62" stroke="#6B4423" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  </g>
+  <path d="M 495,180 Q 502,195 492,205 Q 482,195 488,180 Z" fill="#A0BFD0" stroke="#5C7A8B" stroke-width="1.5"/>
+</svg>

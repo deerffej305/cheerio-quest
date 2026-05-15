@@ -1,0 +1,23 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <title>Crispy the Cheerio — Big state, standing pose</title>
+  <desc>Cheerio with bigger donut hole. Small soft worried eyes with dark brown pupils, pink cheek dabs, hands-on-hips arm pose. Game asset for cheerio-quest. Render at 48x48 in-game.</desc>
+  <line x1="108" y1="210" x2="98" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+  <line x1="148" y1="210" x2="158" y2="240" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+  <ellipse cx="93" cy="243" rx="13" ry="5.5" fill="#F4B942" stroke="#6B4423" stroke-width="3"/>
+  <ellipse cx="163" cy="243" rx="13" ry="5.5" fill="#F4B942" stroke="#6B4423" stroke-width="3"/>
+  <path d="M 43,128 A 85,85 0 1,0 213,128 A 85,85 0 1,0 43,128 Z M 91,138 A 37,37 0 1,1 165,138 A 37,37 0 1,1 91,138 Z" fill="#F4B942" stroke="#6B4423" stroke-width="3.5" fill-rule="evenodd"/>
+  <line x1="56" y1="134" x2="82" y2="167" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+  <line x1="200" y1="134" x2="174" y2="167" stroke="#6B4423" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="82" cy="171" r="8" fill="#F4B942" stroke="#6B4423" stroke-width="3"/>
+  <circle cx="174" cy="171" r="8" fill="#F4B942" stroke="#6B4423" stroke-width="3"/>
+  <ellipse cx="108" cy="76" rx="12" ry="14" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+  <ellipse cx="148" cy="76" rx="12" ry="14" fill="#FFFFFF" stroke="#6B4423" stroke-width="2.2"/>
+  <circle cx="108" cy="79" r="6" fill="#3A2417"/>
+  <circle cx="148" cy="79" r="6" fill="#3A2417"/>
+  <circle cx="110" cy="73" r="2.2" fill="#FFFFFF"/>
+  <circle cx="150" cy="73" r="2.2" fill="#FFFFFF"/>
+  <path d="M 90,56 Q 100,51 115,58" stroke="#6B4423" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M 166,56 Q 156,51 141,58" stroke="#6B4423" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="83" cy="95" rx="8" ry="4" fill="#FFB6B6" opacity="0.55"/>
+  <ellipse cx="173" cy="95" rx="8" ry="4" fill="#FFB6B6" opacity="0.55"/>
+</svg>

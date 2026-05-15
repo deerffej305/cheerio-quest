@@ -1,0 +1,6 @@
+<svg width="40" height="80" viewBox="0 0 40 80" xmlns="http://www.w3.org/2000/svg">
+  <title>Microvilli spike — small-intestine hazard</title>
+  <desc>Small green-tan spike. Single triangle. Tiled into clusters along the floor and ceiling of the small intestine in code. Contact damages player.</desc>
+  <polygon points="5,72 20,8 35,72" fill="#A8B58A" stroke="#5C6B40" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M 20,8 L 17,30" stroke="#5C6B40" stroke-width="1.5" fill="none" opacity="0.5"/>
+</svg>

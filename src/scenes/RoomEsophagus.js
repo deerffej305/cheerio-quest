@@ -123,23 +123,31 @@ export default class RoomEsophagus extends Phaser.Scene {
   }
 
   spawnCrushers() {
-    // Peristalsis crushers — paired blocks that extend from the walls
-    // and meet in the middle on a timer. Touching one during the
-    // closed phase = death. They sit between the walkable rings so
-    // each ring becomes a "wait here for the crusher to retract" beat.
+    // The whole esophageal wall is muscle. Crusher segments tile both
+    // walls floor-to-ceiling with no gaps — each segment is a "rib".
+    // A single waveY descends through the tube (see updateWave); each
+    // segment closes briefly as the wave passes its y, retracts as
+    // the wave moves below. Same threat as the original descending
+    // death-line, visualized as a wave of inward squeezes.
     this.crushers = [];
-    const crusherYs = [620, 980, 1380, 1780, 2180, 2580];
-    crusherYs.forEach((y, i) => {
-      const crusher = new PeristalsisCrusher(this, y, TUBE_LEFT, TUBE_RIGHT, {
-        period: 2400 + (i % 2) * 400,             // alternate cadence
-        closedDuration: 600,
-        telegraphDuration: 500,
-        phaseOffset: i * 700,                     // stagger so they're not synced
-      });
+    const thickness = 150;
+    const stackTop = 360;
+    const stackBottom = ROOM_HEIGHT - 200;
+    const count = Math.ceil((stackBottom - stackTop) / thickness);
+    for (let i = 0; i < count; i++) {
+      const y = stackTop + i * thickness + thickness / 2;
+      const crusher = new PeristalsisCrusher(this, y, TUBE_LEFT, TUBE_RIGHT, { thickness });
       this.physics.add.overlap(this.cheerio.sprite, crusher.leftBlock, () => this.handleCrusherHit(crusher));
       this.physics.add.overlap(this.cheerio.sprite, crusher.rightBlock, () => this.handleCrusherHit(crusher));
       this.crushers.push(crusher);
-    });
+    }
+
+    // Wave state — descends from above the tube through the bottom,
+    // then resets to give the player a second wave to dodge.
+    this.waveY = -400;
+    this.waveSpeed = 300; // px/s — slightly above Cheerio terminal so it presses
+    this.waveResetY = ROOM_HEIGHT + 400;
+    this.waveStartY = -400;
   }
 
   spawnFiberToken() {
@@ -153,8 +161,42 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
   }
 
+  updateWave(dt) {
+    if (this.phase !== 'play') return;
+    this.waveY += this.waveSpeed * (dt / 1000);
+    if (this.waveY > this.waveResetY) this.waveY = this.waveStartY;
+
+    // Bands relative to waveY (positive distance = wave hasn't reached yet):
+    //   d > TELEGRAPH_DIST       → idle  (just baseExtension visible)
+    //   d in [CLOSED/2,TELE]     → telegraph (yellow, extending in)
+    //   d in [-CLOSED/2,CLOSED/2]→ closed (deadly, full reach)
+    //   d in [-CLOSED/2-RETR,-]  → retracting (pulling back)
+    //   d < -CLOSED/2-RETR       → idle again, wave is past
+    const TELEGRAPH_DIST = 110;
+    const CLOSED_BAND = 130;
+    const RETRACT_DIST = 90;
+    const halfClosed = CLOSED_BAND / 2;
+
+    for (const c of this.crushers) {
+      const d = c.y - this.waveY;
+      if (d > TELEGRAPH_DIST) {
+        c.setState(c.baseExtension, 'idle');
+      } else if (d > halfClosed) {
+        const k = 1 - (d - halfClosed) / (TELEGRAPH_DIST - halfClosed);
+        c.setState(c.baseExtension + (c.maxReach - c.baseExtension) * k, 'telegraph');
+      } else if (d > -halfClosed) {
+        c.setState(c.maxReach, 'closed');
+      } else if (d > -halfClosed - RETRACT_DIST) {
+        const k = (d + halfClosed + RETRACT_DIST) / RETRACT_DIST;
+        c.setState(c.baseExtension + (c.maxReach - c.baseExtension) * k, 'retracting');
+      } else {
+        c.setState(c.baseExtension, 'idle');
+      }
+    }
+  }
+
   showHazardCaption() {
-    const note = this.add.text(GAME_WIDTH / 2, 90, 'PERISTALSIS — time the squeeze, fall through when open!', {
+    const note = this.add.text(GAME_WIDTH / 2, 90, 'PERISTALSIS — fall through ahead of the wave!', {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#ffb0b8', fontStyle: 'bold',
       stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5).setScrollFactor(0);
@@ -292,9 +334,7 @@ export default class RoomEsophagus extends Phaser.Scene {
   update(_time, delta) {
     if (this.cheerio) this.cheerio.update(delta);
 
-    if (this.crushers) {
-      for (const c of this.crushers) c.update(delta);
-    }
+    this.updateWave(delta);
 
     // Burp timer.
     if (this.phase === 'play' && this.time.now >= this.nextBurpAt) {

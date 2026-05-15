@@ -1,101 +1,58 @@
 import Phaser from 'phaser';
 
-// Peristalsis crusher — two blocks anchored to the left and right
-// walls of the esophagus that periodically extend inward, meeting
-// in the middle. Cycle phases:
-//   idle       — fully retracted, harmless
-//   telegraph  — flashing, about to close
-//   closed     — fully extended, touching = death
-//   retracting — pulling back, harmless again
+// One segment of the esophagus muscle wall. A pair of blocks (left
+// and right) anchored at the tube walls. The blocks have a constant
+// baseExtension that's always visible (so the wall looks like a
+// stack of muscle ribs), and they extrude inward toward the middle
+// of the tube when squeezing.
 //
-// Per design correction (2026-05-14): the death-line is no longer a
-// descending bar. The hazard is timed radial squeezes you have to
-// fall past during their open phase.
+// Phase + extension are pushed in from outside (see RoomEsophagus
+// updateWave): the room owns a single waveY that descends through
+// the tube, and each segment computes its state from its distance
+// to that wave. This recreates the "death-line that descends"
+// feeling, but visualized as muscle segments closing inward.
 export default class PeristalsisCrusher {
   constructor(scene, y, tubeLeft, tubeRight, {
-    thickness = 36,
-    color = 0xd02040,
-    edgeColor = 0xff6080,
-    period = 2400,           // ms full cycle
-    closedDuration = 600,    // ms held closed (deadly)
-    telegraphDuration = 500, // ms warning flash before close
-    phaseOffset = 0,         // ms into cycle at start (stagger)
+    thickness = 150,
+    baseExtension = 14,
+    baseColor = 0x9a1828,
+    edgeColor = 0x4a1020,
+    telegraphColor = 0xffd040,
+    deadlyColor = 0xff2030,
   } = {}) {
     this.scene = scene;
     this.y = y;
     this.tubeLeft = tubeLeft;
     this.tubeRight = tubeRight;
-    this.tubeMid = (tubeLeft + tubeRight) / 2;
-    this.maxReach = (tubeRight - tubeLeft) / 2; // each side reaches the middle
     this.thickness = thickness;
-    this.color = color;
-    this.edgeColor = edgeColor;
-    this.period = period;
-    this.closedDuration = closedDuration;
-    this.telegraphDuration = telegraphDuration;
-    this.t = phaseOffset;
+    this.baseExtension = baseExtension;
+    this.maxReach = (tubeRight - tubeLeft) / 2;
+    this.baseColor = baseColor;
+    this.telegraphColor = telegraphColor;
+    this.deadlyColor = deadlyColor;
+    this.deadly = false;
     this.alive = true;
-    this.phase = 'idle';
 
-    // Left crusher block — anchored at left wall, extends right.
-    this.leftBlock = scene.add.rectangle(tubeLeft, y, 2, thickness, color);
+    this.leftBlock = scene.add.rectangle(tubeLeft, y, baseExtension, thickness, baseColor);
     this.leftBlock.setOrigin(0, 0.5);
     this.leftBlock.setStrokeStyle(2, edgeColor);
     scene.physics.add.existing(this.leftBlock, true);
     this.leftBlock.crusher = this;
 
-    // Right crusher block — anchored at right wall, extends left.
-    this.rightBlock = scene.add.rectangle(tubeRight, y, 2, thickness, color);
+    this.rightBlock = scene.add.rectangle(tubeRight, y, baseExtension, thickness, baseColor);
     this.rightBlock.setOrigin(1, 0.5);
     this.rightBlock.setStrokeStyle(2, edgeColor);
     scene.physics.add.existing(this.rightBlock, true);
     this.rightBlock.crusher = this;
-
-    this.update(0);
   }
 
-  // Returns extension in pixels (0 = retracted, maxReach = touching middle)
-  // and current phase name. Cycle (period long):
-  //   [0, openTime)              → idle (retracted)
-  //   [openTime, openTime+tele)  → telegraph (flashing, extending)
-  //   [openTime+tele, closedEnd) → closed (fully extended, deadly)
-  //   [closedEnd, period)        → retracting (pulling back)
-  cyclePosition() {
-    const t = this.t % this.period;
-    const closedStart = this.period - this.closedDuration - (this.period * 0.15);
-    const telegraphStart = closedStart - this.telegraphDuration;
-    const closedEnd = closedStart + this.closedDuration;
-    const retractDur = this.period - closedEnd;
+  // mode: 'idle' | 'telegraph' | 'closed' | 'retracting'
+  // extension: how far each block extends from its wall toward the middle (px)
+  setState(extension, mode) {
+    const w = Math.max(this.baseExtension, extension);
 
-    if (t < telegraphStart) {
-      return { phase: 'idle', extension: 0 };
-    }
-    if (t < closedStart) {
-      // Telegraph: extending from 0 → maxReach, flashing
-      const k = (t - telegraphStart) / this.telegraphDuration;
-      return { phase: 'telegraph', extension: this.maxReach * k };
-    }
-    if (t < closedEnd) {
-      return { phase: 'closed', extension: this.maxReach };
-    }
-    // Retracting: from maxReach → 0
-    const k = 1 - (t - closedEnd) / retractDur;
-    return { phase: 'retracting', extension: this.maxReach * Math.max(0, k) };
-  }
-
-  update(dt) {
-    if (!this.alive) return;
-    this.t += dt;
-    const { phase, extension } = this.cyclePosition();
-    this.phase = phase;
-
-    const w = Math.max(2, extension);
-
-    // Resize left block — grows right from its left edge.
     this.leftBlock.setSize(w, this.thickness);
     this.leftBlock.body.setSize(w, this.thickness);
-    // Static body needs position refresh after resize. Origin (0, 0.5)
-    // means leftBlock.x is its left edge — body center should be left+w/2.
     this.leftBlock.body.position.set(this.tubeLeft, this.y - this.thickness / 2);
     this.leftBlock.body.updateFromGameObject();
 
@@ -104,25 +61,16 @@ export default class PeristalsisCrusher {
     this.rightBlock.body.position.set(this.tubeRight - w, this.y - this.thickness / 2);
     this.rightBlock.body.updateFromGameObject();
 
-    // Telegraph flash — alternate alpha.
-    if (phase === 'telegraph') {
-      const flash = Math.floor(this.t / 80) % 2 === 0;
-      this.leftBlock.setFillStyle(flash ? 0xffe040 : this.color);
-      this.rightBlock.setFillStyle(flash ? 0xffe040 : this.color);
-    } else if (phase === 'closed') {
-      this.leftBlock.setFillStyle(0xff2030);
-      this.rightBlock.setFillStyle(0xff2030);
-    } else {
-      this.leftBlock.setFillStyle(this.color);
-      this.rightBlock.setFillStyle(this.color);
-    }
+    let color = this.baseColor;
+    if (mode === 'telegraph') color = this.telegraphColor;
+    else if (mode === 'closed') color = this.deadlyColor;
+    this.leftBlock.setFillStyle(color);
+    this.rightBlock.setFillStyle(color);
+
+    this.deadly = mode === 'closed';
   }
 
-  // Is touching the block lethal right now? Only during the closed
-  // phase. Telegraph/retracting are just pushes (handled by collider).
-  isDeadly() {
-    return this.phase === 'closed';
-  }
+  isDeadly() { return this.deadly; }
 
   destroy() {
     this.alive = false;

@@ -45,6 +45,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#5a2236');
     this.physics.world.setBounds(0, 0, ROOM_WIDTH, GAME_HEIGHT);
     this.cameras.main.setBounds(0, 0, ROOM_WIDTH, GAME_HEIGHT);
+    this.cameras.main.setZoom(3);
 
     this.inputs = new InputManager(this);
     this.platforms = this.physics.add.staticGroup();

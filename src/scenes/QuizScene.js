@@ -35,6 +35,10 @@ export default class QuizScene extends Phaser.Scene {
     this.answered = false;
     this.correctSoFar = 0;
     this.wrongSoFar = 0;
+    // Reset advance guard — Phaser reuses scene instances, so a true
+    // value from a previous quiz would block every subsequent quiz
+    // from advancing.
+    this._advanced = false;
   }
 
   create() {

@@ -24,6 +24,9 @@ export default class QuizArcadeScene extends Phaser.Scene {
     this.streak = 0;
     this.answered = false;
     this.gameOver = false;
+    // Reset return guard — Phaser reuses scene instances, so a true
+    // value from a previous run would block returning to Title.
+    this._returning = false;
     questionBank.resetRun(); // start with a fresh no-repeat pool
 
     const cx = GAME_WIDTH / 2;

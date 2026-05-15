@@ -13,6 +13,9 @@ export default class PauseScene extends Phaser.Scene {
 
   init(data = {}) {
     this.pausedSceneKey = data.pausedSceneKey || null;
+    // Reset exit guard — Phaser reuses scene instances, so a true
+    // value from the previous pause would block resume + quit.
+    this._exited = false;
   }
 
   create() {

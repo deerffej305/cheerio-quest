@@ -140,6 +140,13 @@ const SOUND_RECIPES = {
     s._envOsc('sawtooth', 130, 60, 0.30, 0.22, 'lin');
     s._noiseBurst(0.30, 0.10);
   },
+  // Peristalsis muscle segment locks shut. Short wet thud.
+  crunch:      (s) => {
+    s._envOsc('square', 180, 50, 0.10, 0.18, 'lin');
+    s._noiseBurst(0.08, 0.12);
+  },
+  // Telegraph warble — segment starts squeezing inward.
+  squelch:     (s) => s._envOsc('sawtooth', 90, 220, 0.18, 0.10, 'lin'),
 };
 
 export const sound = new SoundManager();

@@ -131,6 +131,9 @@ const recipes = {
                 ),
   fart:         mix(envOsc('sawtooth', 130, 60, 0.30, 0.22, 'lin'),
                     noiseBurst(0.30, 0.10)),
+  crunch:       mix(envOsc('square', 180, 50, 0.10, 0.18, 'lin'),
+                    noiseBurst(0.08, 0.12)),
+  squelch:      envOsc('sawtooth', 90, 220, 0.18, 0.10, 'lin'),
 };
 
 for (const [key, audio] of Object.entries(recipes)) {

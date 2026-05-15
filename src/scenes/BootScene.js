@@ -11,7 +11,7 @@ import { sound } from '../systems/SoundManager.js';
 // The .wav files in public/assets/audio/ are currently baked
 // from the same procedural recipes (see scripts/gen-audio.js);
 // real recorded audio from Cowork drops in at the same paths.
-const SFX_KEYS = ['jump', 'stomp', 'damage', 'score', 'fiber', 'death', 'room-clear', 'fart'];
+const SFX_KEYS = ['jump', 'stomp', 'damage', 'score', 'fiber', 'death', 'room-clear', 'fart', 'crunch', 'squelch'];
 
 export default class BootScene extends Phaser.Scene {
   constructor() {

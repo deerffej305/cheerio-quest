@@ -1,6 +1,6 @@
 # Build Status — where we are
 
-**Last updated:** 2026-05-12 (Cowork session with Jeff and CJ)
+**Last updated:** 2026-05-15 (Claude Code session — Esophagus rework, quiz-advance fix, sound coverage)
 
 This is a rolling status document. Read it after `CLAUDE.md`, `GAME_DESIGN.md`, and `STORY.md` to get the current picture. Jeff updates it after Cowork sessions so Claude Code stays in sync.
 
@@ -15,10 +15,10 @@ This is a rolling status document. Read it after `CLAUDE.md`, `GAME_DESIGN.md`, 
 | **Phase 1–2 — Scaffold + Mouth room** | ✅ Done. Mouth room playable end-to-end with the Tongue boss, chomping teeth, cavity bacteria, saliva dissolve, fiber token, swallow exit. |
 | **Phase 3–4 — Quiz UI + remaining rooms** | ✅ Done. End-of-room quiz with 20 placeholder questions, all six rooms (Mouth → Esophagus → Stomach → Small Intestine → Large Intestine → Anus) playable in sequence. |
 | **Phase 5–6 — Leaderboards + Quiz Mode** | ✅ Done. Cloudflare Worker + KV at `cheerio-quest-leaderboard.jeff-a23.workers.dev` backing three boards (points, correct, streak). Quiz Mode is sudden-death with streak tracking. |
-| **Phase 7 — Art pass** | ⏳ Pending. Awaiting Cowork. Placeholders in place: yellow ring for Crispy, colored shapes for enemies / bosses, labeled "PANEL N" boxes for cut scenes. Real PNGs drop into `public/assets/`. |
-| **Phase 8 — Audio pass** | 🛠️ Pipeline complete; awaiting real recorded audio from Cowork. 8 .wav files in `public/assets/audio/` baked from the procedural recipes (see `scripts/gen-audio.js`). BootScene preloads them; SoundManager prefers loaded samples over the procedural fallback. Drop in real recordings at the same paths and rebuild — no code changes. |
-| **Phase 9 — Polish + accessibility** | 🛠️ In progress. Done: death animations (dissolve / squish / fall), font-size bumps + black strokes on critical HUD/menu text for projector legibility, pause menu, mute toggle. Pending: full accessibility review on a projector. |
-| **Phase 10 — Deploy** | 🛠️ Live at `cheerio-quest.pages.dev`. Custom domain pending (awaiting final game name). |
+| **Phase 7 — Art pass** | 🛠️ In progress. Cowork is generating the art now. Placeholders still in place: yellow ring for Crispy, colored shapes for enemies / bosses, labeled "PANEL N" boxes for cut scenes. Real PNGs drop into `public/assets/`. |
+| **Phase 8 — Audio pass** | 🛠️ Pipeline complete; awaiting real recorded audio from Cowork. 10 .wav files in `public/assets/audio/` baked from the procedural recipes (see `scripts/gen-audio.js`). BootScene preloads them; SoundManager prefers loaded samples over the procedural fallback. Drop in real recordings at the same paths and rebuild — no code changes. Added 2026-05-15: `crunch` (segment locks shut) and `squelch` (segment starts squeezing) for the new Esophagus mechanic. |
+| **Phase 9 — Polish + accessibility** | 🛠️ In progress. Done: death animations, projector-legible HUD/menu text, pause menu, mute toggle, **quiz→next-room advance bug fixed (2026-05-15)** — Phaser scene-instance reuse left `_advanced`/`_returning`/`_exited` flags true between runs, blocking second-and-later quiz transitions. Pending: full accessibility review on a projector. |
+| **Phase 10 — Deploy** | 🛠️ Live at `cheerio-quest.pages.dev` — Cloudflare Pages direct-upload, deployed off the local `dist/` because the auto-build from GitHub stalled. Custom domain `crispygutrunner.com` purchased on GoDaddy, zone migrated to Cloudflare; SSL active but CNAME records still need to be added in the CF dashboard (token lacks DNS write perms). |
 | **Quiz bank (100 questions)** | ⏳ Awaiting CJ's class. 20 placeholder questions in `src/data/questions.json`; schema in `GAME_DESIGN.md §7`. |
 
 ---
@@ -26,6 +26,17 @@ This is a rolling status document. Read it after `CLAUDE.md`, `GAME_DESIGN.md`, 
 ## Most recent design decisions (apply these)
 
 These were locked in during the latest Cowork session. Some override earlier assumptions.
+
+### Esophagus mechanic (2026-05-15 — supersedes earlier "descending crunch bar")
+
+- **No bar that descends.** The death-line is a single `waveY` that descends through the tube, but it's *visualized* as muscle-segment crushers extending from the walls and meeting in the middle. Touching a fully-closed segment = die.
+- **Wall is tiled floor-to-ceiling** with segments (no random Ys, no gaps). Each segment is 150px tall; ~31 segments at current room height. Each has a constant 14px base extrusion so the wall reads as ribbed muscle even at rest.
+- **One-way wave.** Once a segment closes, it locks shut permanently — the wall builds downward behind the wave. Wave stops after passing the bottom.
+- **Branching folds removed.** Earlier split-path layout sometimes had impassable walls; killed entirely. Fiber token now sits on a normal walkable ring.
+- **Mucus speed-boost patches removed.** Player feedback: "I don't know what those blue things are."
+- **Comfortable margin.** Cheerio terminal velocity 480 px/s > wave 360 px/s, so a clean straight-down fall finishes with ~5s of margin. The threat is hitting platforms and stalling.
+- **Room geometry.** Tube is now 5200px tall (was 3200). 10 walkable peristalsis-ring platforms at exactly 450px vertical spacing. Fiber token sits on the middle ring.
+- **Telegraph window is large** (520px = ~1.36s warning at wave speed 360) so the inward squeeze is gradual and readable.
 
 ### Story / cut scenes
 

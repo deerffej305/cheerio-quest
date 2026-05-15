@@ -175,21 +175,33 @@ export default class RoomEsophagus extends Phaser.Scene {
     const TELEGRAPH_DIST = 520;
     const closeAt = 30;
 
+    let lockedThisFrame = false;
+    let firstTelegraphThisFrame = false;
     for (const c of this.crushers) {
       if (c.locked) {
         c.setState(c.maxReach, 'closed');
         continue;
       }
+      const wasIdle = !c._telegraphStarted;
       const d = c.y - this.waveY;
       if (d > TELEGRAPH_DIST) {
         c.setState(c.baseExtension, 'idle');
       } else if (d > closeAt) {
         const k = 1 - (d - closeAt) / (TELEGRAPH_DIST - closeAt);
         c.setState(c.baseExtension + (c.maxReach - c.baseExtension) * k, 'telegraph');
+        if (wasIdle) {
+          c._telegraphStarted = true;
+          firstTelegraphThisFrame = true;
+        }
       } else {
         c.setState(c.maxReach, 'closed');
+        lockedThisFrame = true;
       }
     }
+    // One sound max per frame even if multiple segments lock/start
+    // — otherwise 31 stacked segments could overlap a thunderclap.
+    if (lockedThisFrame) sound.play('crunch');
+    else if (firstTelegraphThisFrame) sound.play('squelch');
   }
 
   showHazardCaption() {

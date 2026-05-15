@@ -39,7 +39,6 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.buildTube();
     this.spawnCheerio();
     this.spawnRings();
-    this.spawnMucusPatches();
     this.spawnCrushers();
     this.spawnFiberToken();
     this.spawnExit();
@@ -142,12 +141,11 @@ export default class RoomEsophagus extends Phaser.Scene {
       this.crushers.push(crusher);
     }
 
-    // Wave state — descends from above the tube through the bottom,
-    // then resets to give the player a second wave to dodge.
+    // Wave state — descends from above the tube. One pass only; once
+    // the wave reaches the bottom, every segment is locked closed.
     this.waveY = -400;
     this.waveSpeed = 300; // px/s — slightly above Cheerio terminal so it presses
-    this.waveResetY = ROOM_HEIGHT + 400;
-    this.waveStartY = -400;
+    this.waveStopY = ROOM_HEIGHT + 400;
   }
 
   spawnFiberToken() {
@@ -163,34 +161,34 @@ export default class RoomEsophagus extends Phaser.Scene {
 
   updateWave(dt) {
     if (this.phase !== 'play') return;
-    this.waveY += this.waveSpeed * (dt / 1000);
-    if (this.waveY > this.waveResetY) this.waveY = this.waveStartY;
+    // Wave is one-way. After it passes the bottom, every segment has
+    // locked closed — no need to keep advancing.
+    if (this.waveY < this.waveStopY) {
+      this.waveY += this.waveSpeed * (dt / 1000);
+    }
 
-    // Bands relative to waveY (positive distance = wave hasn't reached yet):
-    //   d > TELEGRAPH_DIST       → idle  (just baseExtension visible)
-    //   d in [CLOSED/2,TELE]     → telegraph (yellow, extending in)
-    //   d in [-CLOSED/2,CLOSED/2]→ closed (deadly, full reach)
-    //   d in [-CLOSED/2-RETR,-]  → retracting (pulling back)
-    //   d < -CLOSED/2-RETR       → idle again, wave is past
-    const TELEGRAPH_DIST = 110;
-    const CLOSED_BAND = 130;
-    const RETRACT_DIST = 90;
-    const halfClosed = CLOSED_BAND / 2;
+    // Distance relative to waveY (positive = wave hasn't reached yet):
+    //   d > TELEGRAPH_DIST → idle  (just baseExtension visible)
+    //   d in [closeAt, TELEGRAPH_DIST] → telegraph (yellow, extending in)
+    //   d <= closeAt → closed (deadly, locks shut)
+    // Telegraph window is large so the inward squeeze is gradual,
+    // even though the wave itself moves at full waveSpeed.
+    const TELEGRAPH_DIST = 240;
+    const closeAt = 30;
 
     for (const c of this.crushers) {
+      if (c.locked) {
+        c.setState(c.maxReach, 'closed');
+        continue;
+      }
       const d = c.y - this.waveY;
       if (d > TELEGRAPH_DIST) {
         c.setState(c.baseExtension, 'idle');
-      } else if (d > halfClosed) {
-        const k = 1 - (d - halfClosed) / (TELEGRAPH_DIST - halfClosed);
+      } else if (d > closeAt) {
+        const k = 1 - (d - closeAt) / (TELEGRAPH_DIST - closeAt);
         c.setState(c.baseExtension + (c.maxReach - c.baseExtension) * k, 'telegraph');
-      } else if (d > -halfClosed) {
-        c.setState(c.maxReach, 'closed');
-      } else if (d > -halfClosed - RETRACT_DIST) {
-        const k = (d + halfClosed + RETRACT_DIST) / RETRACT_DIST;
-        c.setState(c.baseExtension + (c.maxReach - c.baseExtension) * k, 'retracting');
       } else {
-        c.setState(c.baseExtension, 'idle');
+        c.setState(c.maxReach, 'closed');
       }
     }
   }
@@ -218,44 +216,6 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.hud()?.flash('CRUNCHED!  -20  RESTART', 1200);
     sound.play('death');
     this.time.delayedCall(1100, () => this.scene.restart());
-  }
-
-  // --- Mucus speed-boost patches ----------------------------------
-
-  spawnMucusPatches() {
-    // Per design §6.2: "Mucus stream patches along the wall = speed
-    // boost. Slide down faster." Patches are slick blue-green
-    // vertical strips. Touching one lifts the cheerio's terminal
-    // velocity briefly so they shoot downward.
-    this.mucusPatches = [];
-    const patchSpecs = [
-      { side: 'left',  y: 820,  h: 140 },
-      { side: 'right', y: 1200, h: 160 },
-      { side: 'left',  y: 1550, h: 120 },
-      { side: 'right', y: 2350, h: 160 },
-      { side: 'left',  y: 2700, h: 140 },
-    ];
-    for (const { side, y, h } of patchSpecs) {
-      const x = side === 'left' ? TUBE_LEFT + 12 : TUBE_RIGHT - 12;
-      const patch = this.add.rectangle(x, y, 18, h, 0x60d0d0, 0.7);
-      patch.setStrokeStyle(2, 0x40b0b0, 0.9);
-      this.physics.add.existing(patch, true);
-      this.physics.add.overlap(this.cheerio.sprite, patch, () => this.applyMucusBoost());
-      this.mucusPatches.push(patch);
-    }
-  }
-
-  applyMucusBoost() {
-    // Bump the cheerio's max-vy ceiling for ~400ms so they accelerate
-    // past the normal terminal. Reset back on a timer.
-    const boostedMaxVy = 720;
-    const body = this.cheerio.body;
-    body.setMaxVelocity(body.maxVelocity.x, boostedMaxVy);
-    body.setVelocityY(Math.max(body.velocity.y, 520));
-    if (this._mucusResetTimer) this._mucusResetTimer.remove(false);
-    this._mucusResetTimer = this.time.delayedCall(400, () => {
-      this.cheerio.body.setMaxVelocity(body.maxVelocity.x, ESOPHAGUS_TERMINAL_VY);
-    });
   }
 
   // --- Burp event -------------------------------------------------

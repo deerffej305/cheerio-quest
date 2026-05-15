@@ -32,6 +32,10 @@ export default class PeristalsisCrusher {
     this.deadlyColor = deadlyColor;
     this.deadly = false;
     this.alive = true;
+    // Once a segment reaches the closed phase, it locks shut — the
+    // muscle has clamped and isn't going to relax. Subsequent setState
+    // calls are ignored.
+    this.locked = false;
 
     this.leftBlock = scene.add.rectangle(tubeLeft, y, baseExtension, thickness, baseColor);
     this.leftBlock.setOrigin(0, 0.5);
@@ -46,9 +50,15 @@ export default class PeristalsisCrusher {
     this.rightBlock.crusher = this;
   }
 
-  // mode: 'idle' | 'telegraph' | 'closed' | 'retracting'
+  // mode: 'idle' | 'telegraph' | 'closed'
   // extension: how far each block extends from its wall toward the middle (px)
   setState(extension, mode) {
+    if (this.locked) {
+      mode = 'closed';
+      extension = this.maxReach;
+    } else if (mode === 'closed') {
+      this.locked = true;
+    }
     const w = Math.max(this.baseExtension, extension);
 
     this.leftBlock.setSize(w, this.thickness);

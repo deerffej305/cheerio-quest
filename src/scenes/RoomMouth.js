@@ -33,7 +33,6 @@ export default class RoomMouth extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#3a1024');
     this.physics.world.setBounds(0, 0, ROOM_WIDTH, GAME_HEIGHT);
     this.cameras.main.setBounds(0, 0, ROOM_WIDTH, GAME_HEIGHT);
-    this.cameras.main.setZoom(2);
 
     this.inputs = new InputManager(this);
     this.platforms = this.physics.add.staticGroup();

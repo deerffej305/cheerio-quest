@@ -24,10 +24,13 @@ export default class BootScene extends Phaser.Scene {
 
   preload() {
     // --- Hero ---
-    this.load.svg('crispy-big',         'assets/sprites/crispy-big.svg',         { width: 48, height: 48 });
-    this.load.svg('crispy-small',       'assets/sprites/crispy-big.svg',         { width: 28, height: 28 });
-    this.load.svg('crispy-big-jump',    'assets/sprites/crispy-big-jump.svg',    { width: 48, height: 48 });
-    this.load.svg('crispy-small-jump',  'assets/sprites/crispy-big-jump.svg',    { width: 28, height: 28 });
+    // Load at native SVG size (256) so larger display sizes (title
+    // portrait, cut-scene close-ups) stay crisp. In-game we use
+    // setDisplaySize(48 / 28) on the Cheerio sprite to scale down.
+    this.load.svg('crispy-big',         'assets/sprites/crispy-big.svg',         { width: 256, height: 256 });
+    this.load.svg('crispy-small',       'assets/sprites/crispy-big.svg',         { width: 256, height: 256 });
+    this.load.svg('crispy-big-jump',    'assets/sprites/crispy-big-jump.svg',    { width: 256, height: 256 });
+    this.load.svg('crispy-small-jump',  'assets/sprites/crispy-big-jump.svg',    { width: 256, height: 256 });
 
     // --- Bosses ---
     this.load.svg('tongue-boss',                'assets/sprites/tongue-boss.svg',                { width: 220, height: 130 });

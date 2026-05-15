@@ -28,6 +28,9 @@ export default class Cheerio {
     this.alive = true;
 
     this.sprite = scene.add.image(x, y, TEXTURE_BIG);
+    // Texture is loaded at native 256px; downscale to the in-game
+    // size. Same on every state swap below.
+    this.sprite.setDisplaySize(BIG_SIZE, BIG_SIZE);
     scene.physics.add.existing(this.sprite);
 
     const body = this.sprite.body;
@@ -135,6 +138,7 @@ export default class Cheerio {
     if (this.state === 'small') return;
     this.state = 'small';
     this.sprite.setTexture(TEXTURE_SMALL);
+    this.sprite.setDisplaySize(SMALL_SIZE, SMALL_SIZE);
     this.body.setSize(SMALL_SIZE, SMALL_SIZE);
   }
 
@@ -142,6 +146,7 @@ export default class Cheerio {
     if (this.state === 'big') return false;
     this.state = 'big';
     this.sprite.setTexture(TEXTURE_BIG);
+    this.sprite.setDisplaySize(BIG_SIZE, BIG_SIZE);
     this.body.setSize(BIG_SIZE, BIG_SIZE);
     return true;
   }

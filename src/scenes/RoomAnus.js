@@ -39,7 +39,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#3a1a08');
     this.physics.world.setBounds(0, 0, ROOM_WIDTH, ROOM_HEIGHT);
     this.cameras.main.setBounds(0, 0, ROOM_WIDTH, ROOM_HEIGHT);
-    this.cameras.main.setZoom(3);
+    this.cameras.main.setZoom(2);
 
     this.inputs = new InputManager(this);
     this.platforms = this.physics.add.staticGroup();

@@ -31,7 +31,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#2a0810');
     this.physics.world.setBounds(0, 0, GAME_WIDTH, ROOM_HEIGHT);
     this.cameras.main.setBounds(0, 0, GAME_WIDTH, ROOM_HEIGHT);
-    this.cameras.main.setZoom(3);
+    this.cameras.main.setZoom(2);
 
     this.inputs = new InputManager(this);
     this.platforms = this.physics.add.staticGroup();

@@ -15,10 +15,19 @@ const SPAWN_X = GAME_WIDTH / 2;                    // 640
 const SPAWN_Y = 120;
 const EXIT_Y = ROOM_HEIGHT - 120;                  // 3080
 
-// Slow the fall so the player has time to read each ring's gap and
-// nudge sideways. Default Cheerio max y velocity is 1600 (built for
-// platformer drops) — way too fast for a 3200-tall tube.
-const ESOPHAGUS_TERMINAL_VY = 275;
+// Cheerio's terminal velocity in the tube. Free-fall is faster
+// than the descending crunch wave (CRUNCH_SPEED), so a player who
+// keeps moving stays comfortably ahead of it. Standing on a
+// platform drops vy to 0, which lets the wave close.
+const ESOPHAGUS_TERMINAL_VY = 320;
+
+// Peristalsis crunch wave settings. The wave is the death-line:
+// touching it = die. It always sits at most MAX_LEAD pixels above
+// Crispy (so it's always visible), and descends at CRUNCH_SPEED
+// independent of his motion. Camping a platform for ~MAX_LEAD /
+// CRUNCH_SPEED seconds is your budget before the wave touches you.
+const CRUNCH_SPEED = 200;
+const CRUNCH_MAX_LEAD = 480;
 
 export default class RoomEsophagus extends Phaser.Scene {
   constructor() {
@@ -41,6 +50,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.spawnBranchFolds();
     this.spawnFiberToken();
     this.spawnExit();
+    this.spawnCrunchWave();
     this.bindEsc();
     this.startBurpCycle();
 
@@ -95,9 +105,11 @@ export default class RoomEsophagus extends Phaser.Scene {
   // --- Hazards ----------------------------------------------------
 
   spawnRings() {
-    // Pre-place rings at fixed y intervals through the tube. Each
-    // ring has a randomized gap position so the player has to react
-    // to a new alignment for every one.
+    // Solid platform pairs spaced through the tube. Crispy can land
+    // on them or walk off the edge into the gap to keep falling.
+    // No damage — the real threat is the descending crunch wave
+    // (see spawnCrunchWave / updateCrunchWave below). Landing here
+    // is fine if you keep moving; camping = the wave catches up.
     this.rings = [];
     const ringCount = 7;
     const startY = 480;
@@ -111,11 +123,10 @@ export default class RoomEsophagus extends Phaser.Scene {
       const gapX = Phaser.Math.Between(gapMin, gapMax);
       const ring = new PeristalsisRing(this, y, TUBE_LEFT, TUBE_RIGHT, gapX, {
         gapWidth: 140,
-        thickness: 28,
-        riseSpeed: 60,
+        thickness: 22,
       });
-      this.physics.add.overlap(this.cheerio.sprite, ring.leftSeg, () => this.handleRingHit(ring));
-      this.physics.add.overlap(this.cheerio.sprite, ring.rightSeg, () => this.handleRingHit(ring));
+      this.physics.add.collider(this.cheerio.sprite, ring.leftSeg);
+      this.physics.add.collider(this.cheerio.sprite, ring.rightSeg);
       this.rings.push(ring);
     }
   }
@@ -126,6 +137,71 @@ export default class RoomEsophagus extends Phaser.Scene {
     // gap below) — that's the risk part of the risk-reward.
     this.fiberToken = new FiberToken(this, TUBE_LEFT + 60, 1820);
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
+  }
+
+  // --- Peristalsis crunch wave (the descending death line) -------
+
+  spawnCrunchWave() {
+    // A thick red bar that spans the tube and chases Crispy from
+    // above. Renders the upper portion of the tube above the bar
+    // tinted dark so it reads as "danger zone you can't go into".
+    this.crunchY = -120; // start above the visible viewport
+    this.crunchWave = this.add.rectangle(
+      GAME_WIDTH / 2,
+      this.crunchY,
+      TUBE_W - 4,
+      32,
+      0xff3050,
+    );
+    this.crunchWave.setStrokeStyle(3, 0xff8090);
+
+    // A subtler "crunch zone" above the wave so the player sees
+    // the lethal area, not just the leading edge.
+    this.crunchZone = this.add.rectangle(
+      GAME_WIDTH / 2,
+      this.crunchY - 200,
+      TUBE_W - 4,
+      400,
+      0x801020,
+      0.45,
+    ).setOrigin(0.5, 1);
+
+    // Educational caption that fades after a few seconds.
+    const note = this.add.text(GAME_WIDTH / 2, 90, 'PERISTALSIS — keep falling or get crunched!', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#ffb0b8', fontStyle: 'bold',
+      stroke: '#000000', strokeThickness: 3,
+    }).setOrigin(0.5).setScrollFactor(0);
+    this.tweens.add({ targets: note, alpha: 0, delay: 3500, duration: 700,
+      onComplete: () => note.destroy() });
+  }
+
+  updateCrunchWave(dt) {
+    if (this.phase !== 'play') return;
+    // Steady descent — independent of Crispy. Tether to a max lead
+    // above him so the wave is always a visible threat (otherwise
+    // a fast faller would leave the wave forever behind).
+    this.crunchY += CRUNCH_SPEED * (dt / 1000);
+    const cap = this.cheerio.y - CRUNCH_MAX_LEAD;
+    if (this.crunchY < cap) this.crunchY = cap;
+
+    this.crunchWave.y = this.crunchY;
+    this.crunchZone.y = this.crunchY;
+
+    // Crispy's body top is what gets caught.
+    const cheerioTop = this.cheerio.y - this.cheerio.sprite.displayHeight / 2;
+    if (this.crunchY >= cheerioTop) {
+      this.handleCrunchDeath();
+    }
+  }
+
+  handleCrunchDeath() {
+    if (this.phase === 'dying') return;
+    this.phase = 'dying';
+    scoreManager.payDeathPenalty();
+    this.cheerio.die('squish');
+    this.hud()?.flash('CRUNCHED!  -20  RESTART', 1200);
+    sound.play('death');
+    this.time.delayedCall(1100, () => this.scene.restart());
   }
 
   // --- Mucus speed-boost patches ----------------------------------
@@ -251,18 +327,6 @@ export default class RoomEsophagus extends Phaser.Scene {
 
   // --- Contact handlers ------------------------------------------
 
-  handleRingHit(ring) {
-    if (!this.cheerio.alive || this.phase === 'dying') return;
-    if (!ring.alive) return;
-    const outcome = this.cheerio.takeHit();
-    if (outcome === 'shrunk') {
-      this.hud()?.setSize('small');
-      this.hud()?.flash('SQUEEZED!');
-    } else if (outcome === 'died') {
-      this.handleDeath();
-    }
-  }
-
   handleFiberPickup() {
     if (this.fiberToken.collected || !this.cheerio.alive) return;
     this.fiberToken.collect();
@@ -291,13 +355,8 @@ export default class RoomEsophagus extends Phaser.Scene {
   update(_time, delta) {
     if (this.cheerio) this.cheerio.update(delta);
 
-    // Despawn rings that rise off the top so they don't accumulate
-    // physics work as the cheerio falls past them.
-    for (const ring of this.rings) {
-      if (ring.alive && ring.y < this.cameras.main.scrollY - 60) {
-        ring.destroy();
-      }
-    }
+    // Peristalsis crunch wave — the death-line above Crispy.
+    this.updateCrunchWave(delta);
 
     // Burp timer.
     if (this.phase === 'play' && this.time.now >= this.nextBurpAt) {

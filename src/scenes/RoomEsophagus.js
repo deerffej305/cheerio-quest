@@ -4,6 +4,7 @@ import { scoreManager } from '../systems/ScoreManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import PeristalsisRing from '../entities/hazards/PeristalsisRing.js';
+import PeristalsisCrusher from '../entities/hazards/PeristalsisCrusher.js';
 import FiberToken from '../entities/FiberToken.js';
 import { sound } from '../systems/SoundManager.js';
 
@@ -15,19 +16,11 @@ const SPAWN_X = GAME_WIDTH / 2;                    // 640
 const SPAWN_Y = 120;
 const EXIT_Y = ROOM_HEIGHT - 120;                  // 3080
 
-// Cheerio's terminal velocity in the tube. Free-fall is faster
-// than the descending crunch wave (CRUNCH_SPEED), so a player who
-// keeps moving stays comfortably ahead of it. Standing on a
-// platform drops vy to 0, which lets the wave close.
-const ESOPHAGUS_TERMINAL_VY = 320;
-
-// Peristalsis crunch wave settings. The wave is the death-line:
-// touching it = die. It always sits at most MAX_LEAD pixels above
-// Crispy (so it's always visible), and descends at CRUNCH_SPEED
-// independent of his motion. Camping a platform for ~MAX_LEAD /
-// CRUNCH_SPEED seconds is your budget before the wave touches you.
-const CRUNCH_SPEED = 200;
-const CRUNCH_MAX_LEAD = 480;
+// Cheerio's terminal velocity in the tube. With the crusher hazard
+// model the player isn't racing a death-line — they just need to time
+// drops through the open phase of each crusher. 275 keeps falls
+// readable without feeling sluggish.
+const ESOPHAGUS_TERMINAL_VY = 275;
 
 export default class RoomEsophagus extends Phaser.Scene {
   constructor() {
@@ -47,10 +40,10 @@ export default class RoomEsophagus extends Phaser.Scene {
     this.spawnCheerio();
     this.spawnRings();
     this.spawnMucusPatches();
-    this.spawnBranchFolds();
+    this.spawnCrushers();
     this.spawnFiberToken();
     this.spawnExit();
-    this.spawnCrunchWave();
+    this.showHazardCaption();
     this.bindEsc();
     this.startBurpCycle();
 
@@ -107,9 +100,7 @@ export default class RoomEsophagus extends Phaser.Scene {
   spawnRings() {
     // Solid platform pairs spaced through the tube. Crispy can land
     // on them or walk off the edge into the gap to keep falling.
-    // No damage — the real threat is the descending crunch wave
-    // (see spawnCrunchWave / updateCrunchWave below). Landing here
-    // is fine if you keep moving; camping = the wave catches up.
+    // No damage — they're just walkable rest spots between crushers.
     this.rings = [];
     const ringCount = 7;
     const startY = 480;
@@ -131,67 +122,50 @@ export default class RoomEsophagus extends Phaser.Scene {
     }
   }
 
+  spawnCrushers() {
+    // Peristalsis crushers — paired blocks that extend from the walls
+    // and meet in the middle on a timer. Touching one during the
+    // closed phase = death. They sit between the walkable rings so
+    // each ring becomes a "wait here for the crusher to retract" beat.
+    this.crushers = [];
+    const crusherYs = [620, 980, 1380, 1780, 2180, 2580];
+    crusherYs.forEach((y, i) => {
+      const crusher = new PeristalsisCrusher(this, y, TUBE_LEFT, TUBE_RIGHT, {
+        period: 2400 + (i % 2) * 400,             // alternate cadence
+        closedDuration: 600,
+        telegraphDuration: 500,
+        phaseOffset: i * 700,                     // stagger so they're not synced
+      });
+      this.physics.add.overlap(this.cheerio.sprite, crusher.leftBlock, () => this.handleCrusherHit(crusher));
+      this.physics.add.overlap(this.cheerio.sprite, crusher.rightBlock, () => this.handleCrusherHit(crusher));
+      this.crushers.push(crusher);
+    });
+  }
+
   spawnFiberToken() {
-    // Fiber lives inside the riskier left-hand branch fold. The
-    // fold pinches the lane tight (less room to dodge the ring
-    // gap below) — that's the risk part of the risk-reward.
-    this.fiberToken = new FiberToken(this, TUBE_LEFT + 60, 1820);
+    // Fiber sits on top of one of the middle walkable rings. Reaching
+    // it just requires landing on the ring's solid segment — no risky
+    // side-branch.
+    const target = this.rings[3];
+    const fiberX = target.leftSeg.x - target.leftSeg.width / 2 + 30;
+    const fiberY = target.y - 32;
+    this.fiberToken = new FiberToken(this, fiberX, fiberY);
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
   }
 
-  // --- Peristalsis crunch wave (the descending death line) -------
-
-  spawnCrunchWave() {
-    // A thick red bar that spans the tube and chases Crispy from
-    // above. Renders the upper portion of the tube above the bar
-    // tinted dark so it reads as "danger zone you can't go into".
-    this.crunchY = -120; // start above the visible viewport
-    this.crunchWave = this.add.rectangle(
-      GAME_WIDTH / 2,
-      this.crunchY,
-      TUBE_W - 4,
-      32,
-      0xff3050,
-    );
-    this.crunchWave.setStrokeStyle(3, 0xff8090);
-
-    // A subtler "crunch zone" above the wave so the player sees
-    // the lethal area, not just the leading edge.
-    this.crunchZone = this.add.rectangle(
-      GAME_WIDTH / 2,
-      this.crunchY - 200,
-      TUBE_W - 4,
-      400,
-      0x801020,
-      0.45,
-    ).setOrigin(0.5, 1);
-
-    // Educational caption that fades after a few seconds.
-    const note = this.add.text(GAME_WIDTH / 2, 90, 'PERISTALSIS — keep falling or get crunched!', {
+  showHazardCaption() {
+    const note = this.add.text(GAME_WIDTH / 2, 90, 'PERISTALSIS — time the squeeze, fall through when open!', {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#ffb0b8', fontStyle: 'bold',
       stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5).setScrollFactor(0);
-    this.tweens.add({ targets: note, alpha: 0, delay: 3500, duration: 700,
+    this.tweens.add({ targets: note, alpha: 0, delay: 4000, duration: 700,
       onComplete: () => note.destroy() });
   }
 
-  updateCrunchWave(dt) {
+  handleCrusherHit(crusher) {
     if (this.phase !== 'play') return;
-    // Steady descent — independent of Crispy. Tether to a max lead
-    // above him so the wave is always a visible threat (otherwise
-    // a fast faller would leave the wave forever behind).
-    this.crunchY += CRUNCH_SPEED * (dt / 1000);
-    const cap = this.cheerio.y - CRUNCH_MAX_LEAD;
-    if (this.crunchY < cap) this.crunchY = cap;
-
-    this.crunchWave.y = this.crunchY;
-    this.crunchZone.y = this.crunchY;
-
-    // Crispy's body top is what gets caught.
-    const cheerioTop = this.cheerio.y - this.cheerio.sprite.displayHeight / 2;
-    if (this.crunchY >= cheerioTop) {
-      this.handleCrunchDeath();
-    }
+    if (!crusher.isDeadly()) return;
+    this.handleCrunchDeath();
   }
 
   handleCrunchDeath() {
@@ -213,9 +187,9 @@ export default class RoomEsophagus extends Phaser.Scene {
     // velocity briefly so they shoot downward.
     this.mucusPatches = [];
     const patchSpecs = [
-      { side: 'left',  y: 720,  h: 140 },
-      { side: 'right', y: 1100, h: 160 },
-      { side: 'left',  y: 1450, h: 120 },
+      { side: 'left',  y: 820,  h: 140 },
+      { side: 'right', y: 1200, h: 160 },
+      { side: 'left',  y: 1550, h: 120 },
       { side: 'right', y: 2350, h: 160 },
       { side: 'left',  y: 2700, h: 140 },
     ];
@@ -240,43 +214,6 @@ export default class RoomEsophagus extends Phaser.Scene {
     this._mucusResetTimer = this.time.delayedCall(400, () => {
       this.cheerio.body.setMaxVelocity(body.maxVelocity.x, ESOPHAGUS_TERMINAL_VY);
     });
-  }
-
-  // --- Branching folds --------------------------------------------
-
-  spawnBranchFolds() {
-    // Mid-tube the lumen pinches into two narrower paths. A vertical
-    // wall in the middle creates a left lane (riskier — hides the
-    // fiber) and a right lane (safer, plain).
-    const branchTop = 1700;
-    const branchBot = 2000;
-    const dividerH = branchBot - branchTop;
-    const divider = this.add.rectangle(
-      GAME_WIDTH / 2,
-      (branchTop + branchBot) / 2,
-      36,
-      dividerH,
-      0x8a2a3a,
-    );
-    divider.setStrokeStyle(2, 0x4a1820);
-    this.physics.add.existing(divider, true);
-    this.platforms.add(divider);
-
-    // Decorative fold lips poking inward at the branch entrance —
-    // visual hint that "the path splits here".
-    const lipTopL = this.add.rectangle(TUBE_LEFT + 50, branchTop - 8, 100, 14, 0x882044);
-    const lipTopR = this.add.rectangle(TUBE_RIGHT - 50, branchTop - 8, 100, 14, 0x882044);
-    this.physics.add.existing(lipTopL, true);
-    this.physics.add.existing(lipTopR, true);
-    this.platforms.add(lipTopL);
-    this.platforms.add(lipTopR);
-
-    this.add.text(GAME_WIDTH / 2 - 130, branchTop - 36, '← fiber', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#40d070',
-    }).setOrigin(0.5);
-    this.add.text(GAME_WIDTH / 2 + 130, branchTop - 36, 'safe →', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#aaaaaa',
-    }).setOrigin(0.5);
   }
 
   // --- Burp event -------------------------------------------------
@@ -355,8 +292,9 @@ export default class RoomEsophagus extends Phaser.Scene {
   update(_time, delta) {
     if (this.cheerio) this.cheerio.update(delta);
 
-    // Peristalsis crunch wave — the death-line above Crispy.
-    this.updateCrunchWave(delta);
+    if (this.crushers) {
+      for (const c of this.crushers) c.update(delta);
+    }
 
     // Burp timer.
     if (this.phase === 'play' && this.time.now >= this.nextBurpAt) {

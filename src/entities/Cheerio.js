@@ -35,6 +35,9 @@ export default class Cheerio {
     this.invulnUntil = 0;
     this.displacedUntil = 0;
     this.alive = true;
+    // Per-scene horizontal speed multiplier. RoomSmallIntestine sets
+    // 1.5× so Crispy can outrun the auto-scroller. Default 1.0.
+    this.moveSpeedMultiplier = 1;
 
     this.sprite = scene.add.image(x, y, TEXTURE_BIG);
     // Texture is loaded at native 256px; downscale to the in-game
@@ -46,6 +49,10 @@ export default class Cheerio {
     body.setCollideWorldBounds(true);
     body.setSize(BIG_SIZE, BIG_SIZE);
     body.setMaxVelocity(MOVE_SPEED * 1.5, 1600);
+    this._refreshMaxVelocity = () => body.setMaxVelocity(
+      MOVE_SPEED * 1.5 * this.moveSpeedMultiplier,
+      body.maxVelocity.y,
+    );
 
     // Keep handles to commonly-touched data on the sprite for collider
     // callbacks that only get the GameObject.
@@ -64,6 +71,11 @@ export default class Cheerio {
   setPosition(x, y) {
     this.sprite.setPosition(x, y);
     this.body.reset(x, y);
+  }
+
+  setMoveSpeedMultiplier(m) {
+    this.moveSpeedMultiplier = m;
+    this._refreshMaxVelocity?.();
   }
 
   update(_delta) {
@@ -85,10 +97,11 @@ export default class Cheerio {
     // actually carry us before player input takes back over.
     const displaced = now < this.displacedUntil;
     if (!displaced) {
+      const moveSpeed = MOVE_SPEED * this.moveSpeedMultiplier;
       if (this.input.isLeftDown()) {
-        body.setVelocityX(-MOVE_SPEED);
+        body.setVelocityX(-moveSpeed);
       } else if (this.input.isRightDown()) {
-        body.setVelocityX(MOVE_SPEED);
+        body.setVelocityX(moveSpeed);
       } else {
         body.setVelocityX(0);
       }

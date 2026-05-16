@@ -9,10 +9,10 @@ import NutrientOrb from '../entities/NutrientOrb.js';
 import FiberToken from '../entities/FiberToken.js';
 import { sound } from '../systems/SoundManager.js';
 
-// Room 4 — Small Intestine. Auto-scroller. The camera moves right
-// at a fixed speed; the cheerio must keep up or get crushed off
-// the left edge. Obstacles arrive from the right as the camera
-// reveals them.
+// Room 4 — Small Intestine. Auto-scroller. The camera moves right at
+// a fixed (but ramping) speed; Crispy must keep up or be left
+// behind. Per CJ rework: faster scroll, faster Crispy, longer track,
+// more spacing between hazards, bile laser cut entirely.
 //
 // Hazards:
 //   - Villi: wavy tentacles rooted on the floor. Stompable.
@@ -20,20 +20,20 @@ import { sound } from '../systems/SoundManager.js';
 //     = damage.
 //   - Off-screen left: instant restart (even when Big).
 //
-// Collectibles: nutrient orbs (+5 each). Risk-reward — they sit
-// near the hazards so chasing them pulls the cheerio toward danger.
-//
-// Speed curve: starts at SCROLL_BASE px/s and ramps to SCROLL_PEAK
-// near the exit. Bile injection event is deferred.
+// Collectibles: nutrient orbs (+5 each).
 
-const ROOM_WIDTH = 5200;
+const ROOM_WIDTH = 8000;
 const FLOOR_Y = 620;
 const SPAWN_X = 120;
 const SPAWN_Y = 500;
 const EXIT_X = ROOM_WIDTH - 100;
-const SCROLL_BASE = 90;   // px/s at start
-const SCROLL_PEAK = 140;  // px/s near the exit
-const OFFSCREEN_MARGIN = 30; // body.right must stay this far past scroll edge
+// CJ wants noticeably faster auto-scroll. Doubled the previous numbers.
+const SCROLL_BASE = 180;
+const SCROLL_PEAK = 280;
+// Crispy moves 1.5× normal in this room so he can outrun the
+// scroll while threading the longer obstacle gaps.
+const CHEERIO_SPEED_MULT = 1.5;
+const OFFSCREEN_MARGIN = 30;
 
 export default class RoomSmallIntestine extends Phaser.Scene {
   constructor() {
@@ -45,11 +45,12 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#5a2236');
     this.physics.world.setBounds(0, 0, ROOM_WIDTH, GAME_HEIGHT);
     this.cameras.main.setBounds(0, 0, ROOM_WIDTH, GAME_HEIGHT);
+    this.cameras.main.setZoom(2);
 
     this.inputs = new InputManager(this);
     this.platforms = this.physics.add.staticGroup();
-    this.scrollX = 0;          // camera-driven scroll, monotonically increasing
-    this.scrollLocked = false; // true once we hit the exit area
+    this.scrollX = 0;
+    this.scrollLocked = false;
 
     this.buildWorld();
     this.spawnCheerio();
@@ -59,7 +60,6 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     this.spawnFiberToken();
     this.spawnExit();
     this.spawnWarningOverlay();
-    this.spawnBileInjector();
 
     this.bindEsc();
     this.scene.get('Hud')?.setRoomLabel('Room 4 — Small Intestine');
@@ -68,20 +68,20 @@ export default class RoomSmallIntestine extends Phaser.Scene {
   // --- World geometry ---------------------------------------------
 
   buildWorld() {
-    // Background — painted intestine.
-    this.add.image(ROOM_WIDTH / 2, GAME_HEIGHT / 2, 'room-small-intestine-bg').setDepth(-10);
+    // Background — painted intestine. Tile-stretched to the longer
+    // ROOM_WIDTH so the painted tube covers the whole track.
+    const bg = this.add.image(ROOM_WIDTH / 2, GAME_HEIGHT / 2, 'room-small-intestine-bg');
+    bg.setDisplaySize(ROOM_WIDTH, GAME_HEIGHT);
+    bg.setDepth(-10);
 
-    // Floor across the room — invisible hitbox.
     const ground = this.add.rectangle(ROOM_WIDTH / 2, FLOOR_Y + 40, ROOM_WIDTH, 80, 0xc06078).setVisible(false);
     this.physics.add.existing(ground, true);
     this.platforms.add(ground);
 
-    // Ceiling — invisible hitbox.
     const ceiling = this.add.rectangle(ROOM_WIDTH / 2, 20, ROOM_WIDTH, 40, 0x882044).setVisible(false);
     this.physics.add.existing(ceiling, true);
     this.platforms.add(ceiling);
 
-    // Hint label.
     this.add.text(160, 80, 'Keep up! Camera scrolls right →', {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#ffd0d8',
     });
@@ -91,8 +91,8 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnCheerio() {
     this.cheerio = new Cheerio(this, SPAWN_X, SPAWN_Y);
+    this.cheerio.setMoveSpeedMultiplier(CHEERIO_SPEED_MULT);
     this.physics.add.collider(this.cheerio.sprite, this.platforms);
-    // We drive the camera scroll manually — no follow.
     this.cameras.main.setScroll(0, 0);
   }
 
@@ -100,19 +100,19 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnVilli() {
     this.villi = [];
-    // Spaced through the room. Heights vary so the player can't
-    // just hold "jump" — they need different jump arcs.
+    // Spaced ~650px apart across the longer 8000-wide room. Heights
+    // vary so the player can't hold "jump" through them all.
     const specs = [
-      { x: 700, h: 100 },
-      { x: 1080, h: 130 },
-      { x: 1500, h: 110 },
-      { x: 1900, h: 140 },
-      { x: 2350, h: 120 },
-      { x: 2800, h: 130 },
-      { x: 3250, h: 140 },
-      { x: 3700, h: 130 },
-      { x: 4180, h: 110 },
-      { x: 4600, h: 130 },
+      { x: 900,  h: 100 },
+      { x: 1550, h: 130 },
+      { x: 2200, h: 110 },
+      { x: 2900, h: 140 },
+      { x: 3600, h: 120 },
+      { x: 4300, h: 130 },
+      { x: 5000, h: 140 },
+      { x: 5700, h: 120 },
+      { x: 6400, h: 130 },
+      { x: 7100, h: 110 },
     ];
     for (const { x, h } of specs) {
       const v = new Villus(this, x, FLOOR_Y, { height: h });
@@ -123,17 +123,19 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnMicrovilli() {
     this.microvilli = [];
+    // Slotted between the villi so each segment has either a tall
+    // jump or a spike cluster — never both crammed together.
     const specs = [
-      { x: 900,  count: 5 },
-      { x: 1300, count: 4 },
-      { x: 1700, count: 6 },
-      { x: 2150, count: 4 },
-      { x: 2600, count: 5 },
-      { x: 3050, count: 5 },
-      { x: 3500, count: 4 },
-      { x: 3950, count: 6 },
-      { x: 4400, count: 4 },
-      { x: 4800, count: 5 },
+      { x: 1200, count: 4 },
+      { x: 1900, count: 5 },
+      { x: 2550, count: 4 },
+      { x: 3250, count: 5 },
+      { x: 3950, count: 4 },
+      { x: 4650, count: 5 },
+      { x: 5350, count: 4 },
+      { x: 6050, count: 5 },
+      { x: 6750, count: 4 },
+      { x: 7450, count: 5 },
     ];
     for (const { x, count } of specs) {
       const mv = new Microvilli(this, x, FLOOR_Y, { spikeCount: count });
@@ -146,19 +148,18 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnNutrientOrbs() {
     this.orbs = [];
-    // Orbs hover at jumpable heights — most are tempting risk
-    // grabs floating above the floor near hazards.
+    // Same overall count as before, spread over the longer track.
     const specs = [
-      { x: 780,  y: FLOOR_Y - 130 },
-      { x: 1180, y: FLOOR_Y - 170 },
-      { x: 1580, y: FLOOR_Y - 200 },
-      { x: 2080, y: FLOOR_Y - 160 },
-      { x: 2480, y: FLOOR_Y - 220 },
-      { x: 2950, y: FLOOR_Y - 180 },
-      { x: 3380, y: FLOOR_Y - 240 },
-      { x: 3850, y: FLOOR_Y - 200 },
-      { x: 4300, y: FLOOR_Y - 230 },
-      { x: 4720, y: FLOOR_Y - 190 },
+      { x: 1000, y: FLOOR_Y - 130 },
+      { x: 1700, y: FLOOR_Y - 170 },
+      { x: 2400, y: FLOOR_Y - 200 },
+      { x: 3100, y: FLOOR_Y - 160 },
+      { x: 3800, y: FLOOR_Y - 220 },
+      { x: 4500, y: FLOOR_Y - 180 },
+      { x: 5200, y: FLOOR_Y - 240 },
+      { x: 5900, y: FLOOR_Y - 200 },
+      { x: 6600, y: FLOOR_Y - 230 },
+      { x: 7300, y: FLOOR_Y - 190 },
     ];
     for (const { x, y } of specs) {
       const orb = new NutrientOrb(this, x, y);
@@ -168,9 +169,7 @@ export default class RoomSmallIntestine extends Phaser.Scene {
   }
 
   spawnFiberToken() {
-    // Tucked at the end of the path, just before the exit, so the
-    // player has to thread the final ramp-up speed section to grab
-    // it. Lifted high — risk to grab.
+    // Just before the exit, lifted high — risk grab in the final stretch.
     this.fiberToken = new FiberToken(this, ROOM_WIDTH - 260, FLOOR_Y - 250);
     this.physics.add.overlap(this.cheerio.sprite, this.fiberToken.sprite, () => this.handleFiberPickup());
   }
@@ -192,89 +191,9 @@ export default class RoomSmallIntestine extends Phaser.Scene {
   // --- Off-screen left warning -----------------------------------
 
   spawnWarningOverlay() {
-    // A faint red strip on the left edge that brightens as the
-    // cheerio creeps toward the camera's left edge — fast,
-    // legible feedback that you're about to die.
     this.warning = this.add.rectangle(0, GAME_HEIGHT / 2, 100, GAME_HEIGHT, 0xff4040, 0)
       .setOrigin(0, 0.5)
       .setScrollFactor(0);
-  }
-
-  // --- Bile injection event (per design §6.4) -------------------
-
-  spawnBileInjector() {
-    // Bile from the pancreas: a screen-wide chartreuse wave at
-    // chest height that the player must duck under (= stay
-    // grounded on the floor). Anyone mid-air during ACTIVE gets
-    // hit. Cycle: idle (5s) → telegraph (rumble + warning 1.4s)
-    // → active sweep (1.4s) → idle again.
-    this.bilePhase = 'idle';
-    this.bilePhaseAt = this.time.now;
-    this.bileDurations = { idle: 5000, telegraph: 1400, active: 1400 };
-    this.bileDangerY = 440;
-    this.bileDangerH = 56;
-
-    // Wave is camera-locked so it sweeps the visible viewport.
-    this.bileWave = this.add.rectangle(GAME_WIDTH + 100, this.bileDangerY, 1500, this.bileDangerH, 0xc8ff60)
-      .setOrigin(0, 0.5)
-      .setScrollFactor(0)
-      .setAlpha(0);
-
-    // Full-screen translucent green overlay flashing during the
-    // telegraph window — visual "DUCK" cue.
-    this.bileTelegraph = this.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0xc8ff60, 0)
-      .setScrollFactor(0);
-
-    this.bileWarningText = this.add.text(GAME_WIDTH / 2, 130, '', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '22px', color: '#c8ff60', fontStyle: 'bold',
-    }).setOrigin(0.5).setScrollFactor(0);
-  }
-
-  updateBile() {
-    const elapsed = this.time.now - this.bilePhaseAt;
-    const dur = this.bileDurations[this.bilePhase];
-
-    if (this.bilePhase === 'idle') {
-      this.bileTelegraph.setAlpha(0);
-      this.bileWarningText.setText('');
-      this.bileWave.setAlpha(0);
-      if (elapsed >= dur) {
-        this.bilePhase = 'telegraph';
-        this.bilePhaseAt = this.time.now;
-      }
-    } else if (this.bilePhase === 'telegraph') {
-      const pulse = 0.15 + 0.15 * Math.sin(this.time.now / 60);
-      this.bileTelegraph.setAlpha(pulse);
-      this.bileWarningText.setText('BILE INCOMING — STAY ON THE FLOOR!');
-      this.cameras.main.shake(60, 0.002);
-      if (elapsed >= dur) {
-        this.bilePhase = 'active';
-        this.bilePhaseAt = this.time.now;
-        this.bileWave.x = GAME_WIDTH + 100;
-        this.bileWave.setAlpha(0.85);
-      }
-    } else if (this.bilePhase === 'active') {
-      this.bileTelegraph.setAlpha(0);
-      this.bileWarningText.setText('');
-      const t = Phaser.Math.Clamp(elapsed / dur, 0, 1);
-      this.bileWave.x = (GAME_WIDTH + 100) - t * (GAME_WIDTH + 1700);
-      // Hit check uses SCREEN-space x because the wave is
-      // scroll-factor-0.
-      const cheerioScreenX = this.cheerio.x - this.cameras.main.scrollX;
-      const cheerioHalf = this.cheerio.sprite.displayWidth / 2;
-      const inXRange = cheerioScreenX + cheerioHalf > this.bileWave.x
-        && cheerioScreenX - cheerioHalf < this.bileWave.x + this.bileWave.width;
-      const cBottom = this.cheerio.body.bottom;
-      const cTop = cBottom - this.cheerio.sprite.displayHeight;
-      const bileTop = this.bileDangerY - this.bileDangerH / 2;
-      const bileBottom = this.bileDangerY + this.bileDangerH / 2;
-      const inYRange = cTop < bileBottom && cBottom > bileTop;
-      if (inXRange && inYRange) this.applyHitToCheerio();
-      if (elapsed >= dur) {
-        this.bilePhase = 'idle';
-        this.bilePhaseAt = this.time.now;
-      }
-    }
   }
 
   // --- Contact handlers ------------------------------------------
@@ -357,8 +276,6 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     if (this.cheerio) this.cheerio.update(delta);
     if (this.phase !== 'play') return;
 
-    // Advance the auto-scroller camera. Speed ramps linearly from
-    // BASE to PEAK over the room's length.
     const stopScrollAt = ROOM_WIDTH - GAME_WIDTH;
     if (!this.scrollLocked) {
       const progress = Phaser.Math.Clamp(this.scrollX / stopScrollAt, 0, 1);
@@ -371,8 +288,6 @@ export default class RoomSmallIntestine extends Phaser.Scene {
       this.cameras.main.setScroll(this.scrollX, 0);
     }
 
-    // Off-screen-left death + warning ramp-up. The cheerio's right
-    // edge must stay past the camera's left edge + margin.
     const leftEdge = this.scrollX;
     const safeX = leftEdge + OFFSCREEN_MARGIN + this.cheerio.sprite.displayWidth / 2;
     const dangerSpan = 220;
@@ -384,7 +299,6 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     }
 
     for (const v of this.villi) v.update();
-    this.updateBile();
   }
 
   // --- Helpers ----------------------------------------------------

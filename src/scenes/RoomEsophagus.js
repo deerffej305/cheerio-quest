@@ -21,6 +21,17 @@ const EXIT_Y = ROOM_HEIGHT - 120;                  // 5080
 // Hitting rings/platforms costs enough seconds that the wave can catch.
 const ESOPHAGUS_TERMINAL_VY = 480;
 
+// Axis-aligned bounding-box overlap for Phaser arcade Body objects.
+// Used per frame to decide push-vs-crush against the two halves of
+// each muscle ring; Phaser's add.overlap callbacks fire as events
+// rather than letting us check "both sides simultaneously."
+function aabbOverlap(a, b) {
+  return a.x < b.x + b.width
+    && a.x + a.width > b.x
+    && a.y < b.y + b.height
+    && a.y + a.height > b.y;
+}
+
 export default class RoomEsophagus extends Phaser.Scene {
   constructor() {
     super('RoomEsophagus');
@@ -138,10 +149,11 @@ export default class RoomEsophagus extends Phaser.Scene {
     for (let i = 0; i < count; i++) {
       const y = stackTop + i * thickness + thickness / 2;
       const crusher = new PeristalsisCrusher(this, y, TUBE_LEFT, TUBE_RIGHT, { thickness });
-      this.physics.add.overlap(this.cheerio.sprite, crusher.leftBlock, () => this.handleCrusherHit(crusher));
-      this.physics.add.overlap(this.cheerio.sprite, crusher.rightBlock, () => this.handleCrusherHit(crusher));
       this.crushers.push(crusher);
     }
+    // (Crusher contact resolution happens per-frame in
+    // resolveCrushers — one side touches = push, both sides at once
+    // = crush. Overlap callbacks aren't precise enough for that.)
 
     // Wave state — descends from above the tube. One pass only; once
     // the wave reaches the bottom, every segment is locked closed.
@@ -216,10 +228,32 @@ export default class RoomEsophagus extends Phaser.Scene {
       onComplete: () => note.destroy() });
   }
 
-  handleCrusherHit(crusher) {
-    if (this.phase !== 'play') return;
-    if (!crusher.isDeadly()) return;
-    this.handleCrunchDeath();
+  resolveCrushers() {
+    if (this.phase !== 'play' || !this.cheerio?.alive) return;
+    const cb = this.cheerio.sprite.body;
+    for (const c of this.crushers) {
+      if (!c.alive) continue;
+      const lb = c.leftBlock.body;
+      const rb = c.rightBlock.body;
+      // Skip cheap idle case: both sides retracted to baseExtension.
+      if (lb.width <= c.baseExtension + 1 && rb.width <= c.baseExtension + 1) continue;
+
+      const touchesLeft = aabbOverlap(cb, lb);
+      const touchesRight = aabbOverlap(cb, rb);
+
+      if (touchesLeft && touchesRight) {
+        // Both sides squeezing — crushed.
+        this.handleCrunchDeath();
+        return;
+      }
+      if (touchesLeft) {
+        // Left wall is pushing — shove cheerio rightward.
+        this.cheerio.applyDisplacement(420, null, 140);
+      } else if (touchesRight) {
+        // Right wall is pushing — shove cheerio leftward.
+        this.cheerio.applyDisplacement(-420, null, 140);
+      }
+    }
   }
 
   handleCrunchDeath() {
@@ -309,6 +343,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     if (this.cheerio) this.cheerio.update(delta);
 
     this.updateWave(delta);
+    this.resolveCrushers();
 
     // Burp timer.
     if (this.phase === 'play' && this.time.now >= this.nextBurpAt) {

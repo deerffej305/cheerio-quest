@@ -30,7 +30,7 @@ export default class FoodPlatform {
     //     image's display dims, undoing setSize. Avoid calling it.
     // The explicit setOffset below centers the 130-wide body inside
     // the 195-wide image (32.5px slack on each side).
-    const VISUAL_STRETCH = 1.3;
+    const VISUAL_STRETCH = 1.7;
     this.sprite = scene.add.image(x, y, 'food-platform');
     this.sprite.setDisplaySize(w * VISUAL_STRETCH, h);
     scene.physics.add.existing(this.sprite, true);

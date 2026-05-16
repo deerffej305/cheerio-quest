@@ -1,16 +1,9 @@
 <svg width="2400" height="720" viewBox="0 0 2400 720" xmlns="http://www.w3.org/2000/svg">
   <title>Mouth room background</title>
-  <desc>Wide horizontal background for the Mouth room. Pink interior with darker top palate and bottom tongue area, with subtle taste-bud bumps scattered throughout. Engine draws platforms, hazards, exit door on top.</desc>
+  <desc>Wide horizontal background for the Mouth room. Clean pink walls with a darker mouth-roof band at top and a darker tongue-floor band at bottom. No decorative dots in the play area so they don't get confused with platforms or pickups. Engine draws platforms, hazards, exit door on top.</desc>
   <rect width="2400" height="720" fill="#FFC8D0"/>
   <path d="M 0,0 L 2400,0 L 2400,140 Q 2200,180 2000,150 Q 1800,180 1600,150 Q 1400,180 1200,150 Q 1000,180 800,150 Q 600,180 400,150 Q 200,180 0,150 Z" fill="#E07090" opacity="0.65"/>
   <path d="M 0,580 Q 200,560 400,580 Q 600,560 800,580 Q 1000,560 1200,580 Q 1400,560 1600,580 Q 1800,560 2000,580 Q 2200,560 2400,580 L 2400,720 L 0,720 Z" fill="#E07090" opacity="0.5"/>
-  <circle cx="320" cy="340" r="14" fill="#E07090" opacity="0.4"/>
-  <circle cx="780" cy="380" r="12" fill="#E07090" opacity="0.4"/>
-  <circle cx="1280" cy="320" r="16" fill="#E07090" opacity="0.4"/>
-  <circle cx="1800" cy="400" r="13" fill="#E07090" opacity="0.4"/>
-  <circle cx="2200" cy="360" r="12" fill="#E07090" opacity="0.4"/>
-  <circle cx="540" cy="240" r="10" fill="#E07090" opacity="0.35"/>
-  <circle cx="1020" cy="260" r="11" fill="#E07090" opacity="0.35"/>
-  <circle cx="1560" cy="240" r="10" fill="#E07090" opacity="0.35"/>
-  <circle cx="2080" cy="270" r="11" fill="#E07090" opacity="0.35"/>
+  <path d="M 0,168 Q 200,162 400,168 Q 600,162 800,168 Q 1000,162 1200,168 Q 1400,162 1600,168 Q 1800,162 2000,168 Q 2200,162 2400,168" fill="none" stroke="#E07090" stroke-width="2" opacity="0.35"/>
+  <path d="M 0,608 Q 200,602 400,608 Q 600,602 800,608 Q 1000,602 1200,608 Q 1400,602 1600,608 Q 1800,602 2000,608 Q 2200,602 2400,608" fill="none" stroke="#E07090" stroke-width="2" opacity="0.35"/>
 </svg>

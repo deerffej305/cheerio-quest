@@ -186,8 +186,8 @@ export default class RoomMouth extends Phaser.Scene {
     // chomp is the damage source. Offsets are a half cycle apart
     // so when one is open the other is closing.
     const teethPositions = [
-      { x: 380, offset: 0 },
-      { x: 500, offset: 1600 },
+      { x: 320, offset: 0 },
+      { x: 620, offset: 1600 },
     ];
     this.teethRow = teethPositions.map(({ x, offset }) =>
       new ChompingTeeth(this, x, FLOOR_Y, CEILING_Y + 40, { width: 80, phaseOffset: offset })

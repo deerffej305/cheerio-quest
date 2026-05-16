@@ -23,9 +23,13 @@ export default class ChompingTeeth {
     this.width = width;
 
     const toothHeight = 180;
-    this.upperOpenY = ceilingY + toothHeight / 2;
+    // Open positions retract teeth fully out of the walkable corridor
+    // — upper tooth tucked above the ceiling line, lower tooth tucked
+    // below the floor line. Cheerio can walk under and jump through
+    // when open; the chomp window (closed phase) is the deadly part.
+    this.upperOpenY = ceilingY - toothHeight / 2;
     this.upperClosedY = (floorY + ceilingY) / 2 - 4;
-    this.lowerOpenY = floorY - toothHeight / 2;
+    this.lowerOpenY = floorY + toothHeight / 2;
     this.lowerClosedY = (floorY + ceilingY) / 2 + 4;
 
     // Visuals.

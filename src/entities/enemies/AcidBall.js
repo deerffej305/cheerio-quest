@@ -32,7 +32,10 @@ export default class AcidBall {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(90, 90);
+    // Body matches the visible orange ball, not the 90x90 SVG bbox
+    // (which includes empty padding + flame wisps below). The ball
+    // is ~64x56 centered in the squished 90x90 raster.
+    this.sprite.body.setSize(60, 54);
     this.sprite.acidBall = this;
     this.sprite.setVisible(false);
 

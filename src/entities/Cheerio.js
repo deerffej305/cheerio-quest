@@ -10,7 +10,7 @@ const JUMP_VELOCITY = -780;
 // while still rising, multiply current upward velocity by this.
 // Lower = more aggressive cut. 0.15 makes a single-frame tap peak at
 // ~5px and a full hold peak at ~220px — a clearly visible delta.
-const JUMP_CUT_MULTIPLIER = 0.15;
+const JUMP_CUT_MULTIPLIER = 0.35;
 const COYOTE_MS = 90;
 const HIT_INVULN_MS = 1100;
 

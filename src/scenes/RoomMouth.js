@@ -5,7 +5,6 @@ import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import CavityBacterium from '../entities/enemies/CavityBacterium.js';
 import ChompingTeeth from '../entities/hazards/ChompingTeeth.js';
-import SalivaBlob from '../entities/hazards/SalivaBlob.js';
 import TongueBoss from '../entities/enemies/TongueBoss.js';
 import FiberToken from '../entities/FiberToken.js';
 import { sound } from '../systems/SoundManager.js';
@@ -42,7 +41,6 @@ export default class RoomMouth extends Phaser.Scene {
     this.spawnSpoonAndIntro();
     this.spawnEnemies();
     this.spawnTongueBoss();
-    this.spawnSaliva();
     this.spawnFiberToken();
     this.spawnExit();
 
@@ -194,6 +192,13 @@ export default class RoomMouth extends Phaser.Scene {
     this.teethRow = teethPositions.map(({ x, offset }) =>
       new ChompingTeeth(this, x, FLOOR_Y, CEILING_Y + 40, { width: 80, phaseOffset: offset })
     );
+    // Per CJ: teeth hurt on contact regardless of phase — touching
+    // a lower tooth on the floor is just as deadly as a full chomp.
+    // Each tooth (upper + lower) gets its own cheerio overlap.
+    for (const t of this.teethRow) {
+      this.physics.add.overlap(this.cheerio.sprite, t.upper, () => this.applyHitToCheerio());
+      this.physics.add.overlap(this.cheerio.sprite, t.lower, () => this.applyHitToCheerio());
+    }
   }
 
   spawnTongueBoss() {
@@ -234,23 +239,8 @@ export default class RoomMouth extends Phaser.Scene {
     this.platforms.add(this.tongue.base);
   }
 
-  spawnSaliva() {
-    // Saliva blobs sit on the floor in the approach to the tongue.
-    // Contact dissolves the Cheerio — instant-restart, lava rule.
-    // Positioned in the gap between the cavity bacteria and the
-    // tongue base, so the player has to thread between them while
-    // dodging the tongue's lunge.
-    const positions = [
-      { x: 1700, w: 70 },
-      { x: 1980, w: 70 },
-      { x: 2120, w: 80 },
-    ];
-    this.saliva = positions.map(({ x, w }) => {
-      const blob = new SalivaBlob(this, x, FLOOR_Y - 11, { width: w, height: 22 });
-      this.physics.add.overlap(this.cheerio.sprite, blob.sprite, () => this.handleSalivaContact());
-      return blob;
-    });
-  }
+  // (spawnSaliva removed per CJ — the white saliva-blob ellipses on
+  // the mouth floor were reading as decorative clutter, not hazards.)
 
   spawnFiberToken() {
     this.fiberToken = new FiberToken(this, this.molarRear.x, this.molarRear.y - 26);
@@ -333,16 +323,6 @@ export default class RoomMouth extends Phaser.Scene {
     }
   }
 
-  handleSalivaContact() {
-    if (!this.cheerio.alive || this.phase === 'dying') return;
-    // Saliva dissolves the Cheerio — instant restart regardless of
-    // size, same rule as acid pits. The shrunk-state grace period
-    // doesn't apply here.
-    this.hud()?.flash('DISSOLVED!', 1200);
-    this.cheerio.die('dissolve');
-    this.handleDeath();
-  }
-
   applyHitToCheerio() {
     const outcome = this.cheerio.takeHit();
     if (outcome === 'shrunk') {
@@ -378,13 +358,10 @@ export default class RoomMouth extends Phaser.Scene {
       this.scene.launch('Cutscene', { key: 'tongue', resumeSceneKey: this.scene.key });
     }
 
-    for (const t of this.teethRow) {
-      t.update();
-      if (t.isClosed() && t.containsPlayer(this.cheerio)) {
-        this.applyHitToCheerio();
-        break;
-      }
-    }
+    // Teeth animate visually each frame; collision damage fires via
+    // physics overlaps wired in spawnEnemies (now any-phase contact,
+    // not only during the closed phase).
+    for (const t of this.teethRow) t.update();
 
     for (const b of this.bacteria) b.update();
     this.tongue.update(this.cheerio);

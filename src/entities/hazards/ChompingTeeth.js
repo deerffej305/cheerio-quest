@@ -28,10 +28,27 @@ export default class ChompingTeeth {
     this.lowerOpenY = floorY - toothHeight / 2;
     this.lowerClosedY = (floorY + ceilingY) / 2 + 4;
 
+    // Visuals.
     this.upper = scene.add.image(x, this.upperOpenY, 'chomping-tooth-upper');
     this.upper.setDisplaySize(width, toothHeight);
     this.lower = scene.add.image(x, this.lowerOpenY, 'chomping-tooth-lower');
     this.lower.setDisplaySize(width, toothHeight);
+
+    // Physics bodies — tight to the tooth shape, not the bounding box.
+    // The tooth path occupies ~60% width × 90% height of the SVG;
+    // setSize with center=true auto-centers within the image.
+    const bodyW = Math.round(width * 0.6);
+    const bodyH = Math.round(toothHeight * 0.9);
+    scene.physics.add.existing(this.upper);
+    this.upper.body.setAllowGravity(false);
+    this.upper.body.setImmovable(true);
+    this.upper.body.setSize(bodyW, bodyH);
+    this.upper.chompingTeeth = this;
+    scene.physics.add.existing(this.lower);
+    this.lower.body.setAllowGravity(false);
+    this.lower.body.setImmovable(true);
+    this.lower.body.setSize(bodyW, bodyH);
+    this.lower.chompingTeeth = this;
 
     // phaseOffset shifts this tooth's cycle so a row of teeth can
     // stagger — the player gets timing windows instead of one

@@ -236,10 +236,9 @@ export default class RoomStomach extends Phaser.Scene {
           this.cheerio.body.setVelocityY(-460);
           this.unlockExit();
         } else {
-          // Knock Crispy all the way back to the room's start position.
-          this.cheerio.setPosition(SPAWN_X, SPAWN_Y);
-          this.cheerio.body.setVelocity(0, 0);
-          this.cheerio.invulnUntil = this.time.now + 900;
+          // Knock Crispy back to the start with a visible arc instead
+          // of an instant teleport: 1.6s parabolic fling, spinning.
+          this.flingCheerioToSpawn();
         }
       } else {
         this.applyHitToCheerio();
@@ -253,6 +252,44 @@ export default class RoomStomach extends Phaser.Scene {
     this.exitDoor.clearTint();
     this.exitLabel.setText('PYLORUS →\n(open!)').setColor('#a0ffa0');
     sound.play('score');
+  }
+
+  // --- Knockback animation ---------------------------------------
+
+  // Sends Crispy on a 1.6s arcing fling back to the room's spawn
+  // position. Body is disabled during the tween so projectiles and
+  // platforms can't interrupt; re-enabled at spawn.
+  flingCheerioToSpawn() {
+    if (this.flingActive) return;
+    this.flingActive = true;
+    this.cheerio.freezeControl(true);
+    this.cheerio.body.enable = false;
+    this.cheerio.invulnUntil = this.time.now + 2200;
+
+    const startX = this.cheerio.x;
+    const startY = this.cheerio.y;
+    const apex = -260; // pixels above the linear midline
+    const state = { t: 0 };
+    this.tweens.add({
+      targets: state,
+      t: 1,
+      duration: 1600,
+      ease: 'Cubic.InOut',
+      onUpdate: () => {
+        const t = state.t;
+        const x = Phaser.Math.Linear(startX, SPAWN_X, t);
+        const y = Phaser.Math.Linear(startY, SPAWN_Y, t) + apex * Math.sin(t * Math.PI);
+        this.cheerio.sprite.setPosition(x, y);
+        this.cheerio.sprite.setAngle(-720 * t);
+      },
+      onComplete: () => {
+        this.cheerio.sprite.setAngle(0);
+        this.cheerio.body.enable = true;
+        this.cheerio.body.reset(SPAWN_X, SPAWN_Y);
+        this.cheerio.freezeControl(false);
+        this.flingActive = false;
+      },
+    });
   }
 
   // --- Contact handlers ------------------------------------------

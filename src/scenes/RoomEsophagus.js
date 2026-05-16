@@ -121,11 +121,20 @@ export default class RoomEsophagus extends Phaser.Scene {
 
     for (let i = 0; i < ringCount; i++) {
       const y = startY + i * spacing;
-      const gapMin = TUBE_LEFT + 90;
-      const gapMax = TUBE_RIGHT - 90;
+      // First two rings: keep the gap in the central 25%–75% of the
+      // tube so the player's intro to the falling rhythm isn't
+      // an immediate side-wall hug. Later rings pick anywhere.
+      let gapMin, gapMax;
+      if (i < 2) {
+        gapMin = TUBE_LEFT + TUBE_W * 0.25;
+        gapMax = TUBE_LEFT + TUBE_W * 0.75;
+      } else {
+        gapMin = TUBE_LEFT + 120;
+        gapMax = TUBE_RIGHT - 120;
+      }
       const gapX = Phaser.Math.Between(gapMin, gapMax);
       const ring = new PeristalsisRing(this, y, TUBE_LEFT, TUBE_RIGHT, gapX, {
-        gapWidth: 140,
+        gapWidth: 200,  // big enough for Big Crispy (144 wide) to fit through
         thickness: 66,
       });
       this.physics.add.collider(this.cheerio.sprite, ring.leftSeg);
@@ -142,7 +151,7 @@ export default class RoomEsophagus extends Phaser.Scene {
     // the wave moves below. Same threat as the original descending
     // death-line, visualized as a wave of inward squeezes.
     this.crushers = [];
-    const thickness = 150;
+    const thickness = 75;          // half the previous 150 — twice the ribs
     const stackTop = 360;
     const stackBottom = ROOM_HEIGHT - 200;
     const count = Math.ceil((stackBottom - stackTop) / thickness);

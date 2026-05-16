@@ -48,7 +48,7 @@ const DURATIONS = {
 export default class TongueBoss {
   constructor(scene, anchorX, floorY, {
     reach = 500,
-    height = 56,
+    height = 120,
     maxHp = 3,
     baseW = 120,
     baseH = 80,
@@ -195,6 +195,18 @@ export default class TongueBoss {
   advance(to) {
     this.state = to;
     this.stateStartedAt = this.scene.time.now;
+  }
+
+  // Reset to fully-idle. Used after the intro cutscene resumes so
+  // the tongue's first attack doesn't fire instantly (otherwise the
+  // idle elapsed time from spawn would already be past DURATIONS.idle).
+  reset() {
+    this.state = STATES.IDLE;
+    this.stateStartedAt = this.scene.time.now;
+    this.setExtent(0);
+    this.setCurlAngle(0);
+    this.setSegTint(0xffffff);
+    this.showIdlePose(true);
   }
 
   setSegTint(tint) {

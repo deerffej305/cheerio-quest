@@ -357,13 +357,20 @@ export default class RoomMouth extends Phaser.Scene {
       this.scene.launch('Cutscene', { key: 'tongue', resumeSceneKey: this.scene.key });
     }
 
+    // Wake the tongue the first frame after the cutscene resumes us.
+    // Before that, the boss stays in its untouched IDLE pose.
+    if (this.tongueCutsceneFired && !this.tongueAwakened) {
+      this.tongueAwakened = true;
+      this.tongue.reset();
+    }
+
     // Teeth animate visually each frame; collision damage fires via
     // physics overlaps wired in spawnEnemies (now any-phase contact,
     // not only during the closed phase).
     for (const t of this.teethRow) t.update();
 
     for (const b of this.bacteria) b.update();
-    this.tongue.update(this.cheerio);
+    if (this.tongueAwakened) this.tongue.update(this.cheerio);
 
     // Exit reached? The player has to actually be on top of the
     // tongue base (body bottom at or above the base top), not just

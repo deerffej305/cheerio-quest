@@ -33,9 +33,9 @@ export default class BootScene extends Phaser.Scene {
     this.load.svg('crispy-small-jump',  'assets/sprites/crispy-big-jump.svg',    { width: 256, height: 256 });
 
     // --- Bosses ---
-    this.load.svg('tongue-boss',                'assets/sprites/tongue-boss.svg',                { width: 220, height: 130 });
-    this.load.svg('tongue-boss-lunge',          'assets/sprites/tongue-boss-lunge.svg',          { width: 500, height: 56 });
-    this.load.svg('tongue-boss-defeated',       'assets/sprites/tongue-boss-defeated.svg',       { width: 500, height: 56 });
+    this.load.svg('tongue-boss',                'assets/sprites/tongue-boss.svg',                { width: 320, height: 200 });
+    this.load.svg('tongue-boss-lunge',          'assets/sprites/tongue-boss-lunge.svg',          { width: 640, height: 200 });
+    this.load.svg('tongue-boss-defeated',       'assets/sprites/tongue-boss-defeated.svg',       { width: 640, height: 160 });
     this.load.svg('stomach-acid-blob',          'assets/sprites/stomach-acid-blob.svg',          { width: 140, height: 170 });
     this.load.svg('stomach-acid-blob-roaring',  'assets/sprites/stomach-acid-blob-roaring.svg',  { width: 140, height: 170 });
     this.load.svg('poop-boss',                  'assets/sprites/poop-boss.svg',                  { width: 110, height: 80 });

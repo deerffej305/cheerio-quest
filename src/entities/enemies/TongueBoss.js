@@ -48,11 +48,10 @@ const DURATIONS = {
 export default class TongueBoss {
   constructor(scene, anchorX, floorY, {
     reach = 500,
-    height = 120,
+    height = 180,
     maxHp = 3,
     baseW = 120,
     baseH = 80,
-    jointDist = 150,
   } = {}) {
     this.scene = scene;
     this.anchorX = anchorX;
@@ -61,8 +60,6 @@ export default class TongueBoss {
     this.baseW = baseW;
     this.baseH = baseH;
     this.maxReach = reach;
-    this.proxLen = jointDist;
-    this.distLen = reach - jointDist;
     this.hp = maxHp;
     this.maxHp = maxHp;
     this.state = STATES.IDLE;
@@ -77,40 +74,29 @@ export default class TongueBoss {
     this.tongueAnchorY = floorY - 6;
 
     // Idle-pose tongue (coiled at the base) — visible only when the
-    // segments are fully retracted. Positioned just left of the
-    // base, anchored at its right-bottom so it sits next to the base.
+    // tongue is fully retracted. Positioned just left of the base,
+    // anchored at its right-bottom so it sits next to the base.
     this.idlePose = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss');
     this.idlePose.setOrigin(1, 1);
     this.idlePose.setDisplaySize(baseW * 1.6, baseH * 1.4);
 
-    // Proximal segment — right-edge-anchored at the tongue anchor.
-    // setOrigin(1, 1) places origin at bottom-right so growing
-    // width extends leftward. Texture is the lunge artwork; we
-    // setDisplaySize to scale it as the tongue extends.
-    this.tongueProx = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss-lunge');
-    this.tongueProx.setOrigin(1, 1);
-    this.tongueProx.setDisplaySize(1, height);
-    scene.physics.add.existing(this.tongueProx);
-    this.tongueProx.body.setAllowGravity(false);
-    this.tongueProx.body.setImmovable(true);
-    this.tongueProx.tongueBoss = this;
-    this.tongueProx.segmentRole = 'proximal';
-
-    // Distal segment — right-edge-anchored at the JOINT (which moves
-    // with the proximal's left edge). Origin (1,1) so rotation
-    // pivots around the joint, sweeping the tip upward.
-    this.tongueDist = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss-lunge');
-    this.tongueDist.setOrigin(1, 1);
-    this.tongueDist.setDisplaySize(1, height);
-    scene.physics.add.existing(this.tongueDist);
-    this.tongueDist.body.setAllowGravity(false);
-    this.tongueDist.body.setImmovable(true);
-    this.tongueDist.tongueBoss = this;
-    this.tongueDist.segmentRole = 'distal';
+    // Single tongue segment — right-edge-anchored at the tongue anchor.
+    // setOrigin(1, 1) places origin at bottom-right so growing width
+    // extends leftward. Texture is the lunge artwork; setDisplaySize
+    // scales it from invisible (extent=0) to full reach (extent=1).
+    // Was two segments (proximal+distal) for the old curl-up bend;
+    // collapsed to one now that the bend is gone — the double-image
+    // seam during lunge came from rendering the same texture twice.
+    this.tongue = scene.add.image(this.tongueAnchorX, this.tongueAnchorY, 'tongue-boss-lunge');
+    this.tongue.setOrigin(1, 1);
+    this.tongue.setDisplaySize(1, height);
+    scene.physics.add.existing(this.tongue);
+    this.tongue.body.setAllowGravity(false);
+    this.tongue.body.setImmovable(true);
+    this.tongue.tongueBoss = this;
 
     // Initialize to fully retracted.
     this.setExtent(0);
-    this.setCurlAngle(0);
 
     this.hpText = scene.add.text(anchorX - baseW / 2, floorY - baseH - 22, this.hpLabel(), {
       fontFamily: 'system-ui, sans-serif',
@@ -120,10 +106,10 @@ export default class TongueBoss {
     }).setOrigin(0.5);
   }
 
-  // Convenience: the segments array, used by RoomMouth when wiring
-  // up physics handlers. Order: proximal first.
+  // Single-element array kept for RoomMouth's per-segment overlap
+  // wiring; calling code stays simple.
   get segments() {
-    return [this.tongueProx, this.tongueDist];
+    return [this.tongue];
   }
 
   hpLabel() {
@@ -131,19 +117,17 @@ export default class TongueBoss {
     return `TONGUE ${'♥'.repeat(hp)}${'·'.repeat(this.maxHp - hp)}`;
   }
 
-  // World-space top of the proximal segment, used for stomp checks
-  // against the horizontal portion of the tongue.
+  // World-space top of the tongue, used for stomp checks.
   topY() {
-    return this.tongueProx.y - this.tongueProx.displayHeight;
+    return this.tongue.y - this.tongue.displayHeight;
   }
 
   isExtended() {
-    return this.tongueProx.displayWidth + this.tongueDist.displayWidth > 6;
+    return this.tongue.displayWidth > 6;
   }
 
-  // True when the tongue is lying flat (no curl). The stomp/push
-  // overlap is gated by this — the player can't reach the tongue
-  // once it curls up.
+  // True when the tongue is lying flat. With no curl anymore this is
+  // effectively "extended-or-slouched", but kept named for clarity.
   isHorizontal() {
     return (
       this.state === STATES.LUNGING_OUT
@@ -156,47 +140,24 @@ export default class TongueBoss {
     return this.state === STATES.LUNGING_OUT || this.state === STATES.HOLD_FLAT;
   }
 
-  // Resize a segment by changing its display size, then fit the
-  // physics body to the *visible tongue path* (not the full SVG
-  // bounding box). The lunge SVG has empty space around the path:
-  // x: 25–580 of 640 (87% wide, left edge ~4%, right edge ~9%)
-  // y: 65–158 of 200 (47% tall, top ~32%, bottom ~21%)
-  // Body offset is from the image's top-left in world coords. With
-  // origin (1, 1), image top-left is (gameObject.x - displayWidth,
-  // gameObject.y - displayHeight); Phaser auto-applies that.
+  // Resize the tongue and keep the physics body matching the full
+  // visible rectangle. Body height = full sprite height so Small
+  // Crispy can't sneak under during the lunge.
   setSegmentWidth(seg, w) {
     const safe = Math.max(1, w);
     seg.setDisplaySize(safe, this.height);
-    const bodyW = Math.max(1, safe * 0.87);
-    const bodyH = this.height * 0.47;
-    seg.body.setSize(bodyW, bodyH);
-    seg.body.setOffset(safe * 0.04, this.height * 0.32);
+    seg.body.setSize(safe, this.height);
+    seg.body.setOffset(0, 0);
   }
 
   setExtent(extent) {
     const total = Phaser.Math.Clamp(extent, 0, 1) * this.maxReach;
-    const proxW = Math.min(this.proxLen, total);
-    const distW = Math.max(0, total - this.proxLen);
-
-    this.setSegmentWidth(this.tongueProx, proxW);
-    // The distal hangs off the proximal's left edge — its pivot is
-    // the joint at anchorX - proxW.
-    this.tongueDist.setPosition(this.tongueAnchorX - proxW, this.tongueAnchorY);
-    this.setSegmentWidth(this.tongueDist, distW);
+    this.setSegmentWidth(this.tongue, total);
   }
 
-  setCurlAngle(angleDeg) {
-    // angleDeg is the "curl up" amount, 0..90.
-    // For a left-extending rectangle pivoted at origin (1,1), a
-    // POSITIVE Phaser angle (which is clockwise on screen) sweeps
-    // the rectangle's tip up and slightly to the right — exactly
-    // the windshield-wiper flick we want, hinged at the joint.
-    const curl = Phaser.Math.Clamp(angleDeg, 0, 90);
-    this.tongueDist.angle = curl;
-    if (Number.isNaN(this.tongueDist.x) || Number.isNaN(this.tongueDist.y)) {
-      this.tongueDist.setPosition(this.tongueAnchorX - this.tongueProx.displayWidth, this.tongueAnchorY);
-    }
-  }
+  // No-op — kept so the older state-machine code path doesn't break
+  // if it still calls setCurlAngle. Curl mechanic is gone.
+  setCurlAngle() {}
 
   advance(to) {
     this.state = to;
@@ -216,8 +177,7 @@ export default class TongueBoss {
   }
 
   setSegTint(tint) {
-    this.tongueProx.setTint(tint);
-    this.tongueDist.setTint(tint);
+    this.tongue.setTint(tint);
   }
 
   showIdlePose(visible) {
@@ -319,14 +279,11 @@ export default class TongueBoss {
 
   slouch() {
     this.state = STATES.SLOUCHED;
-    this.tongueProx.setTexture('tongue-boss-defeated');
-    this.tongueDist.setTexture('tongue-boss-defeated');
+    this.tongue.setTexture('tongue-boss-defeated');
     this.setSegTint(0xffffff);
     this.showIdlePose(false);
     this.setExtent(1);
-    this.setCurlAngle(0);
-    this.tongueProx.body.setImmovable(true);
-    this.tongueDist.body.setImmovable(true);
+    this.tongue.body.setImmovable(true);
     this.hpText.setVisible(false);
   }
 

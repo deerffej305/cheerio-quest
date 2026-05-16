@@ -19,14 +19,26 @@ export default class FoodPlatform {
     this.touchedAt = null;
 
     // Per CJ: visually stretch the bread 50% past the hitbox so the
-    // platform reads as a chunky thing-you-can-stand-on. Hitbox
-    // stays at the caller's `w` — visual overhangs each side.
+    // platform reads as a chunky thing-you-can-stand-on. Hitbox stays
+    // at the caller's `w`, CENTERED within the wider visual.
+    //
+    // StaticBody quirks worth noting:
+    //   - setSize() on a StaticBody doesn't auto-center like dynamic
+    //     bodies do; the offset stays at (0,0) and the body ends up
+    //     left-aligned within the image bbox.
+    //   - updateFromGameObject() resets body.width/height back to the
+    //     image's display dims, undoing setSize. Avoid calling it.
+    // The explicit setOffset below centers the 130-wide body inside
+    // the 195-wide image (32.5px slack on each side).
     const VISUAL_STRETCH = 1.5;
     this.sprite = scene.add.image(x, y, 'food-platform');
     this.sprite.setDisplaySize(w * VISUAL_STRETCH, h);
     scene.physics.add.existing(this.sprite, true);
     this.sprite.body.setSize(w, h);
-    this.sprite.body.updateFromGameObject?.();
+    this.sprite.body.setOffset(
+      (this.sprite.displayWidth - w) / 2,
+      (this.sprite.displayHeight - h) / 2,
+    );
     this.sprite.foodPlatform = this;
   }
 

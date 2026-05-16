@@ -234,6 +234,7 @@ export default class RoomStomach extends Phaser.Scene {
         this.hud()?.flash(verdict === 'defeated' ? 'BLOB DOWN!' : 'BLOB ROARS — to the start!');
         if (verdict === 'defeated') {
           this.cheerio.body.setVelocityY(-460);
+          this.spawnDefeatedBossPad(bossX, bossY);
           this.unlockExit();
         } else {
           // Knock Crispy back to the start with a visible arc instead
@@ -254,38 +255,62 @@ export default class RoomStomach extends Phaser.Scene {
     sound.play('score');
   }
 
+  // --- Defeated boss landing pad ---------------------------------
+
+  // Once the boss deflates, drop a permanent grey platform where his
+  // body was so Crispy has somewhere to land and step onto the
+  // pylorus door.
+  spawnDefeatedBossPad(x, y) {
+    const pad = this.add.rectangle(x, y + 60, 200, 22, 0xbababa);
+    this.physics.add.existing(pad, true);
+    this.platforms.add(pad);
+    this.physics.add.collider(this.cheerio.sprite, pad);
+  }
+
   // --- Knockback animation ---------------------------------------
 
-  // Sends Crispy on a 1.6s arcing fling back to the room's spawn
-  // position. Body is disabled during the tween so projectiles and
-  // platforms can't interrupt; re-enabled at spawn.
+  // Sends Crispy on an arcing fling back to the room's spawn
+  // position. Real projectile motion: solve for the upward initial
+  // velocity that lands him at SPAWN over T seconds under gravity g.
+  // Body is disabled during the flight so platforms / projectiles
+  // don't interrupt; re-enabled when he lands.
   flingCheerioToSpawn() {
     if (this.flingActive) return;
     this.flingActive = true;
     this.cheerio.freezeControl(true);
     this.cheerio.body.enable = false;
-    this.cheerio.invulnUntil = this.time.now + 2200;
+    this.cheerio.invulnUntil = this.time.now + 2400;
 
     const startX = this.cheerio.x;
     const startY = this.cheerio.y;
-    const apex = -260; // pixels above the linear midline
+    const T = 1.4;         // flight time in seconds
+    const g = 1400;        // matches game gravity so the arc reads "right"
+    const dx = SPAWN_X - startX;
+    const dy = SPAWN_Y - startY;
+    // Inverted projectile-motion math: solve y(T) = startY + vy·T + ½gT² = SPAWN_Y
+    // for vy. Negative result = initial upward kick.
+    const vy = (dy - 0.5 * g * T * T) / T;
+    const vx = dx / T;
+
     const state = { t: 0 };
     this.tweens.add({
       targets: state,
       t: 1,
-      duration: 1600,
-      ease: 'Cubic.InOut',
+      duration: T * 1000,
+      ease: 'Linear',
       onUpdate: () => {
-        const t = state.t;
-        const x = Phaser.Math.Linear(startX, SPAWN_X, t);
-        const y = Phaser.Math.Linear(startY, SPAWN_Y, t) + apex * Math.sin(t * Math.PI);
+        const time = state.t * T;
+        const x = startX + vx * time;
+        const y = startY + vy * time + 0.5 * g * time * time;
         this.cheerio.sprite.setPosition(x, y);
-        this.cheerio.sprite.setAngle(-720 * t);
+        this.cheerio.sprite.setAngle(-720 * state.t);
       },
       onComplete: () => {
         this.cheerio.sprite.setAngle(0);
+        this.cheerio.sprite.setPosition(SPAWN_X, SPAWN_Y);
         this.cheerio.body.enable = true;
         this.cheerio.body.reset(SPAWN_X, SPAWN_Y);
+        this.cheerio.body.setVelocity(0, 0);
         this.cheerio.freezeControl(false);
         this.flingActive = false;
       },

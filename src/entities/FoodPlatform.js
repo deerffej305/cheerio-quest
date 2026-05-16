@@ -36,6 +36,11 @@ export default class FoodPlatform {
     const VISUAL_STRETCH = 2.0;
     this.sprite = scene.add.image(x, y, 'food-platform');
     this.sprite.setDisplaySize(w * VISUAL_STRETCH, h);
+    // Capture the natural setDisplaySize-derived scale so respawn()
+    // can restore exactly that — otherwise tweening scaleY back to 1
+    // makes the platform much thicker than its texture-native scale.
+    this.naturalScaleX = this.sprite.scaleX;
+    this.naturalScaleY = this.sprite.scaleY;
     scene.physics.add.existing(this.sprite, true);
     this.sprite.body.setSize(w, h);
     this.sprite.body.setOffset(
@@ -92,7 +97,7 @@ export default class FoodPlatform {
     this.scene.tweens.add({
       targets: this.sprite,
       alpha: 1,
-      scaleY: 1,
+      scaleY: this.naturalScaleY,
       duration: 300,
     });
   }

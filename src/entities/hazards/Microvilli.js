@@ -6,12 +6,18 @@ import Phaser from 'phaser';
 // Grey-box visual: a strip of small darker rectangles tightly
 // packed, mounted on the floor surface.
 export default class Microvilli {
-  constructor(scene, x, floorY, { spikeCount = 4, color = 0xb8e0a0, attach = 'floor' } = {}) {
+  constructor(scene, x, floorY, {
+    spikeCount = 4,
+    spikeWidth = 24,
+    spikeHeight = 54,
+    gap = 6,
+    color = 0xb8e0a0,
+    attach = 'floor',
+  } = {}) {
     this.scene = scene;
     this.attach = attach;
-    const spikeW = 8;
-    const spikeH = 18;
-    const gap = 2;
+    const spikeW = spikeWidth;
+    const spikeH = spikeHeight;
     const totalW = spikeCount * spikeW + (spikeCount - 1) * gap;
     const startX = x - totalW / 2 + spikeW / 2;
 

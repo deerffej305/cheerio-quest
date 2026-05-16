@@ -6,7 +6,13 @@ import Phaser from 'phaser';
 // Grey-box visual: tall pink rectangle that wobbles its angle on a
 // sine wave (cheap "wavy tentacle" feel).
 export default class Villus {
-  constructor(scene, x, floorY, { height = 110, swayDeg = 22, swaySpeed = 0.002, color = 0xff90b8 } = {}) {
+  constructor(scene, x, floorY, {
+    width = 60,
+    height = 110,
+    swayDeg = 22,
+    swaySpeed = 0.002,
+    color = 0xff90b8,
+  } = {}) {
     this.scene = scene;
     this.alive = true;
     this.swayDeg = swayDeg;
@@ -15,15 +21,16 @@ export default class Villus {
     this.floorY = floorY;
     this.spawnedAt = scene.time.now;
 
+    this.width = width;
     this.height = height;
     this.sprite = scene.add.image(x, floorY, 'villus');
-    this.sprite.setDisplaySize(26, height);
+    this.sprite.setDisplaySize(width, height);
     this.sprite.setOrigin(0.5, 1); // anchor at the base, so it sways from the floor
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(26, height);
-    this.sprite.body.setOffset(-13, -height); // re-center with origin 0.5, 1
+    this.sprite.body.setSize(width, height);
+    this.sprite.body.setOffset(-width / 2, -height); // re-center with origin 0.5, 1
     this.sprite.villus = this;
   }
 

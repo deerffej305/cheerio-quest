@@ -22,7 +22,7 @@ import { sound } from '../systems/SoundManager.js';
 //
 // Collectibles: nutrient orbs (+5 each).
 
-const ROOM_WIDTH = 8000;
+const ROOM_WIDTH = 9500;
 const FLOOR_Y = 620;
 const SPAWN_X = 120;
 const SPAWN_Y = 500;
@@ -99,22 +99,19 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnVilli() {
     this.villi = [];
-    // Spaced ~650px apart across the longer 8000-wide room. Heights
-    // vary so the player can't hold "jump" through them all.
+    // Big, fewer, ~1300px apart across the 9500-wide room. Wider +
+    // taller than before so they read as real obstacles, not poles.
     const specs = [
-      { x: 900,  h: 100 },
-      { x: 1550, h: 130 },
-      { x: 2200, h: 110 },
-      { x: 2900, h: 140 },
-      { x: 3600, h: 120 },
-      { x: 4300, h: 130 },
-      { x: 5000, h: 140 },
-      { x: 5700, h: 120 },
-      { x: 6400, h: 130 },
-      { x: 7100, h: 110 },
+      { x: 1100, h: 180 },
+      { x: 2400, h: 220 },
+      { x: 3700, h: 200 },
+      { x: 5000, h: 240 },
+      { x: 6300, h: 200 },
+      { x: 7600, h: 220 },
+      { x: 8900, h: 200 },
     ];
     for (const { x, h } of specs) {
-      const v = new Villus(this, x, FLOOR_Y, { height: h });
+      const v = new Villus(this, x, FLOOR_Y, { width: 110, height: h });
       this.physics.add.collider(this.cheerio.sprite, v.sprite, () => this.handleVillusContact(v));
       this.villi.push(v);
     }
@@ -122,22 +119,23 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnMicrovilli() {
     this.microvilli = [];
-    // Slotted between the villi so each segment has either a tall
-    // jump or a spike cluster — never both crammed together.
+    // Slotted halfway between villi. Bigger spikes (40 wide × 90 tall)
+    // so they read as a clear spike row, not lint on the floor.
     const specs = [
-      { x: 1200, count: 4 },
-      { x: 1900, count: 5 },
-      { x: 2550, count: 4 },
-      { x: 3250, count: 5 },
-      { x: 3950, count: 4 },
-      { x: 4650, count: 5 },
-      { x: 5350, count: 4 },
-      { x: 6050, count: 5 },
-      { x: 6750, count: 4 },
-      { x: 7450, count: 5 },
+      { x: 1750, count: 4 },
+      { x: 3050, count: 5 },
+      { x: 4350, count: 4 },
+      { x: 5650, count: 5 },
+      { x: 6950, count: 4 },
+      { x: 8250, count: 5 },
     ];
     for (const { x, count } of specs) {
-      const mv = new Microvilli(this, x, FLOOR_Y, { spikeCount: count });
+      const mv = new Microvilli(this, x, FLOOR_Y, {
+        spikeCount: count,
+        spikeWidth: 40,
+        spikeHeight: 90,
+        gap: 8,
+      });
       for (const spike of mv.bodies) {
         this.physics.add.overlap(this.cheerio.sprite, spike, () => this.handleMicrovilliContact());
       }
@@ -147,18 +145,17 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnNutrientOrbs() {
     this.orbs = [];
-    // Same overall count as before, spread over the longer track.
+    // 8 orbs spread over the 9500 track, varied heights — pulls the
+    // player up-and-down through the obstacle field.
     const specs = [
-      { x: 1000, y: FLOOR_Y - 130 },
-      { x: 1700, y: FLOOR_Y - 170 },
-      { x: 2400, y: FLOOR_Y - 200 },
-      { x: 3100, y: FLOOR_Y - 160 },
-      { x: 3800, y: FLOOR_Y - 220 },
-      { x: 4500, y: FLOOR_Y - 180 },
-      { x: 5200, y: FLOOR_Y - 240 },
-      { x: 5900, y: FLOOR_Y - 200 },
+      { x: 1400, y: FLOOR_Y - 150 },
+      { x: 2700, y: FLOOR_Y - 200 },
+      { x: 4000, y: FLOOR_Y - 240 },
+      { x: 5300, y: FLOOR_Y - 180 },
       { x: 6600, y: FLOOR_Y - 230 },
-      { x: 7300, y: FLOOR_Y - 190 },
+      { x: 7900, y: FLOOR_Y - 200 },
+      { x: 8600, y: FLOOR_Y - 260 },
+      { x: 9100, y: FLOOR_Y - 180 },
     ];
     for (const { x, y } of specs) {
       const orb = new NutrientOrb(this, x, y);

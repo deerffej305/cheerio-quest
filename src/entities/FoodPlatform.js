@@ -18,11 +18,10 @@ export default class FoodPlatform {
     this.alive = true;
     this.touchedAt = null;
 
-    // Per CJ: visually stretch the bread well past the hitbox so the
-    // platform reads as a chunky thing-you-can-stand-on. Display
-    // width is 1.8× the body width; bread covers the body fully plus
-    // overhangs each side.
-    const VISUAL_STRETCH = 3.6;
+    // Per CJ: visually stretch the bread 50% past the hitbox so the
+    // platform reads as a chunky thing-you-can-stand-on. Hitbox
+    // stays at the caller's `w` — visual overhangs each side.
+    const VISUAL_STRETCH = 1.5;
     this.sprite = scene.add.image(x, y, 'food-platform');
     this.sprite.setDisplaySize(w * VISUAL_STRETCH, h);
     scene.physics.add.existing(this.sprite, true);

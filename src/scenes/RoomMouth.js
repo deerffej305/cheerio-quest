@@ -78,27 +78,29 @@ export default class RoomMouth extends Phaser.Scene {
     this.physics.add.existing(backWall, true);
     this.platforms.add(backWall);
 
-    // Decorative taste-bud platforms — cosmetic colors but real
-    // collision so the player can hop across them.
+    // Taste-bud platforms — drawn as visible grey rectangles so the
+    // player can see where to land. Background no longer paints
+    // these in. (The sweet taste-bud that used to sit between the
+    // two tooth pairs is gone per CJ.)
+    const PLATFORM_GREY = 0xbababa;
     const tasteBuds = [
-      { x: 480, y: FLOOR_Y - 130, color: 0xff7090 }, // sweet
-      { x: 700, y: FLOOR_Y - 200, color: 0xffe070 }, // sour
-      { x: 920, y: FLOOR_Y - 160, color: 0x70d0ff }, // salty
-      { x: 1140, y: FLOOR_Y - 230, color: 0x90a070 }, // bitter
+      { x: 700,  y: FLOOR_Y - 200 }, // sour
+      { x: 920,  y: FLOOR_Y - 160 }, // salty
+      { x: 1140, y: FLOOR_Y - 230 }, // bitter
     ];
-    tasteBuds.forEach(({ x, y, color }) => {
-      const pad = this.add.rectangle(x, y, 140, 18, color).setVisible(false);
+    tasteBuds.forEach(({ x, y }) => {
+      const pad = this.add.rectangle(x, y, 140, 18, PLATFORM_GREY);
       this.physics.add.existing(pad, true);
       this.platforms.add(pad);
     });
 
-    // Back molars — invisible hitboxes; the molar art is painted
-    // into the background. The fiber token sits on the rear molar.
-    this.molarRear = this.add.rectangle(1830, FLOOR_Y - 250, 160, 28, 0xf5e7c0).setVisible(false);
+    // Back molars — visible grey too. The fiber token sits on the
+    // rear molar.
+    this.molarRear = this.add.rectangle(1830, FLOOR_Y - 250, 160, 28, PLATFORM_GREY);
     this.physics.add.existing(this.molarRear, true);
     this.platforms.add(this.molarRear);
 
-    const molarFront = this.add.rectangle(1620, FLOOR_Y - 160, 140, 26, 0xf5e7c0).setVisible(false);
+    const molarFront = this.add.rectangle(1620, FLOOR_Y - 160, 140, 26, PLATFORM_GREY);
     this.physics.add.existing(molarFront, true);
     this.platforms.add(molarFront);
   }

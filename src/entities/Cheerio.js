@@ -2,8 +2,13 @@ import Phaser from 'phaser';
 import { sound } from '../systems/SoundManager.js';
 
 const MOVE_SPEED = 280;
-const JUMP_VELOCITY_BIG = -780;
-const JUMP_VELOCITY_SMALL = -520; // Big jumps 50% higher than Small.
+// Per CJ: Small and Big jump the same height so every essential jump
+// is reachable in either state. Being Big is now purely "absorb one
+// hit", not a movement advantage.
+const JUMP_VELOCITY = -780;
+// Variable jump: tap = short hop, hold = full jump. On early release
+// while still rising, multiply current upward velocity by this.
+const JUMP_CUT_MULTIPLIER = 0.4;
 const COYOTE_MS = 90;
 const HIT_INVULN_MS = 1100;
 
@@ -89,10 +94,22 @@ export default class Cheerio {
 
     const inCoyoteWindow = now - this.lastGroundedAt <= COYOTE_MS;
     if (this.input.wasJumpJustPressed() && inCoyoteWindow) {
-      const jv = this.state === 'big' ? JUMP_VELOCITY_BIG : JUMP_VELOCITY_SMALL;
-      body.setVelocityY(jv);
+      body.setVelocityY(JUMP_VELOCITY);
       this.lastGroundedAt = 0;
+      this.jumpCutAvailable = true;
       sound.play('jump');
+    }
+
+    // Variable jump height: if the jump button is released while
+    // still rising, snip the upward velocity. Burns the cut so a
+    // single jump only gets cut once.
+    if (this.jumpCutAvailable && !this.input.isJumpDown() && body.velocity.y < 0) {
+      body.setVelocityY(body.velocity.y * JUMP_CUT_MULTIPLIER);
+      this.jumpCutAvailable = false;
+    }
+    // Reset on landing so the next jump can be cut again.
+    if (body.blocked.down || body.touching.down) {
+      this.jumpCutAvailable = false;
     }
 
     // Damage-flash blink while invulnerable.

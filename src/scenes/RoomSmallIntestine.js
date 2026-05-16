@@ -28,11 +28,11 @@ const SPAWN_X = 120;
 const SPAWN_Y = 500;
 const EXIT_X = ROOM_WIDTH - 100;
 // CJ wants noticeably faster auto-scroll. Doubled the previous numbers.
-const SCROLL_BASE = 180;
-const SCROLL_PEAK = 280;
-// Crispy moves 1.5× normal in this room so he can outrun the
-// scroll while threading the longer obstacle gaps.
-const CHEERIO_SPEED_MULT = 1.5;
+const SCROLL_BASE = 260;
+const SCROLL_PEAK = 400;
+// Crispy moves 1.75× normal in this room so he can outrun the
+// faster scroll while threading the longer obstacle gaps.
+const CHEERIO_SPEED_MULT = 1.75;
 const OFFSCREEN_MARGIN = 30;
 
 export default class RoomSmallIntestine extends Phaser.Scene {

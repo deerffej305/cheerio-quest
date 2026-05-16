@@ -28,8 +28,8 @@ const DURATIONS = {
 };
 
 const PROJECTILE_SPEED = 520;
-// Random angle range from the straight-left direction. Negative = up,
-// positive = down (Phaser screen coords). -20°…+30° per CJ.
+// Random angle range from the straight-left direction. Per CJ:
+// negative angles tilt DOWN, positive tilt UP. -20°…+30°.
 const PROJECTILE_ANGLE_MIN_DEG = -20;
 const PROJECTILE_ANGLE_MAX_DEG = 30;
 // Despawn-x: projectiles stay alive until they pass the spawn ledge
@@ -159,7 +159,8 @@ export default class StomachAcidBlob {
     const angleDeg = Phaser.Math.Between(PROJECTILE_ANGLE_MIN_DEG, PROJECTILE_ANGLE_MAX_DEG);
     const rad = Phaser.Math.DegToRad(angleDeg);
     const vx = -PROJECTILE_SPEED * Math.cos(rad);
-    const vy = PROJECTILE_SPEED * Math.sin(rad);
+    // Flip sin so negative angles aim DOWN (positive y in screen coords).
+    const vy = -PROJECTILE_SPEED * Math.sin(rad);
 
     const sprite = this.scene.add.image(startX, startY, 'acid-ball');
     this.scene.physics.add.existing(sprite);

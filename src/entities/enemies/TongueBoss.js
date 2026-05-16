@@ -140,13 +140,17 @@ export default class TongueBoss {
     return this.state === STATES.LUNGING_OUT || this.state === STATES.HOLD_FLAT;
   }
 
-  // Resize the tongue and keep the physics body matching the full
-  // visible rectangle. Body height = full sprite height so Small
-  // Crispy can't sneak under during the lunge.
+  // Resize the tongue and keep the physics body matching the visible
+  // rectangle horizontally. Vertically the body is extended way past
+  // the sprite bottom (down to the floor + extra) so there's no y
+  // band where Small Crispy can slip under during the lunge.
   setSegmentWidth(seg, w) {
     const safe = Math.max(1, w);
     seg.setDisplaySize(safe, this.height);
-    seg.body.setSize(safe, this.height);
+    // Distance from image top down to the floor + a safety pad.
+    // Image top = anchorY - height (in world); floor = this.floorY.
+    const bodyH = this.height + (this.floorY - this.tongueAnchorY) + 80;
+    seg.body.setSize(safe, bodyH);
     seg.body.setOffset(0, 0);
   }
 

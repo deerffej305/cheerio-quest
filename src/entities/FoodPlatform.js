@@ -18,13 +18,13 @@ export default class FoodPlatform {
     this.alive = true;
     this.touchedAt = null;
 
-    // SVG has ~12% horizontal padding around the visible bread (x=13–207
-    // of 220). Stretch the image so the bread itself covers the full
-    // hitbox width — the extra padding sits beyond the body but is
-    // invisible.
-    const SVG_VISIBLE_W = 0.88;
+    // Per CJ: visually stretch the bread well past the hitbox so the
+    // platform reads as a chunky thing-you-can-stand-on. Display
+    // width is 1.8× the body width; bread covers the body fully plus
+    // overhangs each side.
+    const VISUAL_STRETCH = 1.8;
     this.sprite = scene.add.image(x, y, 'food-platform');
-    this.sprite.setDisplaySize(w / SVG_VISIBLE_W, h);
+    this.sprite.setDisplaySize(w * VISUAL_STRETCH, h);
     scene.physics.add.existing(this.sprite, true);
     this.sprite.body.setSize(w, h);
     this.sprite.body.updateFromGameObject?.();

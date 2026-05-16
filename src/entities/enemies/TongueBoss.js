@@ -23,13 +23,14 @@ import Phaser from 'phaser';
 // a walkable ramp/floor extending leftward from the base, which
 // the player runs over to reach the exit on the base.
 
+// Simplified state machine per CJ: lunge straight, hold, retract. No
+// curl-up. Stomping on the tongue while it's stretched damages the
+// boss. Hitting it head-on damages + knocks back Crispy.
 const STATES = {
   IDLE: 'idle',
   TELEGRAPH: 'telegraph',
   LUNGING_OUT: 'lunging_out',
   HOLD_FLAT: 'hold_flat',
-  CURL_UP: 'curl_up',
-  HOLD_CURLED: 'hold_curled',
   RETRACTING: 'retracting',
   RECOIL: 'recoil',
   SLOUCHED: 'slouched',
@@ -39,18 +40,16 @@ const DURATIONS = {
   idle: 1500,
   telegraph: 500,
   lunging_out: 450,
-  hold_flat: 150,
-  curl_up: 400,
-  hold_curled: 250,
-  retracting: 700,
-  recoil: 600,
+  hold_flat: 700,    // longer hold gives a stomp window
+  retracting: 500,
+  recoil: 500,
 };
 
 export default class TongueBoss {
   constructor(scene, anchorX, floorY, {
     reach = 500,
     height = 56,
-    maxHp = 4,
+    maxHp = 3,
     baseW = 120,
     baseH = 80,
     jointDist = 150,
@@ -242,35 +241,14 @@ export default class TongueBoss {
       case STATES.HOLD_FLAT: {
         this.setExtent(1);
         this.setCurlAngle(0);
-        if (elapsed >= DURATIONS.hold_flat) this.advance(STATES.CURL_UP);
-        break;
-      }
-      case STATES.CURL_UP: {
-        // Distal swings around the joint. Proximal stays flat.
-        this.setSegTint(0xffffff);
-        this.setExtent(1);
-        const t = Phaser.Math.Easing.Quadratic.InOut(elapsed / DURATIONS.curl_up);
-        this.setCurlAngle(t * 90);
-        if (elapsed >= DURATIONS.curl_up) this.advance(STATES.HOLD_CURLED);
-        break;
-      }
-      case STATES.HOLD_CURLED: {
-        this.setExtent(1);
-        this.setCurlAngle(90);
-        if (elapsed >= DURATIONS.hold_curled) this.advance(STATES.RETRACTING);
+        if (elapsed >= DURATIONS.hold_flat) this.advance(STATES.RETRACTING);
         break;
       }
       case STATES.RETRACTING: {
         this.setSegTint(0xffffff);
-        const t = elapsed / DURATIONS.retracting;
-        // First half: uncurl. Second half: retract horizontally.
-        if (t < 0.5) {
-          this.setExtent(1);
-          this.setCurlAngle((1 - t * 2) * 90);
-        } else {
-          this.setCurlAngle(0);
-          this.setExtent(1 - (t - 0.5) * 2);
-        }
+        this.setCurlAngle(0);
+        const t = Phaser.Math.Easing.Quadratic.In(elapsed / DURATIONS.retracting);
+        this.setExtent(1 - t);
         if (elapsed >= DURATIONS.retracting) {
           this.showIdlePose(true);
           this.advance(STATES.IDLE);

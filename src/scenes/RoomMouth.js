@@ -301,12 +301,9 @@ export default class RoomMouth extends Phaser.Scene {
         this.unlockExit();
       }
     } else if (verdict === 'push') {
-      // Shove the cheerio left toward the chomping teeth — that's
-      // where the actual damage will come from per the design doc.
-      this.cheerio.body.setVelocityX(-360);
-      if (this.cheerio.body.blocked.down) {
-        this.cheerio.body.setVelocityY(-180);
-      }
+      // Head-on tongue hit per CJ: knockback to the left + damage.
+      this.cheerio.applyDisplacement(-460, -260, 300);
+      this.applyHitToCheerio();
     }
   }
 

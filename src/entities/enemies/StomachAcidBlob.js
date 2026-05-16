@@ -1,36 +1,34 @@
 import Phaser from 'phaser';
 
-// Stomach Acid Blob boss (per STORY.md / BUILD_STATUS.md):
-// Hulk-rage personality. Sits in front of the pyloric exit. Has a
-// big jagged mouth full of acid teeth that opens when he roars.
+// Stomach Acid Blob boss — reworked per CJ:
+//   * No more open/close mouth cycle. Always stompable from above.
+//   * Periodically spits a straight-line acid projectile toward Crispy.
+//   * Stomping triggers a brief roar (visual swap) and knocks Crispy
+//     all the way back to the start of the room — but the boss takes
+//     a damage tick for it. 3 HP.
 //
-// Cycle:
-//   idle (1.6s, closed-mouth, motionless) → wind-up (0.5s, mouth
-//   starts opening) → roar (1.1s, mouth wide open, vulnerable to
-//   stomp) → close (0.4s, mouth slams shut) → idle...
-//
-// HP = 3. Each stomp during the roar drops 1 HP. After the third
-// stomp he deflates, the door behind him is exposed.
-//
-// Grey-box visual: a big purple-red ellipse for the body. The
-// "mouth" is a row of triangular acid teeth (Graphics polygons)
-// that animate between closed and open. Boss tints darker on each
-// successive stomp.
+// States:
+//   idle           — just bobbing, stompable
+//   spitting       — one-shot spit, still stompable (brief)
+//   roar_reaction  — just took a stomp, invulnerable for a moment,
+//                    plays the roaring texture
+//   defeated       — exit unlocked, deflated
 
 const STATES = {
   IDLE: 'idle',
-  WINDUP: 'windup',
-  ROAR: 'roar',
-  CLOSE: 'close',
+  SPITTING: 'spitting',
+  ROAR_REACTION: 'roar_reaction',
   DEFEATED: 'defeated',
 };
 
 const DURATIONS = {
-  idle: 1600,
-  windup: 500,
-  roar: 1100,
-  close: 400,
+  idle: 2400,           // time between spits while bobbing
+  spitting: 280,        // brief mouth-open spit animation
+  roar_reaction: 900,   // stomp-recovery (invulnerable)
 };
+
+const PROJECTILE_SPEED = 520;
+const PROJECTILE_LIFE_MS = 4000;
 
 export default class StomachAcidBlob {
   constructor(scene, x, y, { maxHp = 3 } = {}) {
@@ -42,13 +40,20 @@ export default class StomachAcidBlob {
     this.state = STATES.IDLE;
     this.stateStartedAt = scene.time.now;
 
-    // Body: SVG sprite. We swap texture between idle / roaring based
-    // on the current state (mouth open = roaring artwork). Eyes and
-    // teeth are baked into the SVGs, so no extra display elements.
+    // Body sprite. Texture swaps to the roaring variant during a
+    // spit windup and the stomp recovery.
     this.body = scene.add.image(x, y, 'stomach-acid-blob');
     this.body.setDisplaySize(140, 170);
+    this.body.setAllowGravity?.(false);
+    scene.physics.add.existing(this.body);
+    this.body.body.setAllowGravity(false);
+    this.body.body.setImmovable(true);
+    this.body.body.setSize(120, 150);
+    this.body.body.setOffset(10, 10);
+    this.body.stomachAcidBlob = this;
+
     // Idle bob.
-    scene.tweens.add({
+    this.bobTween = scene.tweens.add({
       targets: this.body,
       scaleY: this.body.scaleY * 1.06,
       duration: 1000,
@@ -57,20 +62,17 @@ export default class StomachAcidBlob {
       ease: 'Sine.InOut',
     });
 
-    // Mouth — a stomp-friendly hitbox. The hitbox spans the top of
-    // the body when the mouth is open; stomping it damages the boss.
-    this.mouthHit = scene.add.rectangle(x, y - 50, 100, 24, 0x000000, 0);
-    scene.physics.add.existing(this.mouthHit);
-    this.mouthHit.body.setAllowGravity(false);
-    this.mouthHit.body.setImmovable(true);
-    this.mouthHit.stomachAcidBlob = this;
-    this.mouthHit.body.enable = false;
-
-    this.openness = 0; // 0 = closed, 1 = wide open
-
     this.hpText = scene.add.text(x, y - 110, this.hpLabel(), {
       fontFamily: 'system-ui, sans-serif', fontSize: '16px', color: '#ffffff', fontStyle: 'bold',
     }).setOrigin(0.5);
+
+    // Boss-fired acid projectiles, tracked so the room can iterate
+    // them for cleanup if needed. Each entry: { sprite }.
+    this.projectiles = [];
+
+    // Owning scene wires this — invoked when the boss is stomped so
+    // the scene can knock Crispy back and play the stomp SFX.
+    this.onStomped = null;
   }
 
   hpLabel() {
@@ -78,27 +80,27 @@ export default class StomachAcidBlob {
     return `ACID BLOB ${'♥'.repeat(hp)}${'·'.repeat(this.maxHp - hp)}`;
   }
 
-  // Swap between idle and roaring SVG textures based on openness.
-  refreshTexture() {
-    const wantsOpen = this.openness > 0.4;
-    const key = wantsOpen ? 'stomach-acid-blob-roaring' : 'stomach-acid-blob';
+  setTextureFor(state) {
+    const wantsRoar = state === STATES.SPITTING || state === STATES.ROAR_REACTION;
+    const key = wantsRoar ? 'stomach-acid-blob-roaring' : 'stomach-acid-blob';
     if (this.body.texture && this.body.texture.key !== key) {
       this.body.setTexture(key);
       this.body.setDisplaySize(140, 170);
     }
   }
 
-  // Hitbox the player overlaps with — wraps the body + mouth.
-  get mouthSprite() {
-    return this.mouthHit;
-  }
-
   get bodySprite() {
     return this.body;
   }
 
-  isRoaring() {
-    return this.state === STATES.ROAR;
+  // Old API kept so RoomStomach's existing call site doesn't crash;
+  // the mouth-only hitbox is gone now — whole body is stompable.
+  get mouthSprite() {
+    return this.body;
+  }
+
+  isStompable() {
+    return this.state === STATES.IDLE || this.state === STATES.SPITTING;
   }
 
   isDefeated() {
@@ -108,66 +110,98 @@ export default class StomachAcidBlob {
   advance(to) {
     this.state = to;
     this.stateStartedAt = this.scene.time.now;
+    this.setTextureFor(to);
   }
 
-  update() {
-    if (this.state === STATES.DEFEATED) return;
+  update(cheerio) {
+    if (this.state === STATES.DEFEATED) {
+      this.updateProjectiles();
+      return;
+    }
     const elapsed = this.scene.time.now - this.stateStartedAt;
-    const dur = DURATIONS[this.state];
 
     switch (this.state) {
       case STATES.IDLE: {
-        this.openness = 0;
-        this.mouthHit.body.enable = false;
-        if (elapsed >= dur) this.advance(STATES.WINDUP);
+        if (elapsed >= DURATIONS.idle) {
+          this.advance(STATES.SPITTING);
+          this.spit(cheerio);
+        }
         break;
       }
-      case STATES.WINDUP: {
-        const t = Phaser.Math.Easing.Quadratic.In(elapsed / dur);
-        this.openness = t * 0.6;
-        if (elapsed >= dur) this.advance(STATES.ROAR);
+      case STATES.SPITTING: {
+        if (elapsed >= DURATIONS.spitting) this.advance(STATES.IDLE);
         break;
       }
-      case STATES.ROAR: {
-        // Wide open + slight pulse. Mouth is now stompable.
-        const t = elapsed / dur;
-        this.openness = 0.85 + 0.15 * Math.sin(t * 16);
-        this.mouthHit.body.enable = true;
-        if (elapsed >= dur) this.advance(STATES.CLOSE);
-        break;
-      }
-      case STATES.CLOSE: {
-        const t = Phaser.Math.Easing.Quadratic.Out(elapsed / dur);
-        this.openness = Math.max(0, 1 - t);
-        this.mouthHit.body.enable = false;
-        if (elapsed >= dur) this.advance(STATES.IDLE);
+      case STATES.ROAR_REACTION: {
+        if (elapsed >= DURATIONS.roar_reaction) this.advance(STATES.IDLE);
         break;
       }
       default: break;
     }
 
-    this.refreshTexture();
+    this.updateProjectiles();
   }
 
+  // Spawn a straight-flying acid ball aimed at Crispy. Uses the
+  // existing acid-ball SVG.
+  spit(cheerio) {
+    if (!cheerio || !cheerio.alive) return;
+    const direction = cheerio.x < this.x ? -1 : 1;
+    const startX = this.x + direction * 60;
+    const startY = this.y - 30;
+
+    const sprite = this.scene.add.image(startX, startY, 'acid-ball');
+    this.scene.physics.add.existing(sprite);
+    sprite.body.setAllowGravity(false);
+    sprite.body.setSize(60, 54);
+    sprite.body.setVelocityX(direction * PROJECTILE_SPEED);
+
+    const proj = { sprite, expiresAt: this.scene.time.now + PROJECTILE_LIFE_MS };
+    this.projectiles.push(proj);
+
+    // Damage on contact with Crispy.
+    this.scene.physics.add.overlap(cheerio.sprite, sprite, () => {
+      if (!sprite.scene) return;
+      this.destroyProjectile(proj);
+      this.scene.applyHitToCheerio?.();
+    });
+  }
+
+  updateProjectiles() {
+    const now = this.scene.time.now;
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      const p = this.projectiles[i];
+      if (!p.sprite?.scene || now >= p.expiresAt) {
+        this.destroyProjectile(p);
+      }
+    }
+  }
+
+  destroyProjectile(p) {
+    if (p.sprite?.scene) p.sprite.destroy();
+    const idx = this.projectiles.indexOf(p);
+    if (idx >= 0) this.projectiles.splice(idx, 1);
+  }
+
+  // Returns 'defeated' | 'stomped' | 'ignored'. The scene handles the
+  // knockback; we only manage state + HP here.
   takeStomp() {
-    if (this.state !== STATES.ROAR) return false;
+    if (!this.isStompable()) return 'ignored';
     this.hp -= 1;
     this.hpText.setText(this.hpLabel());
-    // Tint the body darker as he weakens.
     const tints = [0xffffff, 0xd0a0a0, 0xa07070];
     this.body.setTint(tints[Math.max(0, Math.min(2, this.maxHp - this.hp - 1))]);
+
     if (this.hp <= 0) {
       this.defeat();
-      return true;
+      return 'defeated';
     }
-    // Slam the mouth shut immediately as feedback.
-    this.advance(STATES.CLOSE);
-    return false;
+    this.advance(STATES.ROAR_REACTION);
+    return 'stomped';
   }
 
   defeat() {
     this.state = STATES.DEFEATED;
-    this.mouthHit.body.enable = false;
     this.hpText.setText('PYLORUS OPEN!');
     this.hpText.setColor('#90ff90');
     this.scene.tweens.killTweensOf(this.body);
@@ -178,7 +212,7 @@ export default class StomachAcidBlob {
       scaleY: this.body.scaleY * 0.4,
       duration: 700,
       onComplete: () => {
-        this.body.destroy();
+        if (this.body.scene) this.body.destroy();
       },
     });
   }

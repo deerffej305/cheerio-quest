@@ -9,6 +9,9 @@ import Phaser from 'phaser';
 // Grey-box visual: simple tan rectangle, color-shifted over the
 // dissolve window.
 const DISSOLVE_MS = 1400;
+// Per CJ: dissolved platforms come back after this delay so a player
+// knocked back by the boss has the path to traverse again.
+const RESPAWN_MS = 5000;
 
 export default class FoodPlatform {
   constructor(scene, x, y, w, h, { dissolves = true, color = 0xc4915a } = {}) {
@@ -73,7 +76,24 @@ export default class FoodPlatform {
       alpha: 0,
       scaleY: 0.2,
       duration: 250,
-      onComplete: () => this.sprite.destroy(),
+    });
+    // Respawn 5s later so a knock-back from the boss doesn't leave
+    // the player with no way to traverse back.
+    this.scene.time.delayedCall(RESPAWN_MS, () => this.respawn());
+  }
+
+  respawn() {
+    if (!this.sprite || !this.sprite.scene) return;
+    this.alive = true;
+    this.touchedAt = null;
+    this.sprite.body.enable = true;
+    this.sprite.clearTint();
+    this.scene.tweens.killTweensOf(this.sprite);
+    this.scene.tweens.add({
+      targets: this.sprite,
+      alpha: 1,
+      scaleY: 1,
+      duration: 300,
     });
   }
 }

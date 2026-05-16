@@ -78,8 +78,9 @@ export default class RoomStomach extends Phaser.Scene {
     this.acid.body.setImmovable(true);
 
     // Entry ledge on the left so the player has a place to land
-    // when they drop in from the esophagus. Invisible hitbox.
-    const entry = this.add.rectangle(60, 270, 140, 18, 0xc4915a).setVisible(false);
+    // when they drop in from the esophagus. Visible grey now —
+    // background no longer paints it in.
+    const entry = this.add.rectangle(60, 270, 140, 18, 0xbababa);
     this.physics.add.existing(entry, true);
     this.platforms.add(entry);
   }
@@ -205,36 +206,41 @@ export default class RoomStomach extends Phaser.Scene {
   }
 
   spawnAcidBlobBoss() {
-    // Boss sits just left of the pylorus door. Stomp the mouth
-    // (only valid during the ROAR state) 3 times to defeat.
+    // Boss sits just left of the pylorus door. Always stompable from
+    // above (no roar window to time). Each stomp knocks Crispy back
+    // to the room start; 3 stomps defeat the boss.
     const bossX = EXIT_X - 130;
     const bossY = EXIT_Y + 20;
     this.acidBlob = new StomachAcidBlob(this, bossX, bossY, { maxHp: 3 });
 
-    this.add.text(bossX, EXIT_Y - 160, 'STOMACH ACID BLOB\nstomp the open mouth!', {
+    this.add.text(bossX, EXIT_Y - 160, 'STOMACH ACID BLOB\nstomp from above!', {
       fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#ff8090', align: 'center',
     }).setOrigin(0.5);
 
-    // Body contact (any state) damages the player just like any enemy.
+    // Single overlap on the body: stomp from above = damage + knockback.
+    // Side-contact (not falling from above) = Crispy takes damage.
     this.physics.add.overlap(this.cheerio.sprite, this.acidBlob.bodySprite, () => {
-      if (this.acidBlob.isDefeated()) return;
-      // Only damage if it's a side hit, not a stomp on the mouth
-      // (which has its own overlap).
-      this.applyHitToCheerio();
-    });
-
-    // Mouth overlap is only enabled while roaring (boss enables /
-    // disables its body). A hit here = stomp.
-    this.physics.add.overlap(this.cheerio.sprite, this.acidBlob.mouthSprite, () => {
-      if (this.acidBlob.isDefeated()) return;
-      // Player must be coming from above to count as a stomp.
-      if (!this.cheerio.isStomping(this.acidBlob.mouthSprite.y - 12)) return;
-      const defeated = this.acidBlob.takeStomp();
-      this.cheerio.body.setVelocityY(-460);
-      sound.play('stomp');
-      scoreManager.addPoints(defeated ? 20 : 10);
-      this.hud()?.flash(defeated ? 'BLOB DOWN!' : '+10');
-      if (defeated) this.unlockExit();
+      if (this.acidBlob.isDefeated() || !this.cheerio.alive) return;
+      const bodyTopY = this.acidBlob.bodySprite.y - this.acidBlob.bodySprite.displayHeight / 2;
+      const isStomp = this.cheerio.isStomping(bodyTopY + 12);
+      if (isStomp) {
+        const verdict = this.acidBlob.takeStomp();
+        if (verdict === 'ignored') return;
+        sound.play('stomp');
+        scoreManager.addPoints(verdict === 'defeated' ? 20 : 10);
+        this.hud()?.flash(verdict === 'defeated' ? 'BLOB DOWN!' : 'BLOB ROARS — to the start!');
+        if (verdict === 'defeated') {
+          this.cheerio.body.setVelocityY(-460);
+          this.unlockExit();
+        } else {
+          // Knock Crispy all the way back to the room's start position.
+          this.cheerio.setPosition(SPAWN_X, SPAWN_Y);
+          this.cheerio.body.setVelocity(0, 0);
+          this.cheerio.invulnUntil = this.time.now + 900;
+        }
+      } else {
+        this.applyHitToCheerio();
+      }
     });
   }
 
@@ -338,7 +344,7 @@ export default class RoomStomach extends Phaser.Scene {
     for (const drop of this.acidDrops) drop.update();
     for (const ball of this.acidBalls) ball.update();
     for (const fp of this.foodPlatforms) fp.update();
-    if (this.acidBlob) this.acidBlob.update();
+    if (this.acidBlob) this.acidBlob.update(this.cheerio);
   }
 
   // --- Helpers ----------------------------------------------------

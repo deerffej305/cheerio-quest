@@ -134,7 +134,7 @@ export default class RoomEsophagus extends Phaser.Scene {
       }
       const gapX = Phaser.Math.Between(gapMin, gapMax);
       const ring = new PeristalsisRing(this, y, TUBE_LEFT, TUBE_RIGHT, gapX, {
-        gapWidth: 200,  // big enough for Big Crispy (144 wide) to fit through
+        gapWidth: 165,  // ~10px clearance per side for Big Crispy (144 wide)
         thickness: 66,
       });
       this.physics.add.collider(this.cheerio.sprite, ring.leftSeg);
@@ -187,7 +187,20 @@ export default class RoomEsophagus extends Phaser.Scene {
     // Wave is one-way. After it passes the bottom, every segment has
     // locked closed — no need to keep advancing.
     if (this.waveY < this.waveStopY) {
-      this.waveY += this.waveSpeed * (dt / 1000);
+      // Rubber-band the wave to Crispy: when he's well below the
+      // wave, accelerate it so he can always see the threat above.
+      // Boost is proportional to lag past the target, capped so the
+      // wave can never outpace him by more than ~200 px/s.
+      let speed = this.waveSpeed;
+      const cheerioY = this.cheerio?.y ?? 0;
+      const lag = cheerioY - this.waveY;
+      const TARGET_LAG = 700;
+      const MAX_BOOST = 320;
+      if (lag > TARGET_LAG) {
+        const overshoot = lag - TARGET_LAG;
+        speed += Math.min(overshoot * 0.6, MAX_BOOST);
+      }
+      this.waveY += speed * (dt / 1000);
     }
 
     // Distance relative to waveY (positive = wave hasn't reached yet):

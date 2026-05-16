@@ -156,15 +156,21 @@ export default class TongueBoss {
     return this.state === STATES.LUNGING_OUT || this.state === STATES.HOLD_FLAT;
   }
 
-  // Resize a segment by changing its display size (Image scales its
-  // texture) and matching the physics body. Origin (1, 1) means the
-  // body needs negative offset to align with the rendered
-  // left-extending image.
+  // Resize a segment by changing its display size, then fit the
+  // physics body to the *visible tongue path* (not the full SVG
+  // bounding box). The lunge SVG has empty space around the path:
+  // x: 25–580 of 640 (87% wide, left edge ~4%, right edge ~9%)
+  // y: 65–158 of 200 (47% tall, top ~32%, bottom ~21%)
+  // Body offset is from the image's top-left in world coords. With
+  // origin (1, 1), image top-left is (gameObject.x - displayWidth,
+  // gameObject.y - displayHeight); Phaser auto-applies that.
   setSegmentWidth(seg, w) {
     const safe = Math.max(1, w);
     seg.setDisplaySize(safe, this.height);
-    seg.body.setSize(safe, this.height);
-    seg.body.setOffset(-safe, -this.height);
+    const bodyW = Math.max(1, safe * 0.87);
+    const bodyH = this.height * 0.47;
+    seg.body.setSize(bodyW, bodyH);
+    seg.body.setOffset(safe * 0.04, this.height * 0.32);
   }
 
   setExtent(extent) {

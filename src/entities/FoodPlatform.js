@@ -22,7 +22,7 @@ export default class FoodPlatform {
     // platform reads as a chunky thing-you-can-stand-on. Display
     // width is 1.8× the body width; bread covers the body fully plus
     // overhangs each side.
-    const VISUAL_STRETCH = 1.8;
+    const VISUAL_STRETCH = 3.6;
     this.sprite = scene.add.image(x, y, 'food-platform');
     this.sprite.setDisplaySize(w * VISUAL_STRETCH, h);
     scene.physics.add.existing(this.sprite, true);

@@ -203,7 +203,7 @@ export default class RoomLargeIntestine extends Phaser.Scene {
 
   spawnExit() {
     this.exitDoor = this.add.image(EXIT_X, FLOOR_Y - 60, 'exit-sigmoid');
-    this.exitDoor.setDisplaySize(60, 120);
+    this.exitDoor.setDisplaySize(180, 360);
     this.add.text(EXIT_X, FLOOR_Y - 140, 'SIGMOID →\n(to rectum)', {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#a0ffa0', align: 'center',
     }).setOrigin(0.5);

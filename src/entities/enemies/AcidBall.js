@@ -32,14 +32,14 @@ export default class AcidBall {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(30, 30);
+    this.sprite.body.setSize(90, 90);
     this.sprite.acidBall = this;
     this.sprite.setVisible(false);
 
     // Telegraph bubble — a smaller dim sprite that puffs at the
     // surface before the ball erupts.
     this.bubble = scene.add.image(x, acidTopY - 6, 'acid-ball');
-    this.bubble.setDisplaySize(18, 12);
+    this.bubble.setDisplaySize(54, 36);
     this.bubble.setAlpha(0);
 
     this.phase = PHASES.IDLE;

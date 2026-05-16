@@ -12,7 +12,7 @@ export default class GoodBacterium {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(18, 18);
+    this.sprite.body.setSize(54, 54);
     this.sprite.goodBacterium = this;
 
     this.bobTween = scene.tweens.add({

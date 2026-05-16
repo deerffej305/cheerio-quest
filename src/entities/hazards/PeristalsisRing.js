@@ -9,7 +9,7 @@ import Phaser from 'phaser';
 export default class PeristalsisRing {
   constructor(scene, y, tubeLeft, tubeRight, gapCenterX, {
     gapWidth = 130,
-    thickness = 22,
+    thickness = 66,
     color = 0xff5060,
   } = {}) {
     this.scene = scene;

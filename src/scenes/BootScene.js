@@ -41,37 +41,37 @@ export default class BootScene extends Phaser.Scene {
     this.load.svg('poop-boss',                  'assets/sprites/poop-boss.svg',                  { width: 110, height: 80 });
     this.load.svg('poop-boss-rolled-off',       'assets/sprites/poop-boss-rolled-off.svg',       { width: 110, height: 80 });
 
-    // --- Enemies ---
-    this.load.svg('cavity-bacterium',  'assets/sprites/cavity-bacterium.svg',  { width: 30,  height: 24  });
-    this.load.svg('bad-bacterium',     'assets/sprites/bad-bacterium.svg',     { width: 30,  height: 24  });
-    this.load.svg('acid-drop',         'assets/sprites/acid-drop.svg',         { width: 26,  height: 22  });
-    this.load.svg('villus',            'assets/sprites/villus.svg',            { width: 26,  height: 140 });
+    // --- Enemies (3× per WIRE_IN_FIXES.md) ---
+    this.load.svg('cavity-bacterium',  'assets/sprites/cavity-bacterium.svg',  { width: 90,  height: 72  });
+    this.load.svg('bad-bacterium',     'assets/sprites/bad-bacterium.svg',     { width: 90,  height: 72  });
+    this.load.svg('acid-drop',         'assets/sprites/acid-drop.svg',         { width: 78,  height: 66  });
+    this.load.svg('villus',            'assets/sprites/villus.svg',            { width: 78,  height: 420 });
 
-    // --- Hazards / platforms ---
-    this.load.svg('chomping-tooth-upper',   'assets/sprites/chomping-tooth-upper.svg',   { width: 80,  height: 60  });
-    this.load.svg('chomping-tooth-lower',   'assets/sprites/chomping-tooth-lower.svg',   { width: 80,  height: 60  });
-    this.load.svg('peristalsis-ring-left',  'assets/sprites/peristalsis-ring-left.svg',  { width: 700, height: 28  });
-    this.load.svg('peristalsis-ring-right', 'assets/sprites/peristalsis-ring-right.svg', { width: 700, height: 28  });
-    this.load.svg('saliva-blob',            'assets/sprites/saliva-blob.svg',            { width: 70,  height: 22  });
-    this.load.svg('microvilli-spike',       'assets/sprites/microvilli-spike.svg',       { width: 8,   height: 18  });
-    this.load.svg('food-platform',          'assets/sprites/food-platform.svg',          { width: 130, height: 18  });
-    this.load.svg('water-platform',         'assets/sprites/water-platform.svg',         { width: 120, height: 18  });
-    this.load.svg('methane-pocket',         'assets/sprites/methane-pocket.svg',         { width: 90,  height: 26  });
-    this.load.svg('fiber-brick-wall',       'assets/sprites/fiber-brick-wall.svg',       { width: 24,  height: 80  });
-    this.load.svg('acid-ball',              'assets/sprites/acid-ball.svg',              { width: 30,  height: 30  });
+    // --- Hazards / platforms (3×) ---
+    this.load.svg('chomping-tooth-upper',   'assets/sprites/chomping-tooth-upper.svg',   { width: 240, height: 180 });
+    this.load.svg('chomping-tooth-lower',   'assets/sprites/chomping-tooth-lower.svg',   { width: 240, height: 180 });
+    this.load.svg('peristalsis-ring-left',  'assets/sprites/peristalsis-ring-left.svg',  { width: 700, height: 84  });
+    this.load.svg('peristalsis-ring-right', 'assets/sprites/peristalsis-ring-right.svg', { width: 700, height: 84  });
+    this.load.svg('saliva-blob',            'assets/sprites/saliva-blob.svg',            { width: 210, height: 66  });
+    this.load.svg('microvilli-spike',       'assets/sprites/microvilli-spike.svg',       { width: 24,  height: 54  });
+    this.load.svg('food-platform',          'assets/sprites/food-platform.svg',          { width: 390, height: 54  });
+    this.load.svg('water-platform',         'assets/sprites/water-platform.svg',         { width: 360, height: 54  });
+    this.load.svg('methane-pocket',         'assets/sprites/methane-pocket.svg',         { width: 270, height: 78  });
+    this.load.svg('fiber-brick-wall',       'assets/sprites/fiber-brick-wall.svg',       { width: 72,  height: 240 });
+    this.load.svg('acid-ball',              'assets/sprites/acid-ball.svg',              { width: 90,  height: 90  });
 
-    // --- Collectibles ---
-    this.load.svg('fiber-token',     'assets/sprites/fiber-token.svg',     { width: 26, height: 26 });
-    this.load.svg('nutrient-orb',    'assets/sprites/nutrient-orb.svg',    { width: 16, height: 16 });
-    this.load.svg('good-bacterium',  'assets/sprites/good-bacterium.svg',  { width: 18, height: 18 });
+    // --- Collectibles (3×) ---
+    this.load.svg('fiber-token',     'assets/sprites/fiber-token.svg',     { width: 78, height: 78 });
+    this.load.svg('nutrient-orb',    'assets/sprites/nutrient-orb.svg',    { width: 48, height: 48 });
+    this.load.svg('good-bacterium',  'assets/sprites/good-bacterium.svg',  { width: 54, height: 54 });
 
-    // --- Exits + props ---
-    this.load.svg('exit-swallow',    'assets/sprites/exit-swallow.svg',    { width: 60,  height: 120 });
-    this.load.svg('exit-pylorus',    'assets/sprites/exit-pylorus.svg',    { width: 60,  height: 120 });
-    this.load.svg('exit-ileocecal',  'assets/sprites/exit-ileocecal.svg',  { width: 60,  height: 120 });
-    this.load.svg('exit-sigmoid',    'assets/sprites/exit-sigmoid.svg',    { width: 60,  height: 120 });
-    this.load.svg('exit-tile',       'assets/sprites/exit-tile.svg',       { width: 80,  height: 8   });
-    this.load.svg('spoon',           'assets/sprites/spoon.svg',           { width: 110, height: 24  });
+    // --- Exits + props (3×) ---
+    this.load.svg('exit-swallow',    'assets/sprites/exit-swallow.svg',    { width: 180, height: 360 });
+    this.load.svg('exit-pylorus',    'assets/sprites/exit-pylorus.svg',    { width: 180, height: 360 });
+    this.load.svg('exit-ileocecal',  'assets/sprites/exit-ileocecal.svg',  { width: 180, height: 360 });
+    this.load.svg('exit-sigmoid',    'assets/sprites/exit-sigmoid.svg',    { width: 180, height: 360 });
+    this.load.svg('exit-tile',       'assets/sprites/exit-tile.svg',       { width: 240, height: 24  });
+    this.load.svg('spoon',           'assets/sprites/spoon.svg',           { width: 330, height: 72  });
 
     // --- Room backgrounds (full-size; cameras scroll across them) ---
     this.load.svg('room-mouth-bg',             'assets/backgrounds/room-mouth.svg',            { width: 2400, height: 720  });

@@ -16,7 +16,7 @@ export default class AcidDrop {
     this.sprite = scene.add.image(x, y, 'acid-drop');
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(true);
-    this.sprite.body.setSize(26, 22);
+    this.sprite.body.setSize(78, 66);
     this.sprite.body.setVelocityX(-speed);
     this.sprite.acidDrop = this;
   }

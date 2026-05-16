@@ -7,8 +7,10 @@ const JUMP_VELOCITY_SMALL = -520; // Big jumps 50% higher than Small.
 const COYOTE_MS = 90;
 const HIT_INVULN_MS = 1100;
 
-const BIG_SIZE = 48;
-const SMALL_SIZE = 28;
+// 3× the original brief sizes (per WIRE_IN_FIXES.md). setDisplaySize
+// uses these constants for the visual; physics body sized to match.
+const BIG_SIZE = 144;
+const SMALL_SIZE = 84;
 const TEXTURE_BIG = 'crispy-big';
 const TEXTURE_SMALL = 'crispy-small';
 

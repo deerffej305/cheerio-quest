@@ -15,7 +15,7 @@ export default class NutrientOrb {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(16, 16);
+    this.sprite.body.setSize(48, 48);
     this.sprite.nutrientOrb = this;
 
     this.bobTween = scene.tweens.add({

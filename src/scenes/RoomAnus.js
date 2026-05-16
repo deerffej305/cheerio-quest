@@ -141,7 +141,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.exitTileX = 1130;
     this.exitTileY = 131;       // top of perch is y = 140 - 9 = 131
     this.exitTile = this.add.image(this.exitTileX, this.exitTileY - 6, 'exit-tile');
-    this.exitTile.setDisplaySize(80, 8);
+    this.exitTile.setDisplaySize(240, 24);
 
     this.add.text(this.exitTileX, this.exitTileY - 26, 'EXIT TILE', {
       fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#a0ffa0', fontStyle: 'bold',

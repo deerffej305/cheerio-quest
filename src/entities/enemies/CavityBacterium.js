@@ -15,7 +15,7 @@ export default class CavityBacterium {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setCollideWorldBounds(false);
     this.sprite.body.setAllowGravity(true);
-    this.sprite.body.setSize(30, 24);
+    this.sprite.body.setSize(90, 72);
     this.sprite.body.setVelocityX(-speed);
     this.sprite.bacterium = this;
   }

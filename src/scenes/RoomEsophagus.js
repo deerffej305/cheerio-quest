@@ -115,7 +115,7 @@ export default class RoomEsophagus extends Phaser.Scene {
       const gapX = Phaser.Math.Between(gapMin, gapMax);
       const ring = new PeristalsisRing(this, y, TUBE_LEFT, TUBE_RIGHT, gapX, {
         gapWidth: 140,
-        thickness: 22,
+        thickness: 66,
       });
       this.physics.add.collider(this.cheerio.sprite, ring.leftSeg);
       this.physics.add.collider(this.cheerio.sprite, ring.rightSeg);

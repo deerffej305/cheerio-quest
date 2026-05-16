@@ -122,7 +122,7 @@ export default class RoomMouth extends Phaser.Scene {
     const spoonStartY = GAME_HEIGHT + 60;
     const spoonEndY = FLOOR_Y - 4;
     this.spoon = this.add.image(SPAWN_X, spoonStartY, 'spoon');
-    this.spoon.setDisplaySize(110, 24);
+    this.spoon.setDisplaySize(330, 72);
 
     this.cheerio.setPosition(SPAWN_X, spoonStartY - 36);
     this.cheerio.body.setAllowGravity(false);
@@ -264,7 +264,7 @@ export default class RoomMouth extends Phaser.Scene {
     // tongue slouches the player runs over it, hops up onto the
     // base, and steps into the door to clear the room.
     this.exitDoor = this.add.image(EXIT_X, EXIT_Y, 'exit-swallow');
-    this.exitDoor.setDisplaySize(60, 120);
+    this.exitDoor.setDisplaySize(180, 360);
     this.exitDoor.setTint(0x606060); // dim while locked
     this.exitLockText = this.add.text(EXIT_X, EXIT_Y - 80, 'LOCKED\n(beat tongue)', {
       fontFamily: 'system-ui', fontSize: '14px', color: '#ff8080', align: 'center',

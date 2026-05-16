@@ -190,7 +190,7 @@ export default class RoomStomach extends Phaser.Scene {
     // Stomach Acid Blob boss — defeating the boss (3 mouth-stomps
     // during a roar) unlocks the door.
     this.exitDoor = this.add.image(EXIT_X, EXIT_Y, 'exit-pylorus');
-    this.exitDoor.setDisplaySize(60, 120);
+    this.exitDoor.setDisplaySize(180, 360);
     this.exitDoor.setTint(0x606060); // dim while locked
     this.exitLabel = this.add.text(EXIT_X, EXIT_Y - 80, 'PYLORUS\n(locked)', {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ff8080', align: 'center',

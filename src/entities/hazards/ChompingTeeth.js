@@ -22,7 +22,7 @@ export default class ChompingTeeth {
     this.ceilingY = ceilingY;
     this.width = width;
 
-    const toothHeight = 60;
+    const toothHeight = 180;
     this.upperOpenY = ceilingY + toothHeight / 2;
     this.upperClosedY = (floorY + ceilingY) / 2 - 4;
     this.lowerOpenY = floorY - toothHeight / 2;

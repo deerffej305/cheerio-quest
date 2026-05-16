@@ -12,7 +12,7 @@ export default class FiberToken {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(26, 26);
+    this.sprite.body.setSize(78, 78);
     this.sprite.fiberToken = this;
 
     this.baseY = y;

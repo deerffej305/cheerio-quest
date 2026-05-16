@@ -92,6 +92,14 @@ export default class Cheerio {
       }
     }
 
+    // Reset jump-cut flag while grounded BEFORE handling the new
+    // jump press. Phaser's touching.down can linger on the press
+    // frame; if this ran after the jump check, the cut flag we just
+    // set would be wiped out the same frame.
+    if (body.blocked.down || body.touching.down) {
+      this.jumpCutAvailable = false;
+    }
+
     const inCoyoteWindow = now - this.lastGroundedAt <= COYOTE_MS;
     if (this.input.wasJumpJustPressed() && inCoyoteWindow) {
       body.setVelocityY(JUMP_VELOCITY);
@@ -105,10 +113,6 @@ export default class Cheerio {
     // single jump only gets cut once.
     if (this.jumpCutAvailable && !this.input.isJumpDown() && body.velocity.y < 0) {
       body.setVelocityY(body.velocity.y * JUMP_CUT_MULTIPLIER);
-      this.jumpCutAvailable = false;
-    }
-    // Reset on landing so the next jump can be cut again.
-    if (body.blocked.down || body.touching.down) {
       this.jumpCutAvailable = false;
     }
 

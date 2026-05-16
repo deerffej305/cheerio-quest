@@ -28,7 +28,14 @@ const DURATIONS = {
 };
 
 const PROJECTILE_SPEED = 520;
-const PROJECTILE_LIFE_MS = 4000;
+// Random angle range from the straight-left direction. Negative = up,
+// positive = down (Phaser screen coords). -20°…+30° per CJ.
+const PROJECTILE_ANGLE_MIN_DEG = -20;
+const PROJECTILE_ANGLE_MAX_DEG = 30;
+// Despawn-x: projectiles stay alive until they pass the spawn ledge
+// on the far left of the room. (The room scene sets this; we default
+// to off-screen left as a safety.)
+const DEFAULT_DESPAWN_X = -80;
 
 export default class StomachAcidBlob {
   constructor(scene, x, y, { maxHp = 3 } = {}) {
@@ -142,21 +149,25 @@ export default class StomachAcidBlob {
     this.updateProjectiles();
   }
 
-  // Spawn a straight-flying acid ball aimed at Crispy. Uses the
-  // existing acid-ball SVG.
+  // Spawn a straight-flying acid ball aimed broadly leftward at
+  // random angle (-20° up … +30° down from straight-left).
   spit(cheerio) {
     if (!cheerio || !cheerio.alive) return;
-    const direction = cheerio.x < this.x ? -1 : 1;
-    const startX = this.x + direction * 60;
+    const startX = this.x - 60;
     const startY = this.y - 30;
+
+    const angleDeg = Phaser.Math.Between(PROJECTILE_ANGLE_MIN_DEG, PROJECTILE_ANGLE_MAX_DEG);
+    const rad = Phaser.Math.DegToRad(angleDeg);
+    const vx = -PROJECTILE_SPEED * Math.cos(rad);
+    const vy = PROJECTILE_SPEED * Math.sin(rad);
 
     const sprite = this.scene.add.image(startX, startY, 'acid-ball');
     this.scene.physics.add.existing(sprite);
     sprite.body.setAllowGravity(false);
     sprite.body.setSize(60, 54);
-    sprite.body.setVelocityX(direction * PROJECTILE_SPEED);
+    sprite.body.setVelocity(vx, vy);
 
-    const proj = { sprite, expiresAt: this.scene.time.now + PROJECTILE_LIFE_MS };
+    const proj = { sprite };
     this.projectiles.push(proj);
 
     // Damage on contact with Crispy.
@@ -168,13 +179,26 @@ export default class StomachAcidBlob {
   }
 
   updateProjectiles() {
-    const now = this.scene.time.now;
+    const despawnX = this.despawnX ?? DEFAULT_DESPAWN_X;
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
-      if (!p.sprite?.scene || now >= p.expiresAt) {
+      const s = p.sprite;
+      if (!s?.scene) {
+        this.destroyProjectile(p);
+        continue;
+      }
+      // Despawn only once the projectile has cleared the spawn ledge
+      // on the left (or wandered off screen vertically).
+      if (s.x < despawnX || s.y < -120 || s.y > 1400) {
         this.destroyProjectile(p);
       }
     }
+  }
+
+  // The room calls this to anchor projectile despawn-x to the spawn
+  // platform (so they live until they fly past it).
+  setDespawnX(x) {
+    this.despawnX = x;
   }
 
   destroyProjectile(p) {

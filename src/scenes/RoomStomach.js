@@ -212,6 +212,9 @@ export default class RoomStomach extends Phaser.Scene {
     const bossX = EXIT_X - 130;
     const bossY = EXIT_Y + 20;
     this.acidBlob = new StomachAcidBlob(this, bossX, bossY, { maxHp: 3 });
+    // Acid projectiles fly until they pass the spawn ledge on the
+    // far left of the room.
+    this.acidBlob.setDespawnX(-80);
 
     this.add.text(bossX, EXIT_Y - 160, 'STOMACH ACID BLOB\nstomp from above!', {
       fontFamily: 'system-ui, sans-serif', fontSize: '12px', color: '#ff8090', align: 'center',

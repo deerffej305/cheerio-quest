@@ -30,7 +30,9 @@ export default class Villus {
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
     this.sprite.body.setSize(width, height);
-    this.sprite.body.setOffset(-width / 2, -height); // re-center with origin 0.5, 1
+    // Origin (0.5, 1) already shifts the body to the image's top-left;
+    // adding -width/2,-height on top double-shifts the body up + left.
+    this.sprite.body.setOffset(0, 0);
     this.sprite.villus = this;
   }
 

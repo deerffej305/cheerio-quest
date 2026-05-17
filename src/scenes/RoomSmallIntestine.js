@@ -34,6 +34,8 @@ const SCROLL_PEAK = 800;
 // scroll (both roughly 2× the previous values).
 const CHEERIO_SPEED_MULT = 3.5;
 const OFFSCREEN_MARGIN = 30;
+// Per CJ: give the player ~2s to orient before the scroll starts moving.
+const SCROLL_DELAY_MS = 2000;
 
 export default class RoomSmallIntestine extends Phaser.Scene {
   constructor() {
@@ -50,6 +52,8 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     this.platforms = this.physics.add.staticGroup();
     this.scrollX = 0;
     this.scrollLocked = false;
+    this.startedAt = 0; // set on first update tick so the grace timer
+                        //  doesn't include scene-boot time
 
     this.buildWorld();
     this.spawnCheerio();
@@ -99,16 +103,13 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnVilli() {
     this.villi = [];
-    // Slightly wider + taller than original (was 26x100-140); not as
-    // chunky as the previous 110x180-240 pass.
+    // Spaced ~1700 apart — well past the 1300 of the previous pass.
     const specs = [
-      { x: 1100, h: 150 },
-      { x: 2400, h: 180 },
-      { x: 3700, h: 160 },
-      { x: 5000, h: 200 },
-      { x: 6300, h: 170 },
-      { x: 7600, h: 190 },
-      { x: 8900, h: 160 },
+      { x: 1200, h: 150 },
+      { x: 2900, h: 180 },
+      { x: 4600, h: 160 },
+      { x: 6300, h: 200 },
+      { x: 8000, h: 170 },
     ];
     for (const { x, h } of specs) {
       const v = new Villus(this, x, FLOOR_Y, { width: 60, height: h });
@@ -119,15 +120,13 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnMicrovilli() {
     this.microvilli = [];
-    // Scaled up vs the 24x54 baseline, but less than the 40x90 we
-    // tried last pass.
+    // Slotted halfway between villi.
     const specs = [
-      { x: 1750, count: 4 },
-      { x: 3050, count: 5 },
-      { x: 4350, count: 4 },
-      { x: 5650, count: 5 },
-      { x: 6950, count: 4 },
-      { x: 8250, count: 5 },
+      { x: 2050, count: 4 },
+      { x: 3750, count: 5 },
+      { x: 5450, count: 4 },
+      { x: 7150, count: 5 },
+      { x: 8850, count: 4 },
     ];
     for (const { x, count } of specs) {
       const mv = new Microvilli(this, x, FLOOR_Y, {
@@ -145,17 +144,15 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnNutrientOrbs() {
     this.orbs = [];
-    // 8 orbs spread over the 9500 track, varied heights — pulls the
-    // player up-and-down through the obstacle field.
+    // Orbs sprinkled at varied heights — pulls the player up-and-down
+    // through the (now-roomier) obstacle field.
     const specs = [
-      { x: 1400, y: FLOOR_Y - 150 },
-      { x: 2700, y: FLOOR_Y - 200 },
-      { x: 4000, y: FLOOR_Y - 240 },
-      { x: 5300, y: FLOOR_Y - 180 },
-      { x: 6600, y: FLOOR_Y - 230 },
-      { x: 7900, y: FLOOR_Y - 200 },
-      { x: 8600, y: FLOOR_Y - 260 },
-      { x: 9100, y: FLOOR_Y - 180 },
+      { x: 1700, y: FLOOR_Y - 150 },
+      { x: 3300, y: FLOOR_Y - 200 },
+      { x: 5000, y: FLOOR_Y - 240 },
+      { x: 6700, y: FLOOR_Y - 180 },
+      { x: 8400, y: FLOOR_Y - 220 },
+      { x: 9100, y: FLOOR_Y - 260 },
     ];
     for (const { x, y } of specs) {
       const orb = new NutrientOrb(this, x, y);
@@ -272,8 +269,12 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     if (this.cheerio) this.cheerio.update(delta);
     if (this.phase !== 'play') return;
 
+    if (!this.startedAt) this.startedAt = this.time.now;
+    const sinceStart = this.time.now - this.startedAt;
+    const inGracePeriod = sinceStart < SCROLL_DELAY_MS;
+
     const stopScrollAt = ROOM_WIDTH - GAME_WIDTH;
-    if (!this.scrollLocked) {
+    if (!this.scrollLocked && !inGracePeriod) {
       const progress = Phaser.Math.Clamp(this.scrollX / stopScrollAt, 0, 1);
       const speed = Phaser.Math.Linear(SCROLL_BASE, SCROLL_PEAK, progress);
       this.scrollX += speed * (delta / 1000);

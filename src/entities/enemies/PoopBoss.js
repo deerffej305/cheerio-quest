@@ -1,127 +1,96 @@
 import Phaser from 'phaser';
 
-// Poop Boss — the lazy final obstacle in the Anus room. Sits on
-// the exit tile. Stomping him 3 times makes him grudgingly roll
-// off; he doesn't die. Once he's relocated, Crispy can stand on
-// the now-unblocked exit tile and wait for the next fart.
-//
-// Grey-box visual: a large dark-brown blob with droopy half-closed
-// eyes (he's lazy). On each stomp he flashes lighter brown and
-// grumbles. On the third stomp he rolls off-screen-left and stops
-// at a "grumpy spot" off the exit tile.
+// Poop Boss — the lazy final obstacle in the Anus room. He blocks
+// the exit on the right. Per CJ: you have to CONTINUALLY stomp him
+// to push him left. Each stomp shoves him further left; if you stop
+// stomping he lazily rolls back toward the exit on the right. Push
+// him far enough left and he gives up (relocated) — the exit clears.
 
-const STATES = {
-  PLANTED: 'planted',
-  ROLLING: 'rolling',
-  GRUMPY: 'grumpy',
-};
+const STOMP_PUSH = 95;        // px shoved left per stomp
+const DRIFT_BACK = 70;        // px/s he rolls back right when idle
+const RELOCATE_PUSH = 360;    // accumulated left-push that clears the exit
+const MAX_PUSH = 420;         // hard cap so he can't be flung past
+const ROLL_SPIN = 1.6;        // sprite rotation (rad) per full RELOCATE_PUSH
 
 export default class PoopBoss {
   constructor(scene, x, y, { maxHp = 3 } = {}) {
     this.scene = scene;
     this.alive = true;
-    this.state = STATES.PLANTED;
-    this.hp = maxHp;
-    this.maxHp = maxHp;
     this.startX = x;
     this.startY = y;
+    this.pushX = 0;             // 0 = at start (blocking), grows leftward
+    this.relocated = false;
 
-    // Body: SVG sprite. Eyes are baked into the artwork, so no
-    // separate eye game objects are needed. Sized like the Acid Blob
-    // boss (~200x180) so the final boss reads as substantial.
+    // Body: SVG sprite. Sized big like the Acid Blob so the final
+    // obstacle reads as substantial.
     this.sprite = scene.add.image(x, y, 'poop-boss');
     this.sprite.setDisplaySize(220, 180);
     scene.physics.add.existing(this.sprite);
-    this.sprite.body.setAllowGravity(true);
-    this.sprite.body.setImmovable(true);   // platform-like, doesn't slide on stomp
-    this.sprite.body.setCollideWorldBounds(true);
-    this.sprite.body.setSize(220, 180);
+    this.sprite.body.setAllowGravity(false);
+    this.sprite.body.setImmovable(true);
+    // The poop-boss texture is rasterized at 110x80 and the sprite
+    // is scaled up to 220x180 (×2.0, ×2.25). Arcade body.setSize is
+    // in TEXTURE space and then scaled by the sprite, so to get a
+    // ~140x112 world hitbox we set 70x50 in texture space. Offsets
+    // are texture-space too, centering on the poop mass.
+    this.sprite.body.setSize(70, 50);
+    this.sprite.body.setOffset(20, 20);
     this.sprite.poopBoss = this;
 
-    this.hpText = scene.add.text(x, y - 60, this.hpLabel(), {
-      fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ffffff', fontStyle: 'bold',
+    this.hpText = scene.add.text(x, y - 110, 'POOP BOSS — keep stomping!', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#ffffff',
+      fontStyle: 'bold', stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5);
-
-    // Subtle "breathing".
-    scene.tweens.add({
-      targets: this.sprite,
-      scaleY: 1.04,
-      duration: 1500,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.InOut',
-    });
-  }
-
-  hpLabel() {
-    const hp = Math.max(0, this.hp);
-    return `POOP BOSS ${'☆'.repeat(hp)}${'·'.repeat(this.maxHp - hp)} — stomp ${hp}× more`;
   }
 
   topY() {
-    return this.sprite.y - this.sprite.height / 2;
+    return this.sprite.y - this.sprite.displayHeight / 2;
   }
 
   isRelocated() {
-    return this.state === STATES.GRUMPY;
+    return this.relocated;
   }
 
-  syncEyes() {
-    // Eyes are baked into the SVG; just keep the HP label pinned.
-    this.hpText.x = this.sprite.x;
-    this.hpText.y = this.sprite.y - 60;
-  }
-
+  // Called by RoomAnus on a from-above stomp. Shoves him left.
   takeStomp() {
-    if (this.state !== STATES.PLANTED) return false;
-    this.hp -= 1;
-    this.hpText.setText(this.hpLabel());
+    if (this.relocated) return true;
+    this.pushX = Math.min(MAX_PUSH, this.pushX + STOMP_PUSH);
+    this._lastStompAt = this.scene.time.now;
 
-    // Tint slightly lighter on each hit (he's losing composure).
-    const tints = [0xffffff, 0xffe0c8, 0xffc890];
-    this.sprite.setTint(tints[Math.max(0, Math.min(2, this.maxHp - this.hp))]);
-
-    // Lazy bounce reaction so the player feels the impact.
+    // Squash reaction so the hit reads.
+    this.scene.tweens.killTweensOf(this.sprite);
     this.scene.tweens.add({
       targets: this.sprite,
-      scaleX: 1.18,
-      duration: 90,
+      scaleX: this.sprite.scaleX * 1.12,
+      duration: 80,
       yoyo: true,
       ease: 'Quadratic.Out',
     });
 
-    if (this.hp <= 0) {
-      this.rollOff();
+    if (this.pushX >= RELOCATE_PUSH) {
+      this.relocated = true;
+      this.hpText.setText('Fiiine. Go.').setColor('#aaaaaa');
       return true;
     }
     return false;
   }
 
-  rollOff() {
-    // Swap to the rolled-off SVG once he's deciding to move.
-    this.sprite.setTexture('poop-boss-rolled-off');
-    this.sprite.setDisplaySize(110, 80);
-    this.sprite.clearTint();
-    // He grudgingly rolls left, exposing the exit tile. He doesn't
-    // die — just clears off.
-    this.state = STATES.ROLLING;
-    this.hpText.setText('Fine. I\'m moving…');
-    this.scene.tweens.killTweensOf(this.sprite);
+  update(_delta) {
+    if (!this.alive) return;
+    const dt = this.scene.game.loop.delta / 1000;
 
-    const grumpyX = this.startX - 300;
-    this.scene.tweens.add({
-      targets: this.sprite,
-      x: grumpyX,
-      angle: -160,
-      duration: 1100,
-      ease: 'Cubic.Out',
-      onUpdate: () => this.syncEyes(),
-      onComplete: () => {
-        this.state = STATES.GRUMPY;
-        this.hpText.setText('grumpy');
-        this.hpText.setColor('#aaaaaa');
-        this.syncEyes();
-      },
-    });
+    if (!this.relocated) {
+      // Lazy roll-back to the right whenever he's not being stomped.
+      this.pushX = Math.max(0, this.pushX - DRIFT_BACK * dt);
+    }
+
+    // Position + rolling spin from accumulated push. Dynamic body
+    // auto-syncs to the sprite each frame — no updateFromGameObject
+    // (that's a static-body call and was resetting body size).
+    this.sprite.x = this.startX - this.pushX;
+    this.sprite.setRotation(-(this.pushX / RELOCATE_PUSH) * ROLL_SPIN);
+
+    this.hpText.x = this.sprite.x;
+    this.hpText.y = this.startY - 110;
   }
 }

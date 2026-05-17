@@ -202,10 +202,10 @@ export default class RoomAnus extends Phaser.Scene {
     if (!this.poopBoss || this.poopBoss.isRelocated() || !this.cheerio.alive) return;
     const stomped = this.cheerio.body.touching.down && this.poopBoss.sprite.body.touching.up;
     if (stomped) {
-      this.poopBoss.takeStomp();
+      const done = this.poopBoss.takeStomp();
       this.cheerio.body.setVelocityY(-440);
       sound.play('stomp');
-      this.hud()?.flash('BOSS ROLLED OFF!');
+      this.hud()?.flash(done ? 'BOSS ROLLED OFF!' : 'Keep stomping — push him left!');
     }
     // Walking into him from the side does nothing — he's a wall.
   }
@@ -369,6 +369,7 @@ export default class RoomAnus extends Phaser.Scene {
 
     if (this.time.now >= this.fartPhaseEndsAt) this.advanceFartPhase();
     for (const mp of this.miniPoops) mp.update();
+    if (this.poopBoss) this.poopBoss.update(delta);
   }
 
   // --- Helpers ----------------------------------------------------

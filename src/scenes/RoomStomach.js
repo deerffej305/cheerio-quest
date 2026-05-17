@@ -400,7 +400,7 @@ export default class RoomStomach extends Phaser.Scene {
     // Mid-room Blob cutscene trigger (STORY.md §Cut Scene 3 —
     // plays after Crispy has crossed the first few food platforms
     // but before reaching the boss). Fires once per room run.
-    if (!this.blobCutsceneFired && this.cheerio.x > 1200) {
+    if (!this.blobCutsceneFired && this.cheerio.x > 2800) {
       this.blobCutsceneFired = true;
       this.scene.pause();
       this.scene.launch('Cutscene', { key: 'blob', resumeSceneKey: this.scene.key });

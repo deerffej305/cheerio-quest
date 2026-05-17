@@ -165,7 +165,8 @@ export default class StomachAcidBlob {
     const sprite = this.scene.add.image(startX, startY, 'acid-ball');
     this.scene.physics.add.existing(sprite);
     sprite.body.setAllowGravity(false);
-    sprite.body.setSize(60, 54);
+    sprite.body.setSize(64, 56);
+    sprite.body.setOffset(13, 17);
     sprite.body.setVelocity(vx, vy);
 
     const proj = { sprite };

@@ -34,7 +34,7 @@ export default class Villus {
     // getting clipped by an over-tall hitbox.
     const bodyH = height + 40;
     this.sprite.body.setSize(width, bodyH);
-    this.sprite.body.setOffset(0, 80);
+    this.sprite.body.setOffset(0, 140);
     this.sprite.villus = this;
   }
 

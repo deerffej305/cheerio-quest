@@ -90,41 +90,22 @@ export default class CutsceneScene extends Phaser.Scene {
 
     const cx = GAME_WIDTH / 2;
 
-    this.add.text(cx, 40, 'CUT SCENE', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '24px', color: '#ffcf73', fontStyle: 'bold',
-    }).setOrigin(0.5);
-
-    this.add.text(cx, 75, this.spec.label, {
-      fontFamily: 'system-ui, sans-serif', fontSize: '20px', color: '#e0c8ff', fontStyle: 'italic',
-    }).setOrigin(0.5);
-
-    // The big panel image that we re-fill per panel. Native size is
-    // 800x380; we scale to 1.6 so it fills the 1280×720 viewport
-    // nicely. The labeled "PANEL N" placeholder is gone.
-    this.panelImage = this.add.image(cx, GAME_HEIGHT / 2 + 20, 'cutscene-liftoff-1');
+    // Panel image, aspect preserved (native 800x380 → ×1.6). The
+    // artwork carries the scene now — no scaffolding header / label
+    // / caption / dialogue text.
+    this.panelImage = this.add.image(cx, GAME_HEIGHT / 2, 'cutscene-liftoff-1');
     this.panelImage.setScale(1.6);
 
-    // Hidden — kept so existing references to panelLabel don't crash.
-    this.panelLabel = this.add.text(cx, GAME_HEIGHT / 2 - 90, '', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '40px', color: '#ffcf73', fontStyle: 'bold',
+    // The only text that survives is the splashdown ending's score
+    // recap (functional, not a grey-box leftover).
+    this.endRecap = this.add.text(cx, GAME_HEIGHT - 130, '', {
+      fontFamily: 'system-ui, sans-serif', fontSize: '22px', color: '#ffffff',
+      fontStyle: 'bold', align: 'center', stroke: '#000000', strokeThickness: 4,
     }).setOrigin(0.5).setVisible(false);
 
-    this.panelCaption = this.add.text(cx, GAME_HEIGHT / 2, '', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '18px', color: '#dddddd',
-      wordWrap: { width: 720 }, align: 'center',
-    }).setOrigin(0.5);
-
-    this.panelDialogue = this.add.text(cx, GAME_HEIGHT / 2 + 80, '', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '20px', color: '#ffffff', fontStyle: 'bold',
-      wordWrap: { width: 720 }, align: 'center',
-    }).setOrigin(0.5);
-
-    this.progressText = this.add.text(cx, GAME_HEIGHT - 60, '', {
+    this.add.text(cx, GAME_HEIGHT - 28, 'Click / SPACE to advance · ESC to skip', {
       fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#888888',
-    }).setOrigin(0.5);
-
-    this.add.text(cx, GAME_HEIGHT - 30, 'Click / SPACE to advance · ESC to skip cutscene', {
-      fontFamily: 'system-ui, sans-serif', fontSize: '14px', color: '#666666',
+      stroke: '#000000', strokeThickness: 3,
     }).setOrigin(0.5);
 
     this.input.keyboard.on('keydown-SPACE', () => this.nextPanel());
@@ -136,27 +117,25 @@ export default class CutsceneScene extends Phaser.Scene {
   }
 
   renderPanel() {
-    const p = this.spec.panels[this.idx];
     // Map cutscene key + panel index → asset key (cutscene-<key>-N).
     const panelKey = `cutscene-${this.key}-${this.idx + 1}`;
     if (this.scene.systems.cache.obj?.exists?.(panelKey) || this.textures.exists(panelKey)) {
       this.panelImage.setTexture(panelKey);
+      this.panelImage.setScale(1.6);
     }
-    this.panelCaption.setText(p?.caption || '');
-    // Splashdown panel 6 swaps its dialogue placeholder for the
-    // live score recap (STORY.md panel 6 — THE END + final score
-    // + name entry prompt).
-    let dialogue = p?.dialogue || '';
+    // Only the splashdown ending's final panel shows text — the
+    // live score recap + leaderboard prompt.
     if (this.key === 'splashdown' && this.idx === this.spec.panels.length - 1) {
-      dialogue =
+      this.endRecap.setText(
         `THE END.\n` +
         `Final Score: ${scoreManager.points}\n` +
         `Questions Correct: ${scoreManager.questionsCorrect}\n` +
         `Fiber Tokens: ${scoreManager.fiberCount} / 6\n\n` +
-        `Click / SPACE to enter your name and submit →`;
+        `Click / SPACE to enter your name and submit →`,
+      ).setVisible(true);
+    } else {
+      this.endRecap.setVisible(false);
     }
-    this.panelDialogue.setText(dialogue);
-    this.progressText.setText(`${this.idx + 1} / ${this.spec.panels.length}`);
   }
 
   nextPanel() {

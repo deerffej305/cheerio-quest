@@ -96,6 +96,8 @@ export default class BootScene extends Phaser.Scene {
     // Hand SoundManager a scene so it can route play(key) to the
     // loaded Phaser audio samples when they exist in cache.
     sound.attachPhaserScene(this);
+    // The always-on cheat console (CheatScene) boots itself via
+    // active:true in its own config, so nothing to launch here.
     this.scene.start('Title');
   }
 }

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { sound } from '../systems/SoundManager.js';
+import { cheatManager } from '../systems/CheatManager.js';
 
 const MOVE_SPEED = 280;
 // Per CJ: Small and Big jump the same height so every essential jump
@@ -87,6 +88,22 @@ export default class Cheerio {
       this.lastGroundedAt = now;
     }
 
+    // /fall cheat — free flight. Gravity off; hold jump to rise,
+    // otherwise a gentle sink so you can still descend. Overrides
+    // all normal movement/jump physics.
+    if (cheatManager.flight) {
+      body.setAllowGravity(false);
+      if (this.controlFrozen) {
+        body.setVelocity(0, 0);
+      } else {
+        const sp = MOVE_SPEED * this.moveSpeedMultiplier;
+        body.setVelocityX(this.input.isLeftDown() ? -sp : this.input.isRightDown() ? sp : 0);
+        body.setVelocityY(this.input.isJumpDown() ? -480 : 150);
+      }
+      return;
+    }
+    if (!body.allowGravity) body.setAllowGravity(true);
+
     if (this.controlFrozen) {
       body.setVelocityX(0);
       return;
@@ -161,6 +178,7 @@ export default class Cheerio {
   // point loss); Small → die. Returns 'shrunk' | 'died' | 'ignored'.
   takeHit() {
     if (!this.alive || this.isInvulnerable()) return 'ignored';
+    if (cheatManager.invincible) return 'ignored'; // /titlecard
     if (this.state === 'big') {
       this.shrink();
       this.invulnUntil = this.scene.time.now + HIT_INVULN_MS;

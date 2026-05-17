@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
 import { questionBank } from '../systems/QuestionBank.js';
+import { cheatManager } from '../systems/CheatManager.js';
 
 // End-of-room quiz per GAME_DESIGN.md §7. Receives data:
 //   { room: 'mouth' | 'esophagus' | ... | 'general',
@@ -47,6 +48,17 @@ export default class QuizScene extends Phaser.Scene {
     this.questions = questionBank.drawForRoom(this.roomTag, this.count);
     if (this.questions.length === 0) {
       // Bank totally exhausted — skip the quiz.
+      this.advance();
+      return;
+    }
+
+    // /qr cheat — auto-perfect: bank points/correct as if every
+    // question was answered right, then skip straight through.
+    if (cheatManager.autoAce) {
+      this.questions.forEach(() => {
+        scoreManager.addPoints(POINTS_RIGHT);
+        scoreManager.addQuestionCorrect();
+      });
       this.advance();
       return;
     }

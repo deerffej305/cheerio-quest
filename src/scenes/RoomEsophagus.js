@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
+import { cheatManager } from '../systems/CheatManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import PeristalsisRing from '../entities/hazards/PeristalsisRing.js';
@@ -279,6 +280,7 @@ export default class RoomEsophagus extends Phaser.Scene {
   }
 
   handleCrunchDeath() {
+    if (cheatManager.invincible) return; // /titlecard
     if (this.phase === 'dying') return;
     this.phase = 'dying';
     scoreManager.payDeathPenalty();
@@ -352,6 +354,7 @@ export default class RoomEsophagus extends Phaser.Scene {
   }
 
   handleDeath() {
+    if (cheatManager.invincible) return; // /titlecard
     if (this.phase === 'dying') return;
     this.phase = 'dying';
     scoreManager.payDeathPenalty();

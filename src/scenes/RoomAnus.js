@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
 import { scoreManager } from '../systems/ScoreManager.js';
+import { cheatManager } from '../systems/CheatManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import PoopBoss from '../entities/enemies/PoopBoss.js';
@@ -327,6 +328,7 @@ export default class RoomAnus extends Phaser.Scene {
   }
 
   handleFartDeath() {
+    if (cheatManager.invincible) return; // /titlecard
     if (this.phase === 'dying') return;
     this.phase = 'dying';
     scoreManager.payDeathPenalty();

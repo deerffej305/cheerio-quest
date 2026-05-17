@@ -14,6 +14,7 @@ import PauseScene from './scenes/PauseScene.js';
 import HudScene from './scenes/HudScene.js';
 import QuizScene from './scenes/QuizScene.js';
 import LeaderboardScene from './scenes/LeaderboardScene.js';
+import CheatScene from './scenes/CheatScene.js';
 import { GAME_WIDTH, GAME_HEIGHT } from './constants.js';
 
 const config = {
@@ -41,7 +42,7 @@ const config = {
     forceSetTimeOut: true,
     target: 60,
   },
-  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, RoomStomach, RoomSmallIntestine, RoomLargeIntestine, RoomAnus, CutsceneScene, QuizArcadeScene, HudScene, QuizScene, LeaderboardScene, PauseScene],
+  scene: [BootScene, TitleScene, GameModeScene, RoomMouth, RoomEsophagus, RoomStomach, RoomSmallIntestine, RoomLargeIntestine, RoomAnus, CutsceneScene, QuizArcadeScene, HudScene, QuizScene, LeaderboardScene, PauseScene, CheatScene],
 };
 
 const game = new Phaser.Game(config);

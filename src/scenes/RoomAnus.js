@@ -27,7 +27,8 @@ const FART_IDLE_MIN_MS = 4500;
 const FART_IDLE_MAX_MS = 7000;
 const FART_TELEGRAPH_MS = 1400;
 const FART_ACTIVE_MS = 600;
-const HIDEOUT_SAFE_RADIUS = 130;
+// Hideouts use geometric pocket bounds (see spawnHideouts) — no
+// radius constant needed any more.
 
 // Phases: idle (waiting) → telegraph (shaking) → active (kill check) → idle.
 const FART_PHASE = {
@@ -89,25 +90,41 @@ export default class RoomAnus extends Phaser.Scene {
 
   // --- Hideouts --------------------------------------------------
 
-  // Spread chunky brown blocks along the floor. Each is a hideout —
-  // standing within HIDEOUT_SAFE_RADIUS of one during the active
-  // fart phase keeps Crispy alive.
+  // Per CJ: squares with the bottom-left quarter removed. Crispy
+  // must be inside the missing quarter to count as hidden.
+  // We build each hideout as two solid bodies (top half + bottom-
+  // right quarter), leaving the bottom-left as an empty pocket.
   spawnHideouts() {
-    const specs = [
-      { x: 600,  w: 110, h: 170 },
-      { x: 1250, w: 130, h: 200 },
-      { x: 1950, w: 110, h: 160 },
-      { x: 2700, w: 140, h: 210 },
-      { x: 3400, w: 110, h: 180 },
-      { x: 4000, w: 130, h: 200 },
-    ];
-    for (const { x, w, h } of specs) {
-      // Visible rock-like brown block sitting on the floor.
-      const rock = this.add.rectangle(x, FLOOR_Y - h / 2, w, h, 0x6a3010);
-      rock.setStrokeStyle(3, 0x3a1808);
-      this.physics.add.existing(rock, true);
-      this.platforms.add(rock);
-      this.hideouts.push({ x, w, sprite: rock });
+    const HH = 200; // square side length
+    const xs = [600, 1250, 1950, 2700, 3400, 4000];
+    for (const cx of xs) {
+      const halfH = HH / 2;
+      const stroke = 3;
+      const fill = 0x6a3010;
+      const outline = 0x3a1808;
+
+      // Top half: full width, top half of height.
+      const topY = FLOOR_Y - HH + halfH / 2;
+      const top = this.add.rectangle(cx, topY, HH, halfH, fill);
+      top.setStrokeStyle(stroke, outline);
+      this.physics.add.existing(top, true);
+      this.platforms.add(top);
+
+      // Bottom-right quarter: right half width, bottom half of height.
+      const brY = FLOOR_Y - halfH / 2;
+      const brX = cx + halfH / 2;
+      const br = this.add.rectangle(brX, brY, halfH, halfH, fill);
+      br.setStrokeStyle(stroke, outline);
+      this.physics.add.existing(br, true);
+      this.platforms.add(br);
+
+      // Bottom-left quarter (the pocket) is intentionally empty.
+      // Hide check uses these bounds.
+      const pocketX1 = cx - halfH;
+      const pocketX2 = cx;
+      const pocketY1 = FLOOR_Y - halfH;
+      const pocketY2 = FLOOR_Y;
+      this.hideouts.push({ cx, pocketX1, pocketX2, pocketY1, pocketY2 });
     }
   }
 
@@ -166,6 +183,9 @@ export default class RoomAnus extends Phaser.Scene {
 
   spawnCheerio() {
     this.cheerio = new Cheerio(this, SPAWN_X, SPAWN_Y);
+    // Hideout pockets are 100x100 — only Small Crispy fits inside.
+    // Force-shrink on entry so the hide mechanic is reachable.
+    if (this.cheerio.state === 'big') this.cheerio.shrink();
     this.physics.add.collider(this.cheerio.sprite, this.platforms);
     this.cameras.main.startFollow(this.cheerio.sprite, true, 0.18, 0.18);
   }
@@ -231,9 +251,15 @@ export default class RoomAnus extends Phaser.Scene {
 
   isCheerioHidden() {
     if (!this.cheerio?.alive) return false;
+    // Crispy's body must be inside the bottom-left pocket of any
+    // hideout. Lenient check: body center in pocket x range AND body
+    // bottom at floor level (within a few pixels).
     const cx = this.cheerio.x;
+    const cb = this.cheerio.body.bottom;
     for (const h of this.hideouts) {
-      if (Math.abs(cx - h.x) <= HIDEOUT_SAFE_RADIUS) return true;
+      const inXRange = cx >= h.pocketX1 && cx <= h.pocketX2;
+      const onFloor = cb >= h.pocketY1 && cb <= h.pocketY2 + 6;
+      if (inXRange && onFloor) return true;
     }
     return false;
   }

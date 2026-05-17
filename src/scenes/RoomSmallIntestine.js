@@ -99,19 +99,19 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnVilli() {
     this.villi = [];
-    // Big, fewer, ~1300px apart across the 9500-wide room. Wider +
-    // taller than before so they read as real obstacles, not poles.
+    // Slightly wider + taller than original (was 26x100-140); not as
+    // chunky as the previous 110x180-240 pass.
     const specs = [
-      { x: 1100, h: 180 },
-      { x: 2400, h: 220 },
-      { x: 3700, h: 200 },
-      { x: 5000, h: 240 },
-      { x: 6300, h: 200 },
-      { x: 7600, h: 220 },
-      { x: 8900, h: 200 },
+      { x: 1100, h: 150 },
+      { x: 2400, h: 180 },
+      { x: 3700, h: 160 },
+      { x: 5000, h: 200 },
+      { x: 6300, h: 170 },
+      { x: 7600, h: 190 },
+      { x: 8900, h: 160 },
     ];
     for (const { x, h } of specs) {
-      const v = new Villus(this, x, FLOOR_Y, { width: 110, height: h });
+      const v = new Villus(this, x, FLOOR_Y, { width: 60, height: h });
       this.physics.add.collider(this.cheerio.sprite, v.sprite, () => this.handleVillusContact(v));
       this.villi.push(v);
     }
@@ -119,8 +119,8 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnMicrovilli() {
     this.microvilli = [];
-    // Slotted halfway between villi. Bigger spikes (40 wide × 90 tall)
-    // so they read as a clear spike row, not lint on the floor.
+    // Scaled up vs the 24x54 baseline, but less than the 40x90 we
+    // tried last pass.
     const specs = [
       { x: 1750, count: 4 },
       { x: 3050, count: 5 },
@@ -132,8 +132,8 @@ export default class RoomSmallIntestine extends Phaser.Scene {
     for (const { x, count } of specs) {
       const mv = new Microvilli(this, x, FLOOR_Y, {
         spikeCount: count,
-        spikeWidth: 40,
-        spikeHeight: 90,
+        spikeWidth: 32,
+        spikeHeight: 72,
         gap: 8,
       });
       for (const spike of mv.bodies) {

@@ -103,14 +103,16 @@ export default class RoomAnus extends Phaser.Scene {
       const fill = 0x6a3010;
       const outline = 0x3a1808;
 
-      // Top half: full width, top half of height.
+      // Top half: visual only. Was a solid body before but it
+      // overhung the pocket, catching Crispy when he tried to jump
+      // straight up from inside. Now decorative — the only hitbox
+      // is the bottom-left wall below.
       const topY = FLOOR_Y - HH + halfH / 2;
       const top = this.add.rectangle(cx, topY, HH, halfH, fill);
       top.setStrokeStyle(stroke, outline);
-      this.physics.add.existing(top, true);
-      this.platforms.add(top);
 
-      // Bottom-LEFT quarter: left half width, bottom half of height.
+      // Bottom-LEFT quarter: the only solid body. Acts as the wall
+      // Crispy ducks behind to hide.
       const blY = FLOOR_Y - halfH / 2;
       const blX = cx - halfH / 2;
       const bl = this.add.rectangle(blX, blY, halfH, halfH, fill);

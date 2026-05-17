@@ -242,10 +242,10 @@ export default class RoomAnus extends Phaser.Scene {
 
   startFartCycle() {
     this.fartPhase = FART_PHASE.IDLE;
-    // Per CJ: a fixed 2s grace before the first fart can come, so
+    // Per CJ: a fixed 4s grace before the first fart can come, so
     // the player gets oriented. Subsequent farts use the random
     // idle range (set in the ACTIVE→IDLE transition).
-    this.fartPhaseEndsAt = this.time.now + 2000;
+    this.fartPhaseEndsAt = this.time.now + 4000;
   }
 
   isCheerioHidden() {

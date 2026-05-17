@@ -16,12 +16,12 @@ import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.j
 const SCENES = {
   liftoff: {
     label: 'Cut Scene 1 — Lift Off',
+    // 4 panels now (liftoff-5 dropped per Cowork).
     panels: [
       { caption: 'Spoon rising toward kid\'s mouth. Crispy on top, milk drops around.' },
       { caption: 'Close on Crispy\'s face — eyes huge, knees trembling.', dialogue: '"Oh no."' },
       { caption: 'POV from inside the mouth — Crispy tiny on the spoon, framed by two giant teeth.' },
       { caption: 'Spoon tilts. Crispy is flung off, arms windmilling.' },
-      { caption: 'BLACKOUT. Title card.', dialogue: 'JOURNEY TO THE CENTER OF THE ANUS\nA Crispy Story' },
     ],
   },
   tongue: {

@@ -10,7 +10,7 @@ import { sound } from '../systems/SoundManager.js';
 const SFX_KEYS = ['jump', 'stomp', 'damage', 'score', 'fiber', 'death', 'room-clear', 'fart', 'crunch', 'squelch'];
 
 const CUTSCENE_PANELS = [
-  'liftoff-1', 'liftoff-2', 'liftoff-3', 'liftoff-4', 'liftoff-5',
+  'liftoff-1', 'liftoff-2', 'liftoff-3', 'liftoff-4',
   'tongue-1', 'tongue-2', 'tongue-3', 'tongue-4', 'tongue-5',
   'blob-1', 'blob-2', 'blob-3', 'blob-4', 'blob-5',
   'poop-1', 'poop-2', 'poop-3', 'poop-4', 'poop-5',

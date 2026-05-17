@@ -29,11 +29,12 @@ export default class Villus {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    // Hitbox is taller than the visual and shifted down so it catches
-    // contact through the base flare and a bit beyond the floor.
+    // Hitbox sits low — body top is well below the wavy tip of the
+    // visual so the player can clear the top of a villus without
+    // getting clipped by an over-tall hitbox.
     const bodyH = height + 40;
     this.sprite.body.setSize(width, bodyH);
-    this.sprite.body.setOffset(0, 30);
+    this.sprite.body.setOffset(0, 80);
     this.sprite.villus = this;
   }
 

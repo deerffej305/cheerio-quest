@@ -1,8 +1,8 @@
 <svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
-  <title>Poop panel 3 — Poop Boss speaks</title>
-  <desc>Close-up on the Poop Boss mid-speech. Sleepy half-closed eyes and slight smirk. Engine overlays "Ughhh. No rush, man. I've been hangin out here for a WEEK."</desc>
+  <title>Poop panel 3 — Poop Boss speaks (with baked-in dialogue)</title>
+  <desc>Poop Boss mid-speech with dialogue rendered directly on the panel. "Ughhh. No rush, man. I've been hangin out here for a WEEK." appears in a casual rounded speech bubble on the right. Earth-tone anus background.</desc>
   <rect width="800" height="380" fill="#5C3A1A"/>
-  <g transform="translate(230, 30) scale(1.15)">
+  <g transform="translate(50, 30) scale(1.0)">
     <path d="M 155,48 Q 150,33 160,28 Q 170,23 155,8" stroke="#A89180" stroke-width="2.5" fill="none" opacity="0.6" stroke-linecap="round"/>
     <path d="M 180,48 Q 185,33 175,28 Q 165,23 180,8" stroke="#A89180" stroke-width="2.5" fill="none" opacity="0.6" stroke-linecap="round"/>
     <path d="M 60,275 Q 40,240 75,220 Q 50,170 110,160 Q 80,110 150,100 Q 125,65 175,65 Q 210,60 200,100 Q 230,130 210,165 Q 255,200 240,240 Q 280,280 220,280 L 60,275 Z" fill="#8B5A2B" stroke="#5C3A1A" stroke-width="3.5"/>
@@ -12,4 +12,8 @@
     <circle cx="180" cy="151" r="3" fill="#3A2417"/>
     <path d="M 150,180 Q 165,186 180,180" stroke="#3A2417" stroke-width="2.5" fill="none" stroke-linecap="round"/>
   </g>
+  <path d="M 380,50 L 770,50 Q 784,50 784,64 L 784,210 Q 784,224 770,224 L 470,224 L 410,260 L 440,224 L 380,224 Q 366,224 366,210 L 366,64 Q 366,50 380,50 Z" fill="#FFFFFF" stroke="#1A1A1A" stroke-width="3.5"/>
+  <text x="575" y="98" text-anchor="middle" font-family="sans-serif" font-size="24" font-style="italic" fill="#1A1A1A">"Ughhh. No rush, man.</text>
+  <text x="575" y="138" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#1A1A1A">I've been hangin out</text>
+  <text x="575" y="180" text-anchor="middle" font-family="sans-serif" font-size="22" fill="#1A1A1A">here for a <tspan font-weight="bold">WEEK</tspan>."</text>
 </svg>

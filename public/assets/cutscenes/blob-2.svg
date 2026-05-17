@@ -1,18 +1,28 @@
 <svg width="800" height="380" viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg">
-  <title>Acid panel 2 — bubbles churn</title>
-  <desc>Stomach acid churns violently. Large white bubbles rise through the green acid. No characters visible — building tension before the reveal.</desc>
+  <title>Acid panel 2 — blob rising from the acid (rewrite)</title>
+  <desc>The Stomach Acid Blob is mid-emergence from the green acid pool. Top peaks and the red-eyed face are visible above the water line; the rest of the body is submerged. Bubbles and ripples around the rising body. Replaces the original "bubbles only" panel — CJ requested a rising-out beat.</desc>
   <rect width="800" height="380" fill="#8B3030"/>
-  <path d="M 0,100 L 800,100 L 800,380 L 0,380 Z" fill="#C8D54E" opacity="0.7"/>
-  <circle cx="220" cy="220" r="28" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="220" cy="220" r="18" fill="#FFFFFF" opacity="0.75"/>
-  <circle cx="410" cy="160" r="38" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="410" cy="160" r="25" fill="#FFFFFF" opacity="0.75"/>
-  <circle cx="600" cy="240" r="22" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="600" cy="240" r="14" fill="#FFFFFF" opacity="0.75"/>
-  <circle cx="120" cy="290" r="18" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="700" cy="300" r="20" fill="#FFFFFF" opacity="0.55"/>
-  <circle cx="320" cy="310" r="13" fill="#FFFFFF" opacity="0.65"/>
-  <circle cx="510" cy="320" r="16" fill="#FFFFFF" opacity="0.65"/>
-  <circle cx="180" cy="350" r="9" fill="#FFFFFF" opacity="0.5"/>
-  <circle cx="650" cy="355" r="8" fill="#FFFFFF" opacity="0.5"/>
+  <g transform="translate(298, 0) scale(0.6)">
+    <path d="M 40,405 L 300,405 Q 330,290 290,200 Q 250,120 210,50 Q 195,10 195,30 Q 185,70 160,90 Q 145,95 135,85 Q 120,55 120,75 Q 90,80 70,140 Q 20,230 40,405 Z" fill="#7FD13B" stroke="#3A8C1A" stroke-width="4"/>
+    <path d="M 100,260 Q 85,210 130,190 Q 190,185 220,230 Q 230,290 190,310 Q 130,320 100,290 Z" fill="#4A8C2A" opacity="0.35"/>
+    <ellipse cx="135" cy="210" rx="15" ry="16" fill="#FF3333" stroke="#8B2A1A" stroke-width="2.5"/>
+    <ellipse cx="185" cy="210" rx="15" ry="16" fill="#FF3333" stroke="#8B2A1A" stroke-width="2.5"/>
+    <circle cx="137" cy="210" r="6" fill="#1A0000"/>
+    <circle cx="183" cy="210" r="6" fill="#1A0000"/>
+    <path d="M 115,180 L 148,192" stroke="#1F4D0A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    <path d="M 205,180 L 172,192" stroke="#1F4D0A" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+  </g>
+  <ellipse cx="400" cy="230" rx="400" ry="55" fill="#7FD13B"/>
+  <ellipse cx="400" cy="230" rx="400" ry="55" fill="none" stroke="#3A8C1A" stroke-width="3.5"/>
+  <ellipse cx="400" cy="215" rx="300" ry="6" fill="#A8E060" opacity="0.7"/>
+  <path d="M 30,217 Q 100,213 170,217 M 280,219 Q 350,215 420,219 M 530,217 Q 600,213 670,217" stroke="#FFFFFF" stroke-width="2" fill="none" opacity="0.5" stroke-linecap="round"/>
+  <circle cx="200" cy="240" r="14" fill="#FFFFFF" opacity="0.65"/>
+  <circle cx="200" cy="240" r="8" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="600" cy="245" r="16" fill="#FFFFFF" opacity="0.65"/>
+  <circle cx="600" cy="245" r="9" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="180" cy="280" r="10" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="620" cy="285" r="11" fill="#FFFFFF" opacity="0.5"/>
+  <circle cx="300" cy="270" r="8" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="500" cy="275" r="9" fill="#FFFFFF" opacity="0.55"/>
+  <circle cx="380" cy="290" r="7" fill="#FFFFFF" opacity="0.55"/>
 </svg>

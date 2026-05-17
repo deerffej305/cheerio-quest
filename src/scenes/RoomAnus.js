@@ -116,12 +116,11 @@ export default class RoomAnus extends Phaser.Scene {
       const bl = this.add.rectangle(blX, blY, halfH, halfH, fill);
       bl.setStrokeStyle(stroke, outline);
 
-      // Physics: ONE solid body — only the bottom-left wall. Top half
-      // is decorative so Crispy jumping (from either side) isn't
-      // caught by an invisible ceiling. The wall is short enough for
-      // Small Crispy to jump over.
-      this.physics.add.existing(bl, true);
-      this.platforms.add(bl);
+      // Physics: ONE hitbox covering the L's full bounding box
+      // (200x200). Empty corner is purely visual.
+      const body = this.add.rectangle(cx, FLOOR_Y - HH / 2, HH, HH, 0x000000, 0);
+      this.physics.add.existing(body, true);
+      this.platforms.add(body);
 
       // Bottom-RIGHT quarter (the pocket) is intentionally empty.
       const pocketX1 = cx;

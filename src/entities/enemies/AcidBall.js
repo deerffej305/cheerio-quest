@@ -38,7 +38,13 @@ export default class AcidBall {
     // because dynamic-body auto-center math is off when the SVG
     // isn't centered in its bbox.
     this.sprite.body.setSize(64, 56);
-    this.sprite.body.setOffset(13, 17);
+    // Rising-from-pit acid balls overrode their offset every frame
+    // via body.reset() — which moves the body to gameObject CENTER
+    // ignoring offset. That kept the hitbox centered on the SVG bbox
+    // rather than the visible ball. Below: removed reset() calls in
+    // update(), and shifted offset further to land on the ball that
+    // sits up + left in the non-aspect-preserved raster.
+    this.sprite.body.setOffset(5, 14);
     this.sprite.acidBall = this;
     this.sprite.setVisible(false);
 
@@ -86,13 +92,12 @@ export default class AcidBall {
         this.sprite.body.enable = true;
         const t = Phaser.Math.Easing.Quadratic.Out(elapsed / dur);
         this.sprite.y = this.acidTopY - t * this.peakHeight;
-        this.sprite.body.reset(this.x, this.sprite.y);
+        // Body auto-syncs to sprite via preUpdate (using setOffset).
         break;
       }
       case PHASES.FALLING: {
         const t = Phaser.Math.Easing.Quadratic.In(elapsed / dur);
         this.sprite.y = (this.acidTopY - this.peakHeight) + t * this.peakHeight;
-        this.sprite.body.reset(this.x, this.sprite.y);
         if (this.sprite.y >= this.acidTopY) {
           this.sprite.setVisible(false);
           this.sprite.body.enable = false;

@@ -29,10 +29,11 @@ export default class Villus {
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(false);
     this.sprite.body.setImmovable(true);
-    this.sprite.body.setSize(width, height);
-    // Origin (0.5, 1) already shifts the body to the image's top-left;
-    // adding -width/2,-height on top double-shifts the body up + left.
-    this.sprite.body.setOffset(0, 0);
+    // Hitbox is taller than the visual and shifted down so it catches
+    // contact through the base flare and a bit beyond the floor.
+    const bodyH = height + 40;
+    this.sprite.body.setSize(width, bodyH);
+    this.sprite.body.setOffset(0, 30);
     this.sprite.villus = this;
   }
 

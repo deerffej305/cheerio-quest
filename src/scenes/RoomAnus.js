@@ -27,11 +27,6 @@ const FART_IDLE_MIN_MS = 4500;
 const FART_IDLE_MAX_MS = 7000;
 const FART_TELEGRAPH_MS = 1400;
 const FART_ACTIVE_MS = 600;
-// Crispy is safe if his x is within this many pixels of any
-// hideout's center (and he's on the floor). With the whole L as a
-// single solid hitbox he can't be "inside" the missing corner, so
-// the safety check is a proximity radius instead.
-const HIDEOUT_SAFE_RADIUS = 150;
 
 // Phases: idle (waiting) → telegraph (shaking) → active (kill check) → idle.
 const FART_PHASE = {
@@ -106,23 +101,24 @@ export default class RoomAnus extends Phaser.Scene {
       const fill = 0x6a3010;
       const outline = 0x3a1808;
 
-      // Visual: two rectangles forming the L (top half + bottom-left).
+      // Top half: full width, top half of height — solid body.
       const topY = FLOOR_Y - HH + halfH / 2;
       const top = this.add.rectangle(cx, topY, HH, halfH, fill);
       top.setStrokeStyle(stroke, outline);
+      this.physics.add.existing(top, true);
+      this.platforms.add(top);
 
+      // Bottom-LEFT quarter: left half width, bottom half of height —
+      // solid body.
       const blY = FLOOR_Y - halfH / 2;
       const blX = cx - halfH / 2;
       const bl = this.add.rectangle(blX, blY, halfH, halfH, fill);
       bl.setStrokeStyle(stroke, outline);
+      this.physics.add.existing(bl, true);
+      this.platforms.add(bl);
 
-      // Physics: ONE hitbox covering the L's full bounding box
-      // (200x200). Empty corner is purely visual.
-      const body = this.add.rectangle(cx, FLOOR_Y - HH / 2, HH, HH, 0x000000, 0);
-      this.physics.add.existing(body, true);
-      this.platforms.add(body);
-
-      // Bottom-RIGHT quarter (the pocket) is intentionally empty.
+      // Bottom-RIGHT quarter (the pocket) is empty. Hide check uses
+      // these bounds.
       const pocketX1 = cx;
       const pocketX2 = cx + halfH;
       const pocketY1 = FLOOR_Y - halfH;
@@ -186,9 +182,6 @@ export default class RoomAnus extends Phaser.Scene {
 
   spawnCheerio() {
     this.cheerio = new Cheerio(this, SPAWN_X, SPAWN_Y);
-    // Hideout pockets are 100x100 — only Small Crispy fits inside.
-    // Force-shrink on entry so the hide mechanic is reachable.
-    if (this.cheerio.state === 'big') this.cheerio.shrink();
     this.physics.add.collider(this.cheerio.sprite, this.platforms);
     this.cameras.main.startFollow(this.cheerio.sprite, true, 0.18, 0.18);
   }
@@ -254,14 +247,14 @@ export default class RoomAnus extends Phaser.Scene {
 
   isCheerioHidden() {
     if (!this.cheerio?.alive) return false;
-    // Crispy is safe if he's on the floor and within
-    // HIDEOUT_SAFE_RADIUS of any hideout's center.
+    // Crispy must be inside a hideout's bottom-right pocket: body
+    // center in the pocket x range AND body bottom at floor level.
     const cx = this.cheerio.x;
     const cb = this.cheerio.body.bottom;
-    const onFloor = cb >= FLOOR_Y - 4 && cb <= FLOOR_Y + 10;
-    if (!onFloor) return false;
     for (const h of this.hideouts) {
-      if (Math.abs(cx - h.cx) <= HIDEOUT_SAFE_RADIUS) return true;
+      const inXRange = cx >= h.pocketX1 && cx <= h.pocketX2;
+      const onFloor = cb >= h.pocketY1 && cb <= h.pocketY2 + 6;
+      if (inXRange && onFloor) return true;
     }
     return false;
   }

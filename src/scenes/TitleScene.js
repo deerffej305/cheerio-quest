@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { GAME_WIDTH, GAME_HEIGHT } from '../constants.js';
-import { scoreManager } from '../systems/ScoreManager.js';
 
 export default class TitleScene extends Phaser.Scene {
   constructor() {
@@ -27,21 +26,21 @@ export default class TitleScene extends Phaser.Scene {
       fontStyle: 'italic',
     }).setOrigin(0.5);
 
-    // Main menu — proper game modes.
     const mainItems = [
-      { label: '[1] Game Mode (full play-through)', scene: 'GameMode', key: 'ONE' },
-      { label: '[2] Quiz Mode (sudden-death streak)', scene: 'QuizArcade', key: 'TWO' },
+      { label: '[1] Play Game', scene: 'GameMode', key: 'ONE' },
+      { label: '[2] Quiz Mode', scene: 'QuizArcade', key: 'TWO' },
       { label: '[3] Leaderboards', scene: 'Leaderboard', key: 'THREE' },
     ];
 
     mainItems.forEach((item, i) => {
-      this.add.text(cx, 220 + i * 48, item.label, {
+      this.add.text(cx, 240 + i * 56, item.label, {
         fontFamily: 'system-ui, sans-serif',
-        fontSize: '28px',
+        fontSize: '32px',
         color: '#ffffff',
         stroke: '#000000',
         strokeThickness: 3,
-      }).setOrigin(0.5);
+      }).setOrigin(0.5).setInteractive({ useHandCursor: true })
+        .on('pointerdown', () => this.scene.start(item.scene));
     });
 
     mainItems.forEach((item) => {
@@ -50,44 +49,7 @@ export default class TitleScene extends Phaser.Scene {
       });
     });
 
-    // Beta room-jumper — playtest helper so you can drop straight
-    // into any room without grinding through the prior ones. Resets
-    // the score on entry so each jump is a fresh slate.
-    this.add.text(cx, 380, '— Beta: jump to any room (resets score) —', {
-      fontFamily: 'system-ui, sans-serif',
-      fontSize: '16px',
-      color: '#ffa860',
-      fontStyle: 'italic',
-    }).setOrigin(0.5);
-
-    const beta = [
-      { label: '[4] Mouth',           sceneKey: 'RoomMouth',           roomLabel: 'Room 1 — Mouth',           key: 'FOUR' },
-      { label: '[5] Esophagus',       sceneKey: 'RoomEsophagus',       roomLabel: 'Room 2 — Esophagus',       key: 'FIVE' },
-      { label: '[6] Stomach',         sceneKey: 'RoomStomach',         roomLabel: 'Room 3 — Stomach',         key: 'SIX' },
-      { label: '[7] Small Intestine', sceneKey: 'RoomSmallIntestine',  roomLabel: 'Room 4 — Small Intestine', key: 'SEVEN' },
-      { label: '[8] Large Intestine', sceneKey: 'RoomLargeIntestine',  roomLabel: 'Room 5 — Large Intestine', key: 'EIGHT' },
-      { label: '[9] Anus (final)',    sceneKey: 'RoomAnus',            roomLabel: 'Room 6 — Anus',            key: 'NINE' },
-    ];
-
-    beta.forEach((item, i) => {
-      this.add.text(cx, 420 + i * 36, item.label, {
-        fontFamily: 'system-ui, sans-serif',
-        fontSize: '22px',
-        color: '#ffd0a8',
-        stroke: '#000000',
-        strokeThickness: 2,
-      }).setOrigin(0.5);
-    });
-
-    beta.forEach((item) => {
-      this.input.keyboard.once(`keydown-${item.key}`, () => {
-        scoreManager.resetRun();
-        this.scene.launch('Hud', { roomLabel: item.roomLabel });
-        this.scene.start(item.sceneKey);
-      });
-    });
-
-    this.add.text(cx, GAME_HEIGHT - 30, 'Press 1–3 for main modes · 4–9 to jump to a room', {
+    this.add.text(cx, GAME_HEIGHT - 30, 'Press 1–3 or click to choose', {
       fontFamily: 'system-ui, sans-serif',
       fontSize: '14px',
       color: '#8899aa',

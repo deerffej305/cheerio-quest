@@ -11,10 +11,10 @@ const SFX_KEYS = ['jump', 'stomp', 'damage', 'score', 'fiber', 'death', 'room-cl
 
 const CUTSCENE_PANELS = [
   'liftoff-1', 'liftoff-2', 'liftoff-3', 'liftoff-4',
-  'tongue-1', 'tongue-2', 'tongue-3', 'tongue-4', 'tongue-5',
-  'blob-1', 'blob-2', 'blob-3', 'blob-4', 'blob-5',
-  'poop-1', 'poop-2', 'poop-3', 'poop-4', 'poop-5',
-  'splashdown-1', 'splashdown-2', 'splashdown-3', 'splashdown-4', 'splashdown-5', 'splashdown-6',
+  'tongue-1', 'tongue-2', 'tongue-3',
+  'blob-1', 'blob-2', 'blob-3',
+  'poop-1', 'poop-2', 'poop-3',
+  'splashdown-1', 'splashdown-2', 'splashdown-3', 'splashdown-4', 'splashdown-5',
 ];
 
 export default class BootScene extends Phaser.Scene {

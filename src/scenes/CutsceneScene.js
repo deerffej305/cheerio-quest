@@ -13,58 +13,16 @@ import { leaderboardClient, promptForName } from '../systems/LeaderboardClient.j
 // the last panel the scene either transitions to nextScene or
 // resumes the paused scene (whichever was passed in).
 
+// Panel captions/dialogue are no longer rendered (art carries the
+// scene). Only the array LENGTH matters now — it drives how many
+// cutscene-<key>-N images play. Counts per Cowork 2nd art cut:
+//   liftoff 4 · tongue 3 · blob 3 · poop 3 · splashdown 5  (= 18).
 const SCENES = {
-  liftoff: {
-    label: 'Cut Scene 1 — Lift Off',
-    // 4 panels now (liftoff-5 dropped per Cowork).
-    panels: [
-      { caption: 'Spoon rising toward kid\'s mouth. Crispy on top, milk drops around.' },
-      { caption: 'Close on Crispy\'s face — eyes huge, knees trembling.', dialogue: '"Oh no."' },
-      { caption: 'POV from inside the mouth — Crispy tiny on the spoon, framed by two giant teeth.' },
-      { caption: 'Spoon tilts. Crispy is flung off, arms windmilling.' },
-    ],
-  },
-  tongue: {
-    label: 'Cut Scene 2 — The Tongue',
-    panels: [
-      { caption: 'Crispy walks cautiously past a row of teeth. Saliva drips.' },
-      { caption: 'A LOW RUMBLE. Floor shakes. Crispy braces.' },
-      { caption: 'Reveal: arched pink tongue at the back of the mouth, two googly eyes glaring.' },
-      { caption: 'The Tongue speaks.', dialogue: '"WAIT— what... what ARE you?"\n"...doesn\'t matter. GET CRUSHED, SNACK."' },
-      { caption: 'The Tongue lunges. Crispy crouches, ready to jump.' },
-    ],
-  },
-  blob: {
-    label: 'Cut Scene 3 — ACID',
-    panels: [
-      { caption: 'Crispy on a half-dissolved bread platform above the acid pit. He peers down.' },
-      { caption: 'Bubbles churn in the acid.' },
-      { caption: 'A MASSIVE acid blob erupts. Two red eyes, jagged acid-teeth mouth. Steam rising.' },
-      { caption: 'Blob roars.', dialogue: '"RRRRAAAAAAAGH"' },
-      { caption: 'Blob smashes the ground. Acid waves ripple outward.' },
-    ],
-  },
-  poop: {
-    label: 'Cut Scene 4 — The Poop Boss',
-    panels: [
-      { caption: 'Crispy stumbles into a wider chamber. Tired, sweat-dropped, eye-droopy. He\'s been through it.' },
-      { caption: 'Turns a corner: massive lumpy turd sitting on the glowing exit tile, sleepy half-closed eyes.' },
-      { caption: 'Poop Boss speaks. Slow, lazy.', dialogue: '"Ughhh. No rush, man. I\'ve been hangin out here for a WEEK."' },
-      { caption: 'Crispy.', dialogue: '"...heck."' },
-      { caption: 'Walls shake. A countdown fades in: FART IN 30 SECONDS. Crispy braces.' },
-    ],
-  },
-  splashdown: {
-    label: 'Cut Scene 5 — Splashdown',
-    panels: [
-      { caption: 'WHOOSH lines. The fart fires. Crispy launched.' },
-      { caption: 'Behind Crispy. Open sky. Pixel-mosaic-censored kid\'s backside fading away.' },
-      { caption: 'Front of Crispy now. Eyes closed, smiling. Triumph. Relief.' },
-      { caption: 'Pull back. Crispy floats in toilet water with several pixel-mosaic-censored brown blobs.' },
-      { caption: 'Crispy opens his eyes and looks at the blobs. No dialogue — his face does all the work.' },
-      { caption: 'Title card: THE END + final score + name entry prompt.', dialogue: 'THE END.\nEnter your name for the leaderboard ↓' },
-    ],
-  },
+  liftoff:    { label: 'Lift Off',    panels: [{}, {}, {}, {}] },
+  tongue:     { label: 'The Tongue',  panels: [{}, {}, {}] },
+  blob:       { label: 'ACID',        panels: [{}, {}, {}] },
+  poop:       { label: 'Poop Boss',   panels: [{}, {}, {}] },
+  splashdown: { label: 'Splashdown',  panels: [{}, {}, {}, {}, {}] },
 };
 
 export default class CutsceneScene extends Phaser.Scene {

@@ -92,11 +92,6 @@ export default class QuizScene extends Phaser.Scene {
       if (i != null) this.choose(i);
     });
 
-    // TEMP dev shortcut (remove before classroom playtest): press Q
-    // to skip straight past all remaining questions and advance to
-    // the next scene as if the quiz finished.
-    this.input.keyboard.on('keydown-Q', () => this.advance());
-
     this.renderCurrent();
   }
 

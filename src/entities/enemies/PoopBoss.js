@@ -27,14 +27,15 @@ export default class PoopBoss {
     this.startY = y;
 
     // Body: SVG sprite. Eyes are baked into the artwork, so no
-    // separate eye game objects are needed.
+    // separate eye game objects are needed. Sized like the Acid Blob
+    // boss (~200x180) so the final boss reads as substantial.
     this.sprite = scene.add.image(x, y, 'poop-boss');
-    this.sprite.setDisplaySize(110, 80);
+    this.sprite.setDisplaySize(220, 180);
     scene.physics.add.existing(this.sprite);
     this.sprite.body.setAllowGravity(true);
     this.sprite.body.setImmovable(true);   // platform-like, doesn't slide on stomp
     this.sprite.body.setCollideWorldBounds(true);
-    this.sprite.body.setSize(110, 80);
+    this.sprite.body.setSize(220, 180);
     this.sprite.poopBoss = this;
 
     this.hpText = scene.add.text(x, y - 60, this.hpLabel(), {

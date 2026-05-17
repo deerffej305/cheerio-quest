@@ -4,6 +4,7 @@ import { scoreManager } from '../systems/ScoreManager.js';
 import Cheerio from '../entities/Cheerio.js';
 import InputManager from '../systems/InputManager.js';
 import PoopBoss from '../entities/enemies/PoopBoss.js';
+import CavityBacterium from '../entities/enemies/CavityBacterium.js';
 import { sound } from '../systems/SoundManager.js';
 
 // Room 6 — Rectum (Anus). Reworked per CJ: horizontal level.
@@ -53,6 +54,7 @@ export default class RoomAnus extends Phaser.Scene {
     this.buildWorld();
     this.spawnHideouts();
     this.spawnCheerio();
+    this.spawnMiniPoops();
     this.spawnPoopBoss();
     this.spawnExit();
     this.spawnHud();
@@ -106,6 +108,57 @@ export default class RoomAnus extends Phaser.Scene {
       this.physics.add.existing(rock, true);
       this.platforms.add(rock);
       this.hideouts.push({ x, w, sprite: rock });
+    }
+  }
+
+  // --- Mini poops (patrolling stompable enemies) -----------------
+
+  spawnMiniPoops() {
+    this.miniPoops = [];
+    const specs = [
+      { x: 950,  rangeLeft: 800,  rangeRight: 1100, speed: 80 },
+      { x: 1650, rangeLeft: 1500, rangeRight: 1850, speed: 90 },
+      { x: 2350, rangeLeft: 2200, rangeRight: 2550, speed: 75 },
+      { x: 3100, rangeLeft: 2900, rangeRight: 3250, speed: 95 },
+    ];
+    for (const s of specs) {
+      const mp = new CavityBacterium(this, s.x, FLOOR_Y - 45, {
+        rangeLeft: s.rangeLeft,
+        rangeRight: s.rangeRight,
+        speed: s.speed,
+        textureKey: 'poop-boss',
+        displayWidth: 84,
+        displayHeight: 70,
+        bodyWidth: 72,
+        bodyHeight: 60,
+      });
+      this.physics.add.collider(mp.sprite, this.platforms);
+      this.physics.add.collider(this.cheerio.sprite, mp.sprite, () => this.handleMiniPoopContact(mp));
+      this.miniPoops.push(mp);
+    }
+  }
+
+  handleMiniPoopContact(mp) {
+    if (!mp.alive || !this.cheerio.alive) return;
+    const stomped = this.cheerio.body.touching.down && mp.sprite.body.touching.up;
+    if (stomped) {
+      mp.squash();
+      scoreManager.addPoints(5);
+      this.cheerio.body.setVelocityY(-360);
+      sound.play('stomp');
+      this.hud()?.flash('+5');
+    } else {
+      this.applyHitToCheerio();
+    }
+  }
+
+  applyHitToCheerio() {
+    const outcome = this.cheerio.takeHit();
+    if (outcome === 'shrunk') {
+      this.hud()?.setSize('small');
+      this.hud()?.flash('OUCH!');
+    } else if (outcome === 'died') {
+      this.handleFartDeath();
     }
   }
 
@@ -200,6 +253,7 @@ export default class RoomAnus extends Phaser.Scene {
         this.fartPhaseEndsAt = now + FART_ACTIVE_MS;
         this.warningText.setText('PFFFFFFFT…').setColor('#c8ff60');
         sound.play('fart');
+        this.spawnFartCloud();
         // Death check: if cheerio is not behind a hideout when the
         // fart fires, the stink kills him.
         if (!this.isCheerioHidden()) {
@@ -216,6 +270,36 @@ export default class RoomAnus extends Phaser.Scene {
       }
       default: break;
     }
+  }
+
+  spawnFartCloud() {
+    // Screen-wide yellow-green stink overlay during the active phase.
+    const cloud = this.add.rectangle(
+      GAME_WIDTH / 2, GAME_HEIGHT / 2,
+      GAME_WIDTH + 200, GAME_HEIGHT + 200,
+      0xc8ff60, 0.55,
+    ).setScrollFactor(0).setDepth(20);
+    this.tweens.add({
+      targets: cloud,
+      alpha: 0,
+      duration: FART_ACTIVE_MS,
+      ease: 'Cubic.Out',
+      onComplete: () => cloud.destroy(),
+    });
+    // A small drifting puff to add some texture to the wave.
+    const puff = this.add.rectangle(
+      GAME_WIDTH / 2, GAME_HEIGHT / 2 + 80,
+      GAME_WIDTH, 220,
+      0xb8e060, 0.7,
+    ).setScrollFactor(0).setDepth(21);
+    this.tweens.add({
+      targets: puff,
+      x: GAME_WIDTH / 2 + 300,
+      alpha: 0,
+      duration: FART_ACTIVE_MS,
+      ease: 'Cubic.Out',
+      onComplete: () => puff.destroy(),
+    });
   }
 
   handleFartDeath() {
@@ -263,6 +347,7 @@ export default class RoomAnus extends Phaser.Scene {
     if (this.phase !== 'play') return;
 
     if (this.time.now >= this.fartPhaseEndsAt) this.advanceFartPhase();
+    for (const mp of this.miniPoops) mp.update();
   }
 
   // --- Helpers ----------------------------------------------------

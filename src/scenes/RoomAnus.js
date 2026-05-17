@@ -90,10 +90,10 @@ export default class RoomAnus extends Phaser.Scene {
 
   // --- Hideouts --------------------------------------------------
 
-  // Per CJ: squares with the bottom-left quarter removed. Crispy
-  // must be inside the missing quarter to count as hidden.
-  // We build each hideout as two solid bodies (top half + bottom-
-  // right quarter), leaving the bottom-left as an empty pocket.
+  // Per CJ: squares with the bottom-RIGHT quarter removed (mirrored
+  // L). Crispy approaches from the left, jumps over the bottom-left
+  // wall, lands in the bottom-right pocket where he's hidden, and
+  // can continue walking right out of the pocket.
   spawnHideouts() {
     const HH = 200; // square side length
     const xs = [600, 1250, 1950, 2700, 3400, 4000];
@@ -110,18 +110,17 @@ export default class RoomAnus extends Phaser.Scene {
       this.physics.add.existing(top, true);
       this.platforms.add(top);
 
-      // Bottom-right quarter: right half width, bottom half of height.
-      const brY = FLOOR_Y - halfH / 2;
-      const brX = cx + halfH / 2;
-      const br = this.add.rectangle(brX, brY, halfH, halfH, fill);
-      br.setStrokeStyle(stroke, outline);
-      this.physics.add.existing(br, true);
-      this.platforms.add(br);
+      // Bottom-LEFT quarter: left half width, bottom half of height.
+      const blY = FLOOR_Y - halfH / 2;
+      const blX = cx - halfH / 2;
+      const bl = this.add.rectangle(blX, blY, halfH, halfH, fill);
+      bl.setStrokeStyle(stroke, outline);
+      this.physics.add.existing(bl, true);
+      this.platforms.add(bl);
 
-      // Bottom-left quarter (the pocket) is intentionally empty.
-      // Hide check uses these bounds.
-      const pocketX1 = cx - halfH;
-      const pocketX2 = cx;
+      // Bottom-RIGHT quarter (the pocket) is intentionally empty.
+      const pocketX1 = cx;
+      const pocketX2 = cx + halfH;
       const pocketY1 = FLOOR_Y - halfH;
       const pocketY2 = FLOOR_Y;
       this.hideouts.push({ cx, pocketX1, pocketX2, pocketY1, pocketY2 });

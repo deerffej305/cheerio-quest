@@ -31,7 +31,9 @@ const config = {
     default: 'arcade',
     arcade: {
       gravity: { y: 1400 },
-      debug: false,
+      // TEMP per CJ: visualize physics bodies to debug hitboxes.
+      // Flip back to false once tuning is done.
+      debug: true,
     },
   },
   // Use setTimeout instead of requestAnimationFrame so the game keeps

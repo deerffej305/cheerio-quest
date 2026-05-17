@@ -22,7 +22,7 @@ import { sound } from '../systems/SoundManager.js';
 //
 // Collectibles: nutrient orbs (+5 each).
 
-const ROOM_WIDTH = 9500;
+const ROOM_WIDTH = 13000;
 const FLOOR_Y = 620;
 const SPAWN_X = 120;
 const SPAWN_Y = 500;
@@ -34,8 +34,8 @@ const SCROLL_PEAK = 800;
 // scroll (both roughly 2× the previous values).
 const CHEERIO_SPEED_MULT = 3.5;
 const OFFSCREEN_MARGIN = 30;
-// Per CJ: give the player ~2s to orient before the scroll starts moving.
-const SCROLL_DELAY_MS = 2000;
+// Per CJ: give the player 1s to orient before the scroll starts moving.
+const SCROLL_DELAY_MS = 1000;
 
 export default class RoomSmallIntestine extends Phaser.Scene {
   constructor() {
@@ -103,13 +103,18 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnVilli() {
     this.villi = [];
-    // Spaced ~1700 apart — well past the 1300 of the previous pass.
+    // Mixed pattern across the 13000-wide room — not strict
+    // alternating. Two villi close (3500/4400) then a gap, plus a
+    // back-loaded cluster of villi after a long spike stretch.
     const specs = [
-      { x: 1200, h: 150 },
-      { x: 2900, h: 180 },
-      { x: 4600, h: 160 },
-      { x: 6300, h: 200 },
-      { x: 8000, h: 170 },
+      { x: 1500,  h: 150 },
+      { x: 3500,  h: 200 },
+      { x: 4400,  h: 160 },
+      { x: 6500,  h: 220 },
+      { x: 7800,  h: 170 },
+      { x: 9500,  h: 200 },
+      { x: 11500, h: 180 },
+      { x: 12300, h: 160 },
     ];
     for (const { x, h } of specs) {
       const v = new Villus(this, x, FLOOR_Y, { width: 60, height: h });
@@ -120,13 +125,18 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnMicrovilli() {
     this.microvilli = [];
-    // Slotted halfway between villi.
+    // Mixed-rhythm spike clusters. A couple of back-to-back groups
+    // around 7000–8500 force the player to do a quick double-jump
+    // rhythm; the rest are spaced out for breathing room.
     const specs = [
-      { x: 2050, count: 4 },
-      { x: 3750, count: 5 },
-      { x: 5450, count: 4 },
-      { x: 7150, count: 5 },
-      { x: 8850, count: 4 },
+      { x: 2400,  count: 4 },
+      { x: 2900,  count: 4 },
+      { x: 5000,  count: 5 },
+      { x: 5700,  count: 4 },
+      { x: 7000,  count: 5 },
+      { x: 8500,  count: 5 },
+      { x: 10500, count: 4 },
+      { x: 11000, count: 5 },
     ];
     for (const { x, count } of specs) {
       const mv = new Microvilli(this, x, FLOOR_Y, {
@@ -144,15 +154,18 @@ export default class RoomSmallIntestine extends Phaser.Scene {
 
   spawnNutrientOrbs() {
     this.orbs = [];
-    // Orbs sprinkled at varied heights — pulls the player up-and-down
-    // through the (now-roomier) obstacle field.
+    // Sprinkled across the 13000 track at varied heights — pulls the
+    // player up-and-down through the obstacle field.
     const specs = [
-      { x: 1700, y: FLOOR_Y - 150 },
-      { x: 3300, y: FLOOR_Y - 200 },
-      { x: 5000, y: FLOOR_Y - 240 },
-      { x: 6700, y: FLOOR_Y - 180 },
-      { x: 8400, y: FLOOR_Y - 220 },
-      { x: 9100, y: FLOOR_Y - 260 },
+      { x: 2000,  y: FLOOR_Y - 150 },
+      { x: 3000,  y: FLOOR_Y - 220 },
+      { x: 4800,  y: FLOOR_Y - 200 },
+      { x: 6000,  y: FLOOR_Y - 260 },
+      { x: 7400,  y: FLOOR_Y - 180 },
+      { x: 9000,  y: FLOOR_Y - 240 },
+      { x: 10200, y: FLOOR_Y - 200 },
+      { x: 11800, y: FLOOR_Y - 230 },
+      { x: 12600, y: FLOOR_Y - 180 },
     ];
     for (const { x, y } of specs) {
       const orb = new NutrientOrb(this, x, y);
